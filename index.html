@@ -241,75 +241,214 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .hero,.full,.panel{animation:fu .45s ease forwards;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bb);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--neon);}
 
-/* ═══════ PRINT — ATS (default) ═══════ */
+/* ══════════════════════════════════════════
+   PRINT — elementos sempre ocultos
+══════════════════════════════════════════ */
 @media print{
-  @page{size:A4 portrait;margin:13mm 17mm;}
-  #pb,#loading,#po,#lb,body::before,.copy-toast,.wa-btn,
-  .view-all-wrap,.tgitem,.proj-imgs,.po-imgs,
-  .avail,.pulse,.cur2,.hero::before,.hero-stats,
-  .pdf-group{display:none!important;}
-  body:not(.pm-dark) *,body:not(.pm-dark) *::before,body:not(.pm-dark) *::after{
+  @page{size:A4 portrait;margin:14mm 18mm;}
+
+  /* Sempre ocultos em qualquer modo PDF */
+  #pb,#loading,#po,#lb,
+  body::before,body::after,
+  .copy-toast,.wa-btn,.view-all-wrap,
+  .avail,.pulse,.cur2,.hero::before,
+  .pdf-group,.topbar,.bottombar,
+  .proj-imgs,.po-imgs,
+  *{animation:none!important;transition:none!important;}
+
+  /* ══════════════════════════════════════════
+     PDF DESIGN — fundo branco, emojis mantidos,
+     layout de cards com bordas leves.
+     Ativado por body.pm-design
+  ══════════════════════════════════════════ */
+  body.pm-design{background:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body.pm-design *{box-shadow:none!important;text-shadow:none!important;}
+  body.pm-design .w{max-width:100%!important;padding:0!important;}
+  body.pm-design .gap2{margin-top:8px!important;}
+
+  /* Backgrounds → branco */
+  body.pm-design .hero,body.pm-design .panel,body.pm-design .full,
+  body.pm-design .proj,body.pm-design .stag,body.pm-design .sbox,
+  body.pm-design .cstrip,body.pm-design .cert-item,body.pm-design .tgitem{background:white!important;}
+
+  /* Hero */
+  body.pm-design .hp,body.pm-design .hero-stats{display:none!important;}
+  body.pm-design .hero{border:none!important;border-bottom:1px solid #ddd!important;padding:0 0 10px!important;border-radius:0!important;}
+  body.pm-design .hero-layout{flex-direction:row!important;gap:0!important;}
+  body.pm-design .hero-name{font-size:22pt!important;letter-spacing:-1px!important;color:#111!important;font-family:'JetBrains Mono',monospace!important;}
+  body.pm-design .hero-name span{color:#222!important;}
+  body.pm-design .hero-full{font-size:9pt!important;color:#555!important;}
+  body.pm-design .hero-role{font-size:10pt!important;color:#333!important;margin-bottom:7px!important;}
+  body.pm-design .cstrip{border:none!important;border-bottom:1px solid #eee!important;border-radius:0!important;padding:4px 0 7px!important;}
+  body.pm-design .ci,body.pm-design .copy-btn{color:#444!important;font-size:8pt!important;padding-right:12px!important;}
+  body.pm-design .hero-tags{gap:3px!important;margin-bottom:0!important;}
+  body.pm-design .tag{border-color:#ccc!important;color:#555!important;font-size:7.5pt!important;padding:1px 5px!important;}
+
+  /* Layout */
+  body.pm-design .g2,body.pm-design .g3{grid-template-columns:1fr 1fr!important;gap:10px!important;}
+  body.pm-design .panel{border:1px solid #eee!important;padding:8px!important;page-break-inside:avoid;}
+  body.pm-design .full{border:none!important;border-bottom:1px solid #eee!important;padding:7px 0!important;}
+  body.pm-design .ph{border-bottom-color:#ddd!important;padding-bottom:3px!important;margin-bottom:8px!important;}
+  body.pm-design .pi{background:#f5f5f5!important;border:1px solid #ddd!important;color:#333!important;}
+  body.pm-design .pt{color:#333!important;font-size:7.5pt!important;font-weight:bold!important;}
+  body.pm-design .pb{display:none!important;}
+
+  /* Textos */
+  body.pm-design .sobre{font-size:8.5pt!important;line-height:1.55!important;color:#333!important;}
+  body.pm-design .sobre strong{color:#111!important;}
+  body.pm-design .sobre .metric{color:#333!important;font-weight:bold!important;}
+  body.pm-design .sg{margin-bottom:7px!important;}
+  body.pm-design .sg-label{color:#333!important;font-size:7.5pt!important;font-weight:bold!important;}
+  body.pm-design .sg-label::after{background:#ddd!important;}
+  body.pm-design .stag{border-color:#ddd!important;color:#333!important;font-size:8pt!important;padding:2px 6px!important;background:#f9f9f9!important;}
+
+  /* Timeline */
+  body.pm-design .td2{border-color:#666!important;box-shadow:none!important;}
+  body.pm-design .tc{background:#ddd!important;}
+  body.pm-design .tp{color:#666!important;font-size:7.5pt!important;font-weight:bold!important;}
+  body.pm-design .tt{color:#111!important;font-size:10pt!important;}
+  body.pm-design .ts{color:#555!important;font-size:8pt!important;}
+  body.pm-design .tdesc{color:#444!important;font-size:8pt!important;}
+  body.pm-design .thl{color:#333!important;font-size:7.5pt!important;font-weight:bold!important;}
+
+  /* Projetos */
+  body.pm-design .proj{border:1px solid #eee!important;page-break-inside:avoid;padding:8px!important;}
+  body.pm-design .proj::before{background:#bbb!important;width:2px!important;}
+  body.pm-design .proj-name{color:#111!important;font-size:9.5pt!important;}
+  body.pm-design .proj-stack{color:#666!important;font-size:8pt!important;}
+  body.pm-design .result{background:#f7f7f7!important;border:1px solid #ddd!important;color:#333!important;font-weight:bold!important;font-size:7.5pt!important;}
+  body.pm-design .proj-desc{color:#444!important;font-size:8pt!important;}
+  body.pm-design .pill{border:1px solid #ddd!important;color:#555!important;font-size:7pt!important;background:#f5f5f5!important;}
+
+  /* Certificações */
+  body.pm-design .cert-item{border:1px solid #eee!important;padding:5px 7px!important;}
+  body.pm-design .cert-badge{background:#f5f5f5!important;border:1px solid #eee!important;}
+  body.pm-design .cert-name{color:#111!important;font-size:8.5pt!important;}
+  body.pm-design .cert-issuer,body.pm-design .cert-year{color:#555!important;font-size:8pt!important;}
+  body.pm-design .slabel{color:#666!important;}
+  body.pm-design .sval{color:#333!important;}
+  body.pm-design a[href^="mailto"]:after{content:" <"attr(href)">";font-size:7pt;color:#777!important;}
+  body.pm-design a[href^="https"]:after{content:" ("attr(href)")";font-size:7pt;color:#777!important;}
+  body.pm-design a[href^="tel"]:after{content:"";}
+
+  /* ══════════════════════════════════════════
+     PDF ATS — formato profissional tradicional
+     Sem emojis, Arial, seções com linha,
+     bullets ●, texto corrido — como o CV em PDF.
+     Ativado por body.pm-ats
+  ══════════════════════════════════════════ */
+  body.pm-ats{background:white!important;font-family:Arial,Helvetica,sans-serif!important;}
+  body.pm-ats *,body.pm-ats *::before,body.pm-ats *::after{
     background:white!important;color:#111!important;box-shadow:none!important;
-    text-shadow:none!important;border-color:#d0d0d0!important;
-    animation:none!important;transition:none!important;
+    text-shadow:none!important;border:none!important;
     font-family:Arial,Helvetica,sans-serif!important;}
-  body:not(.pm-dark) a{text-decoration:none!important;}
-  body:not(.pm-dark) .w{max-width:100%!important;padding:0!important;}
-  body:not(.pm-dark) .gap2{margin-top:8px!important;}
-  body:not(.pm-dark) .hero{border:none!important;border-bottom:2px solid #111!important;padding:0 0 10px!important;border-radius:0!important;}
-  body:not(.pm-dark) .hero-layout{flex-direction:row!important;gap:0!important;}
-  body:not(.pm-dark) .hero-name{font-size:22pt!important;letter-spacing:-1px!important;color:#111!important;}
-  body:not(.pm-dark) .hero-name span{color:#111!important;}
-  body:not(.pm-dark) .hero-full{font-size:9pt!important;color:#555!important;}
-  body:not(.pm-dark) .hero-role{font-size:10pt!important;color:#333!important;margin-bottom:7px!important;}
-  body:not(.pm-dark) .hp{display:none!important;}
-  body:not(.pm-dark) .cstrip{background:white!important;border:none!important;border-bottom:1px solid #ccc!important;border-radius:0!important;padding:4px 0 7px!important;}
-  body:not(.pm-dark) .ci,.copy-btn{color:#444!important;font-size:8pt!important;padding-right:12px!important;}
-  body:not(.pm-dark) .hero-tags{gap:3px!important;margin-bottom:0!important;}
-  body:not(.pm-dark) .tag{border-color:#bbb!important;color:#555!important;font-size:7.5pt!important;padding:1px 5px!important;}
-  body:not(.pm-dark) .full{border:none!important;padding:7px 0!important;border-bottom:1px solid #eee!important;}
-  body:not(.pm-dark) .g2,.g3{grid-template-columns:1fr 1fr!important;gap:10px!important;}
-  body:not(.pm-dark) .panel{border:none!important;padding:7px 0!important;border-right:1px solid #e0e0e0!important;padding-right:10px!important;page-break-inside:avoid;}
-  body:not(.pm-dark) .panel:last-child{border-right:none!important;padding-right:0!important;padding-left:10px!important;}
-  body:not(.pm-dark) .ph{border-bottom-color:#bbb!important;padding-bottom:3px!important;margin-bottom:7px!important;}
-  body:not(.pm-dark) .pi{background:white!important;border:1px solid #bbb!important;color:#111!important;}
-  body:not(.pm-dark) .pt{color:#111!important;font-size:7.5pt!important;font-weight:bold!important;}
-  body:not(.pm-dark) .pb{display:none!important;}
-  body:not(.pm-dark) .sobre{font-size:8.5pt!important;line-height:1.5!important;}
-  body:not(.pm-dark) .sobre strong,.sobre .metric{color:#111!important;font-weight:bold!important;}
-  body:not(.pm-dark) .sg{margin-bottom:7px!important;}
-  body:not(.pm-dark) .sg-label{color:#111!important;font-size:7.5pt!important;font-weight:bold!important;}
-  body:not(.pm-dark) .sg-label::after{background:#ccc!important;}
-  body:not(.pm-dark) .stag{border-color:#ccc!important;color:#333!important;font-size:8pt!important;padding:2px 6px!important;}
-  body:not(.pm-dark) .td2{border-color:#555!important;box-shadow:none!important;}
-  body:not(.pm-dark) .tc{background:#ccc!important;}
-  body:not(.pm-dark) .tp{color:#555!important;font-size:7.5pt!important;font-weight:bold!important;}
-  body:not(.pm-dark) .tt{color:#111!important;font-size:10pt!important;}
-  body:not(.pm-dark) .ts{color:#555!important;font-size:8pt!important;}
-  body:not(.pm-dark) .tdesc{color:#444!important;font-size:8pt!important;}
-  body:not(.pm-dark) .thl{color:#111!important;font-size:7.5pt!important;font-weight:bold!important;}
-  body:not(.pm-dark) .proj{border-color:#ddd!important;page-break-inside:avoid;margin-bottom:6px!important;padding:7px 7px 7px 10px!important;}
-  body:not(.pm-dark) .proj::before{background:#555!important;width:2px!important;}
-  body:not(.pm-dark) .proj-name{color:#111!important;font-size:9.5pt!important;}
-  body:not(.pm-dark) .proj-stack{color:#555!important;font-size:8pt!important;}
-  body:not(.pm-dark) .result{background:white!important;border-color:#999!important;color:#111!important;font-weight:bold!important;font-size:7.5pt!important;}
-  body:not(.pm-dark) .proj-desc{color:#444!important;font-size:8pt!important;}
-  body:not(.pm-dark) .pill{border-color:#bbb!important;color:#555!important;font-size:7pt!important;}
-  body:not(.pm-dark) .cert-item{background:white!important;border-color:#ddd!important;padding:5px 7px!important;}
-  body:not(.pm-dark) .cert-badge{background:white!important;border-color:#ccc!important;}
-  body:not(.pm-dark) .cert-name{color:#111!important;font-size:8.5pt!important;}
-  body:not(.pm-dark) .cert-issuer,.cert-year,.cert-hint{color:#555!important;font-size:8pt!important;}
-  body:not(.pm-dark) a[href^="mailto"]:after{content:" <"attr(href)">";font-size:7pt;color:#777!important;}
-  body:not(.pm-dark) a[href^="https"]:after{content:" ("attr(href)")";font-size:7pt;color:#777!important;}
-  body:not(.pm-dark) a[href^="tel"]:after{content:"";}
-  /* Dark PDF */
-  body.pm-dark{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-  body.pm-dark::after{display:none!important;}
-  body.pm-dark .pdf-group,body.pm-dark .hp,body.pm-dark .hero-stats{display:none!important;}
-  body.pm-dark .w{max-width:100%!important;padding:8px!important;}
-  body.pm-dark .hero{padding:20px 24px!important;}
-  body.pm-dark .hero-layout{flex-wrap:nowrap!important;}
-  body.pm-dark .hero-name{font-size:28pt!important;}
+  body.pm-ats a{text-decoration:none!important;}
+  body.pm-ats .w{max-width:100%!important;padding:0!important;}
+  body.pm-ats .gap2{margin-top:6px!important;}
+
+  /* Oculta tudo visual/decorativo */
+  body.pm-ats .hp,body.pm-ats .hero-stats,body.pm-ats .hero-tags,
+  body.pm-ats .pi,body.pm-ats .pb,
+  body.pm-ats .cert-badge,body.pm-ats .cert-hint,
+  body.pm-ats .tgrid,body.pm-ats .tl,
+  body.pm-ats .result,body.pm-ats .proj-stack,
+  body.pm-ats .pills,body.pm-ats .proj-imgs,
+  body.pm-ats .copy-hint,body.pm-ats .sg-label::after{display:none!important;}
+
+  /* ── HERO (cabeçalho do CV) ── */
+  body.pm-ats .hero{border-bottom:1.5px solid #222!important;padding:0 0 8px!important;}
+  body.pm-ats .hero-layout{flex-direction:column!important;gap:2px!important;}
+  body.pm-ats .hero-name{
+    font-size:17pt!important;font-weight:700!important;
+    letter-spacing:0!important;color:#000!important;line-height:1.2!important;}
+  body.pm-ats .hero-name span{color:#000!important;}
+  body.pm-ats .hero-full{font-size:9pt!important;color:#444!important;margin-bottom:3px!important;}
+  body.pm-ats .hero-role{
+    font-size:9.5pt!important;font-weight:600!important;
+    color:#222!important;margin-bottom:4px!important;}
+  body.pm-ats .cstrip{padding:0!important;display:flex!important;flex-wrap:wrap!important;gap:0!important;}
+  body.pm-ats .ci,body.pm-ats .copy-btn{
+    font-size:8.5pt!important;color:#333!important;padding-right:14px!important;}
+
+  /* ── LAYOUT ── */
+  body.pm-ats .g2,body.pm-ats .g3{grid-template-columns:1fr!important;gap:0!important;}
+  body.pm-ats .panel,body.pm-ats .full{padding:5px 0 0!important;page-break-inside:avoid;}
+
+  /* ── CABEÇALHOS DE SEÇÃO (maiúsculas + linha) ── */
+  body.pm-ats .ph{
+    display:flex!important;align-items:center!important;
+    border-bottom:1px solid #222!important;
+    padding-bottom:2px!important;margin-bottom:6px!important;margin-top:8px!important;}
+  body.pm-ats .pt{
+    font-size:9pt!important;font-weight:700!important;
+    text-transform:uppercase!important;letter-spacing:0.5px!important;color:#000!important;}
+
+  /* ── SOBRE MIM / OBJETIVO ── */
+  body.pm-ats .sobre{font-size:9pt!important;line-height:1.55!important;color:#222!important;}
+  body.pm-ats .sobre strong{color:#000!important;font-weight:700!important;}
+  body.pm-ats .sobre .metric{color:#000!important;font-weight:700!important;}
+
+  /* ── SKILLS — texto corrido por categoria ── */
+  body.pm-ats .sg{display:block!important;margin-bottom:3px!important;}
+  body.pm-ats .sg-label{
+    display:inline!important;font-size:9pt!important;font-weight:700!important;
+    color:#000!important;text-transform:none!important;letter-spacing:0!important;}
+  body.pm-ats .sg-label::after{display:none!important;}
+  body.pm-ats .stags{display:inline!important;}
+  body.pm-ats .stag{
+    display:inline!important;font-size:9pt!important;color:#222!important;
+    padding:0!important;border:none!important;background:none!important;}
+  body.pm-ats .stag::after{content:', ';}
+  body.pm-ats .stag:last-child::after{content:'';}
+
+  /* ── TIMELINE (experiência e formação) ── */
+  body.pm-ats .timeline{display:block!important;}
+  body.pm-ats .ti{display:block!important;padding-bottom:8px!important;}
+  body.pm-ats .tp{
+    font-size:8.5pt!important;color:#555!important;font-weight:400!important;
+    display:block!important;margin-bottom:0!important;}
+  body.pm-ats .tt{
+    font-size:10pt!important;font-weight:700!important;color:#000!important;
+    display:block!important;margin-bottom:0!important;}
+  body.pm-ats .ts{
+    font-size:9pt!important;color:#333!important;font-style:italic!important;
+    display:block!important;margin-bottom:3px!important;}
+  body.pm-ats .tdesc{
+    font-size:9pt!important;color:#222!important;line-height:1.5!important;
+    display:block!important;}
+  /* Bullets ● nos destaques */
+  body.pm-ats .thl{
+    display:block!important;font-size:9pt!important;color:#222!important;
+    padding-left:14px!important;text-indent:-14px!important;}
+  body.pm-ats .thl span:first-child{display:none!important;}
+  body.pm-ats .thl span:last-child::before{content:'● ';font-size:7pt!important;}
+
+  /* ── PROJETOS ── */
+  body.pm-ats .proj{
+    padding:0 0 7px!important;
+    border-bottom:1px solid #ddd!important;
+    margin-bottom:2px!important;}
+  body.pm-ats .proj::before{display:none!important;}
+  body.pm-ats .proj-name{
+    font-size:9.5pt!important;font-weight:700!important;
+    color:#000!important;display:block!important;margin-bottom:2px!important;}
+  body.pm-ats .proj-desc{
+    font-size:9pt!important;color:#222!important;
+    line-height:1.5!important;display:block!important;}
+
+  /* ── CERTIFICAÇÕES ── */
+  body.pm-ats .cert-list{display:block!important;}
+  body.pm-ats .cert-item{
+    display:flex!important;padding:0 0 4px!important;
+    align-items:baseline!important;gap:8px!important;}
+  body.pm-ats .cert-name{font-size:9pt!important;font-weight:600!important;color:#111!important;flex:1!important;}
+  body.pm-ats .cert-issuer{font-size:8.5pt!important;color:#555!important;font-style:italic!important;}
+  body.pm-ats .cert-year{font-size:8.5pt!important;color:#555!important;margin-left:auto!important;}
+
+  /* URL para ATS */
+  body.pm-ats a[href^="mailto"]:after{content:" <"attr(href)">";font-size:8pt;color:#555!important;}
+  body.pm-ats a[href^="https"]:after{content:" ("attr(href)")";font-size:8pt;color:#555!important;}
+  body.pm-ats a[href^="tel"]:after{content:"";}
 }
 </style>
 </head>
@@ -622,8 +761,8 @@ function render() {
   document.getElementById('heroActions').innerHTML =
     (p.available ? '<div class="avail"><span class="pulse"></span>Disponível para oportunidades</div>' : '') +
     `<div class="pdf-group">
-      <button class="pdf-btn" onclick="printDark()">⬇ PDF Design</button>
-      <button class="pdf-btn" onclick="window.print()">⬇ PDF ATS</button>
+      <button class="pdf-btn" onclick="printDesign()" title="Fundo branco, emojis, layout visual">⬇ PDF Design</button>
+      <button class="pdf-btn" onclick="printATS()" title="Formato profissional tradicional, sem emojis">⬇ PDF ATS</button>
     </div>` + waH;
 
   document.getElementById('hstats').innerHTML = (D.heroStats || DEFAULTS.heroStats).map(s =>
@@ -707,7 +846,8 @@ function closeLB() { document.getElementById('lb').style.display = 'none'; docum
 document.addEventListener('keydown', e => { if(e.key==='Escape'){closeLB();closePO();} });
 
 /* ═══ PDF ═══ */
-function printDark() { document.body.classList.add('pm-dark'); window.print(); setTimeout(()=>document.body.classList.remove('pm-dark'),800); }
+function printDesign(){ document.body.classList.add('pm-design'); window.print(); setTimeout(()=>document.body.classList.remove('pm-design'),800); }
+function printATS()   { document.body.classList.add('pm-ats');    window.print(); setTimeout(()=>document.body.classList.remove('pm-ats'),800); }
 
 /* ═══ SCROLL ═══ */
 window.addEventListener('scroll', () => {
