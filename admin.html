@@ -193,6 +193,7 @@ const DEFAULTS = {
     {label:"Localização",val:"São Paulo, SP",       ico:"📍"}
   ],
   objective:"Com mais de <strong>3 anos de experiência</strong> na interseção entre CRM e desenvolvimento de software, atuo na FECAP como Analista de CRM e Desenvolvedor Web — construindo uma trajetória marcada por resultados mensuráveis. Lidero tecnicamente integrações com o <strong>Microsoft Dynamics 365</strong> e o desenvolvimento de soluções em <strong>Power Platform</strong>, incluindo um sistema de gestão de fila que reduziu o tempo de espera de 3 horas para 30 minutos (<span class='metric'>↓83%</span>). Em paralelo, consolido minha formação em <strong>Data Science</strong> pela FIAP e avanço na pós-graduação na FECAP com foco em analytics aplicado a finanças. Meu diferencial é combinar visão estratégica de CRM com a capacidade técnica de desenvolver e automatizar soluções <em>end-to-end</em>.",
+  objetivo:"Busco oportunidades em <strong>desenvolvimento de software</strong> e <strong>análise de dados</strong>, onde possa aplicar minha experiência em CRM, automação de processos e ciência de dados para gerar resultados concretos. Tenho interesse especial em posições que combinem visão estratégica e execução técnica, preferencialmente em empresas com cultura de inovação.",
   tags:["Dynamics 365","Power Platform","Python","PHP","SQL","Data Science","SendGrid","ETL","Machine Learning","Azure","Node.js"],
   skills:[
     {name:"Microsoft Dynamics 365",category:"advanced"},
@@ -472,16 +473,46 @@ function sHS(){cHS();saveAll();showMsg('msg-hs');}
 
 /* ═════ SOBRE MIM ═════ */
 function tObj(){return`
-  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Texto Narrativo — Sobre Mim</h3>
-  <div class="row"><label class="lbl">HTML básico: &lt;strong&gt;, &lt;span class='metric'&gt;, &lt;em&gt;</label>
-    <textarea class="inp" id="f-obj" style="min-height:160px;">${escRaw(D.objective)}</textarea></div>
-  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-top:8px;">
-    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:8px;">PREVIEW</div>
-    <p style="font-size:13px;line-height:1.85;color:var(--t);" id="obj-prev">${D.objective}</p>
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Textos Narrativos</h3>
+
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:20px;">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:6px;">DICA — HTML básico aceito: &lt;strong&gt;, &lt;span class='metric'&gt;, &lt;em&gt;</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);">Estes dois textos aparecem lado a lado no CV em duas colunas.</div>
   </div>
-  <script>document.getElementById('f-obj').addEventListener('input',function(){document.getElementById('obj-prev').innerHTML=this.value;})<\/script>
-  <div class="sbar"><span class="smsg" id="msg-obj"></span><button class="btn btn-g btn-big" onclick="sObj()">💾 Salvar</button></div>`;}
-function cObj(){if(document.getElementById('f-obj'))D.objective=document.getElementById('f-obj').value;}
+
+  <div class="g2f" style="gap:20px;align-items:start;">
+    <div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+        <span style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);border-radius:4px;padding:2px 8px;color:var(--neon);font-size:10px;">👤</span>
+        Sobre Mim
+      </div>
+      <div class="row"><textarea class="inp" id="f-obj" style="min-height:200px;">${escRaw(D.objective)}</textarea></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:4px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--td);margin-bottom:6px;">PREVIEW</div>
+        <p style="font-size:12px;line-height:1.8;color:var(--t);" id="obj-prev">${D.objective}</p>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+        <span style="background:rgba(0,207,255,.1);border:1px solid rgba(0,207,255,.2);border-radius:4px;padding:2px 8px;color:var(--neon2);font-size:10px;">🎯</span>
+        Objetivo
+      </div>
+      <div class="row"><textarea class="inp" id="f-objetivo" style="min-height:200px;">${escRaw(D.objetivo||'')}</textarea></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:4px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--td);margin-bottom:6px;">PREVIEW</div>
+        <p style="font-size:12px;line-height:1.8;color:var(--t);" id="objetivo-prev">${D.objetivo||''}</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('f-obj').addEventListener('input',function(){document.getElementById('obj-prev').innerHTML=this.value;});
+    document.getElementById('f-objetivo').addEventListener('input',function(){document.getElementById('objetivo-prev').innerHTML=this.value;});
+  <\/script>
+  <div class="sbar"><span class="smsg" id="msg-obj"></span><button class="btn btn-g btn-big" onclick="sObj()">💾 Salvar Textos</button></div>`;}
+function cObj(){
+  if(document.getElementById('f-obj'))     D.objective = document.getElementById('f-obj').value;
+  if(document.getElementById('f-objetivo')) D.objetivo  = document.getElementById('f-objetivo').value;
+}
 function sObj(){cObj();saveAll();showMsg('msg-obj');}
 
 /* ═════ SKILLS ═════ */

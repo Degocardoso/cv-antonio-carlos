@@ -367,9 +367,15 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
     </div>
   </div>
 
-  <div class="full gap2">
-    <div class="ph"><div class="pi pi-g">👤</div><div class="pt">Sobre Mim</div></div>
-    <p class="sobre" id="sobreEl"></p>
+  <div class="g2 gap2" id="sobre-row">
+    <div class="panel">
+      <div class="ph"><div class="pi pi-g">👤</div><div class="pt">Sobre Mim</div></div>
+      <p class="sobre" id="sobreEl"></p>
+    </div>
+    <div class="panel">
+      <div class="ph"><div class="pi pi-c">🎯</div><div class="pt">Objetivo</div></div>
+      <p class="sobre" id="objetivoEl"></p>
+    </div>
   </div>
 
   <div class="g2 gap2">
@@ -414,8 +420,8 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 
 <script>
 /* ═══ JSONBIN CREDENTIALS ═══ */
-const BIN_ID   = '69c6add4b7ec241ddcad6ee8';
-const READ_KEY = '$2a$10$GiP2dBC2HekdnLPBfxLPkufZlf771fy8v18tkMwxitZkH7WXUZUFC';
+const BIN_ID    = '69c6add4b7ec241ddcad6ee8';
+const MASTER_KEY = '$2a$10$tcEYDBxrk3owZK/9W5H6CuGO.zkggctfqpD0ArUMh5O4yXk63MNIS';
 
 /* ═══ DEFAULTS ═══ */
 const DEFAULTS = {
@@ -439,6 +445,7 @@ const DEFAULTS = {
     {label:"Localização",val:"São Paulo, SP",       ico:"📍"}
   ],
   objective:"Com mais de <strong>3 anos de experiência</strong> na interseção entre CRM e desenvolvimento de software, atuo na FECAP como Analista de CRM e Desenvolvedor Web — construindo uma trajetória marcada por resultados mensuráveis. Lidero tecnicamente integrações com o <strong>Microsoft Dynamics 365</strong> e o desenvolvimento de soluções em <strong>Power Platform</strong>, incluindo um sistema de gestão de fila que reduziu o tempo de espera de 3 horas para 30 minutos (<span class='metric'>↓83%</span>). Em paralelo, consolido minha formação em <strong>Data Science</strong> pela FIAP e avanço na pós-graduação na FECAP com foco em analytics aplicado a finanças. Meu diferencial é combinar visão estratégica de CRM com a capacidade técnica de desenvolver e automatizar soluções <em>end-to-end</em>.",
+  objetivo:"Busco oportunidades em <strong>desenvolvimento de software</strong> e <strong>análise de dados</strong>, onde possa aplicar minha experiência em CRM, automação de processos e ciência de dados para gerar resultados concretos. Tenho interesse especial em posições que combinem visão estratégica e execução técnica, preferencialmente em empresas com cultura de inovação.",
   tags:["Dynamics 365","Power Platform","Python","PHP","SQL","Data Science","SendGrid","ETL","Machine Learning","Azure","Node.js"],
   skills:[
     {name:"Microsoft Dynamics 365",category:"advanced"},
@@ -535,7 +542,7 @@ async function loadData() {
   let fetchOk = false;
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-      headers: { 'X-Access-Key': READ_KEY },
+      headers: { 'X-Master-Key': MASTER_KEY },
       cache: 'no-cache'
     });
     console.log('[CV] JSONBin status:', res.status);
@@ -624,6 +631,7 @@ function render() {
   ).join('');
 
   document.getElementById('sobreEl').innerHTML = D.objective || '';
+  document.getElementById('objetivoEl').innerHTML = D.objetivo || '';
 
   // Skills (4 cats)
   const catCls = {advanced:'adv', intermediate:'int', basic:'bsc', language:'lng'};
