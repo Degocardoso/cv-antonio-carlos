@@ -337,7 +337,15 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
      bullets ●, texto corrido — como o CV em PDF.
      Ativado por body.pm-ats
   ══════════════════════════════════════════ */
-  body.pm-ats{background:white!important;font-family:Arial,Helvetica,sans-serif!important;}
+  /* Sobrescreve as CSS custom properties — resolve todos var(--t) etc. como cor escura */
+  body.pm-ats{
+    background:white!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+    --bg:#fff;--bg2:#fff;--bg3:#fff;--panel:#fff;
+    --border:#ccc;--bb:#bbb;
+    --t:#111;--td:#444;--tb:#000;
+    --neon:#111;--neon2:#333;--neon3:#333;--neon4:#333;--neon5:#333;
+  }
   body.pm-ats *,body.pm-ats *::before,body.pm-ats *::after{
     background:white!important;color:#111!important;box-shadow:none!important;
     text-shadow:none!important;border:none!important;
@@ -559,8 +567,11 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 
 <script>
 /* ═══ JSONBIN CREDENTIALS ═══ */
-const BIN_ID    = '69c6add4b7ec241ddcad6ee8';
-const MASTER_KEY = '$2a$10$tcEYDBxrk3owZK/9W5H6CuGO.zkggctfqpD0ArUMh5O4yXk63MNIS';
+/* ═══ ENDPOINT — sem credenciais no HTML ═══
+   Leitura via Netlify Function (/.netlify/functions/cv-read)
+   As chaves ficam em variáveis de ambiente no servidor Netlify.
+═══════════════════════════════════════════════════════ */
+const CV_READ_URL = '/.netlify/functions/cv-read';
 
 /* ═══ DEFAULTS ═══ */
 const DEFAULTS = {
@@ -680,33 +691,19 @@ function applyTheme() {
 async function loadData() {
   let fetchOk = false;
   try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-      headers: { 'X-Master-Key': MASTER_KEY },
-      cache: 'no-cache'
-    });
-    console.log('[CV] JSONBin status:', res.status);
+    const res = await fetch(CV_READ_URL, { cache: 'no-cache' });
     if (res.ok) {
-      const json = await res.json();
-      const record = json.record || {};
-      console.log('[CV] JSONBin record keys:', Object.keys(record));
-      console.log('[CV] profile.nickname from cloud:', record?.profile?.nickname);
-      if (Object.keys(record).length > 0) {
+      const record = await res.json();
+      if (record && Object.keys(record).length > 0) {
         D = mergeFromCloud(record);
         fetchOk = true;
-        console.log('[CV] Dados do JSONBin aplicados. nickname final:', D.profile.nickname);
       }
-    } else {
-      console.warn('[CV] JSONBin retornou erro:', res.status);
     }
   } catch(e) {
-    console.warn('[CV] Fetch falhou (rede/CORS):', e.message);
+    // silently fall back to DEFAULTS
   }
 
-  if (!fetchOk) {
-    console.warn('[CV] Usando DEFAULTS como fallback.');
-  }
-
-  // Images from localStorage (base64 too large for JSONBin)
+  // Images from localStorage (base64 too large for cloud)
   for (let i = 0; i < D.projects.length; i++) {
     try {
       const r = localStorage.getItem('dego_cv_imgs_' + i);

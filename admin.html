@@ -166,10 +166,12 @@ select.inp{cursor:pointer;}
 </div>
 
 <script>
-/* ═══ JSONBIN CONSTANTS ═══ */
-const BIN_ID     = '69c6add4b7ec241ddcad6ee8';
-const MASTER_KEY = '$2a$10$tcEYDBxrk3owZK/9W5H6CuGO.zkggctfqpD0ArUMh5O4yXk63MNIS';
-const PWD_KEY    = 'cv_admin_password';   // localStorage key for password
+/* ═══ ENDPOINTS — sem credenciais no arquivo ═══
+   Toda comunicação passa pelas Netlify Functions.
+   As chaves ficam em variáveis de ambiente no servidor.
+═══════════════════════════════════════════════════════ */
+const CV_READ_URL  = '/.netlify/functions/cv-read';
+const CV_WRITE_URL = '/.netlify/functions/cv-write';
 
 /* ═══ DEFAULTS ═══ */
 const DEFAULTS = {
@@ -248,142 +250,98 @@ const DEFAULTS = {
 /* ═══ STATE ═══ */
 let D = JSON.parse(JSON.stringify(DEFAULTS));
 let IMGS = {};
-let cloudLoaded = false;
+let SESSION_PWD = ''; // senha apenas em memória — nunca em arquivo ou localStorage
 
-/* ═══ PASSWORD — stored in localStorage, NOT JSONBin ═══
-   This removes the async race condition on login completely.
-   Password changes are saved to localStorage on this device.
-═══════════════════════════════════════════════════════ */
-function getPwd()   { return localStorage.getItem(PWD_KEY) || 'dego2026'; }
-function setPwd(p)  { localStorage.setItem(PWD_KEY, p); }
-
-/* ═══ MERGE — JSONBin é a fonte da verdade ═══
-   Regra: valor do JSONBin sempre ganha.
-   DEFAULTS só preenchem chaves que NÃO existem no JSONBin.
-   - Primitivos/arrays: JSONBin vence diretamente.
-   - Objetos (ex: profile, theme): shallow-merge para preservar
-     campos novos que DEFAULTS tem e JSONBin ainda não conhece.
-═══════════════════════════════════════════════════════ */
+/* ═══ MERGE ═══ */
 function mergeFromCloud(record) {
-  // JSONBin é fonte primária — começa com cópia do JSONBin
   const result = JSON.parse(JSON.stringify(record));
-
-  // Só preenche com DEFAULTS chaves completamente ausentes
   for (const k of Object.keys(DEFAULTS)) {
     if (result[k] === null || result[k] === undefined) {
       result[k] = JSON.parse(JSON.stringify(DEFAULTS[k]));
-    } else if (
-      typeof DEFAULTS[k] === 'object' && !Array.isArray(DEFAULTS[k]) &&
-      typeof result[k]   === 'object' && !Array.isArray(result[k])
-    ) {
+    } else if (typeof DEFAULTS[k] === 'object' && !Array.isArray(DEFAULTS[k]) && typeof result[k] === 'object' && !Array.isArray(result[k])) {
       for (const sk of Object.keys(DEFAULTS[k])) {
-        if (result[k][sk] === null || result[k][sk] === undefined) {
-          result[k][sk] = JSON.parse(JSON.stringify(DEFAULTS[k][sk]));
-        }
+        if (result[k][sk] === null || result[k][sk] === undefined) result[k][sk] = JSON.parse(JSON.stringify(DEFAULTS[k][sk]));
       }
     }
   }
   return result;
 }
 
-/* ═══ LOAD FROM JSONBIN ═══ */
+/* ═══ LOAD ═══ */
 async function loadCloud() {
   setBadge('loading', '☁ Carregando...');
   try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-      headers: { 'X-Master-Key': MASTER_KEY },
-      cache: 'no-cache'
-    });
+    const res = await fetch(CV_READ_URL, { cache: 'no-cache' });
     if (res.ok) {
-      const json = await res.json();
-      const record = json.record || {};
-      if (Object.keys(record).length > 0) {
-        D = mergeFromCloud(record);
-      }
-      setBadge('ok', '☁ JSONBin conectado');
-      cloudLoaded = true;
+      const record = await res.json();
+      if (record && Object.keys(record).length > 0) D = mergeFromCloud(record);
+      setBadge('ok', '☁ Conectado');
     } else {
-      D = JSON.parse(JSON.stringify(DEFAULTS));
       setBadge('err', '☁ Erro ' + res.status);
     }
-  } catch(e) {
-    D = JSON.parse(JSON.stringify(DEFAULTS));
-    setBadge('err', '☁ Sem conexão');
-  }
-
-  // Images (local only)
+  } catch(e) { setBadge('err', '☁ Sem conexão'); }
   for (let i = 0; i < (D.projects||[]).length; i++) {
     try { const r = localStorage.getItem('dego_cv_imgs_' + i); IMGS[i] = r ? JSON.parse(r) : []; }
     catch(e) { IMGS[i] = []; }
   }
 }
 
-/* ═══ SAVE TO JSONBIN ═══ */
+/* ═══ SAVE ═══ */
 async function saveAll() {
   collectCurrent();
   setBadge('loading', '☁ Salvando...');
   try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+    const res = await fetch(CV_WRITE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': SESSION_PWD },
       body: JSON.stringify(D)
     });
-    if (res.ok) {
-      flash('☁ Salvo na nuvem! Visível em qualquer dispositivo.');
-      setBadge('ok', '☁ Salvo');
-    } else {
-      flash('⚠ Erro JSONBin ' + res.status, true);
-      setBadge('err', '☁ Erro ao salvar');
-    }
-  } catch(e) {
-    flash('⚠ Sem conexão com JSONBin.', true);
-    setBadge('err', '☁ Sem conexão');
-  }
-  // Save images locally
+    if (res.ok) { flash('☁ Salvo na nuvem!'); setBadge('ok', '☁ Salvo'); }
+    else if (res.status === 401) { flash('❌ Sessão expirada. Faça login novamente.', true); setBadge('err', '☁ Não autorizado'); logout(); }
+    else { flash('⚠ Erro ao salvar: ' + res.status, true); setBadge('err', '☁ Erro'); }
+  } catch(e) { flash('⚠ Sem conexão.', true); setBadge('err', '☁ Sem conexão'); }
   for (let i = 0; i < D.projects.length; i++)
     localStorage.setItem('dego_cv_imgs_' + i, JSON.stringify(IMGS[i] || []));
 }
 
-function setBadge(cls, txt) {
-  const el = document.getElementById('cloudBadge');
-  if (!el) return;
-  el.className = 'cloud-badge ' + cls;
-  el.textContent = txt;
-}
-function flash(msg, err) {
-  const el = document.getElementById('gToast');
-  el.textContent = msg;
-  el.className = 'toast show' + (err ? ' err' : '');
-  setTimeout(() => el.classList.remove('show'), 4500);
-}
+function setBadge(cls, txt) { const el=document.getElementById('cloudBadge'); if(!el)return; el.className='cloud-badge '+cls; el.textContent=txt; }
+function flash(msg, err) { const el=document.getElementById('gToast'); el.textContent=msg; el.className='toast show'+(err?' err':''); setTimeout(()=>el.classList.remove('show'),4500); }
 
-/* ═══ AUTH — synchronous, no async dependency ═══ */
-function doLogin() {
+/* ═══ AUTH ═══ */
+async function doLogin() {
   const val = document.getElementById('pi').value;
   if (!val) return;
-
-  if (val === getPwd()) {
-    document.getElementById('lw').style.display = 'none';
-    document.getElementById('aw').classList.add('open');
-    buildUI();
-  } else {
-    const e = document.getElementById('le');
-    e.textContent = '❌ Senha incorreta.';
-    document.getElementById('pi').value = '';
-    document.getElementById('pi').focus();
-    setTimeout(() => e.textContent = '', 2500);
+  const btn = document.getElementById('loginBtn');
+  const errEl = document.getElementById('le');
+  btn.disabled = true; btn.textContent = 'Verificando...';
+  try {
+    const res = await fetch(CV_WRITE_URL, { method:'GET', headers:{'X-Admin-Password': val} });
+    if (res.ok) {
+      SESSION_PWD = val;
+      document.getElementById('lw').style.display = 'none';
+      document.getElementById('aw').classList.add('open');
+      buildUI();
+    } else {
+      errEl.textContent = '❌ Senha incorreta.';
+      document.getElementById('pi').value = '';
+      document.getElementById('pi').focus();
+      setTimeout(() => errEl.textContent = '', 2500);
+    }
+  } catch(e) {
+    errEl.textContent = '⚠ Erro de conexão.';
+    setTimeout(() => errEl.textContent = '', 3000);
   }
+  btn.disabled = false; btn.textContent = 'Entrar';
 }
 
 function logout() {
+  SESSION_PWD = '';
   document.getElementById('aw').classList.remove('open');
   document.getElementById('lw').style.display = '';
   document.getElementById('pi').value = '';
-  // Show loading again if cloud not loaded
   showLoginForm();
 }
 
-/* Show login form (after cloud load) */
 function showLoginForm() {
   document.getElementById('loginLoading').style.display = 'none';
   document.getElementById('pi').style.display = '';
@@ -434,7 +392,7 @@ function cDots(sel,cb){return`<div class="cdots">${['g','c','o','p'].map(c=>`<di
 function tProfile(){const p=D.profile;return`
   <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;">Informações Pessoais</h3>
   <div class="g2f">
-    <div class="row"><label class="lbl">Nome / Apelido (exibido grande)</label><input class="inp" id="f-nick" value="${esc(p.nickname)}"></div>
+    <div class="row"><label class="lbl">Nome / Apelido</label><input class="inp" id="f-nick" value="${esc(p.nickname)}"></div>
     <div class="row"><label class="lbl">Nome Completo</label><input class="inp" id="f-full" value="${esc(p.fullname)}"></div>
     <div class="row"><label class="lbl">Cargo / Título</label><input class="inp" id="f-role" value="${esc(p.role)}"></div>
     <div class="row"><label class="lbl">Localização</label><input class="inp" id="f-loc" value="${esc(p.location)}"></div>
@@ -471,21 +429,16 @@ function addHS(){cHSi();(D.heroStats=D.heroStats||[]).push({ico:'⭐',label:'Nov
 function rmHS(i){cHSi();D.heroStats.splice(i,1);document.getElementById('hs-list').innerHTML=rHS();}
 function sHS(){cHS();saveAll();showMsg('msg-hs');}
 
-/* ═════ SOBRE MIM ═════ */
+/* ═════ SOBRE MIM + OBJETIVO ═════ */
 function tObj(){return`
   <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Textos Narrativos</h3>
-
-  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:20px;">
-    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:6px;">DICA — HTML básico aceito: &lt;strong&gt;, &lt;span class='metric'&gt;, &lt;em&gt;</div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--td);">Estes dois textos aparecem lado a lado no CV em duas colunas.</div>
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:18px;font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.7;">
+    HTML básico aceito: &lt;strong&gt;, &lt;span class='metric'&gt;, &lt;em&gt;<br>
+    Estes dois textos aparecem lado a lado no CV em duas colunas.
   </div>
-
   <div class="g2f" style="gap:20px;align-items:start;">
     <div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);border-radius:4px;padding:2px 8px;color:var(--neon);font-size:10px;">👤</span>
-        Sobre Mim
-      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:8px;">👤 Sobre Mim</div>
       <div class="row"><textarea class="inp" id="f-obj" style="min-height:200px;">${escRaw(D.objective)}</textarea></div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:4px;">
         <div style="font-family:var(--mono);font-size:9px;color:var(--td);margin-bottom:6px;">PREVIEW</div>
@@ -493,10 +446,7 @@ function tObj(){return`
       </div>
     </div>
     <div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span style="background:rgba(0,207,255,.1);border:1px solid rgba(0,207,255,.2);border-radius:4px;padding:2px 8px;color:var(--neon2);font-size:10px;">🎯</span>
-        Objetivo
-      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:8px;">🎯 Objetivo</div>
       <div class="row"><textarea class="inp" id="f-objetivo" style="min-height:200px;">${escRaw(D.objetivo||'')}</textarea></div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:4px;">
         <div style="font-family:var(--mono);font-size:9px;color:var(--td);margin-bottom:6px;">PREVIEW</div>
@@ -509,10 +459,7 @@ function tObj(){return`
     document.getElementById('f-objetivo').addEventListener('input',function(){document.getElementById('objetivo-prev').innerHTML=this.value;});
   <\/script>
   <div class="sbar"><span class="smsg" id="msg-obj"></span><button class="btn btn-g btn-big" onclick="sObj()">💾 Salvar Textos</button></div>`;}
-function cObj(){
-  if(document.getElementById('f-obj'))     D.objective = document.getElementById('f-obj').value;
-  if(document.getElementById('f-objetivo')) D.objetivo  = document.getElementById('f-objetivo').value;
-}
+function cObj(){if(document.getElementById('f-obj'))D.objective=document.getElementById('f-obj').value;if(document.getElementById('f-objetivo'))D.objetivo=document.getElementById('f-objetivo').value;}
 function sObj(){cObj();saveAll();showMsg('msg-obj');}
 
 /* ═════ SKILLS ═════ */
@@ -588,7 +535,7 @@ function rProjs(){return(D.projects||[]).map((pr,i)=>`
     <div class="card-h"><span class="card-n">#${i+1}</span><span class="card-t">${esc(pr.name||'Projeto')}</span></div>
     <label class="feat-toggle ${pr.featured?'on':''}" id="ft-${i}" onclick="togFeat(${i})">
       <input type="checkbox" id="pr-f-${i}" ${pr.featured?'checked':''} onclick="event.stopPropagation()">
-      <span>✦ Destacar na Home (aparece nos 3 principais)</span>
+      <span>✦ Destacar na Home</span>
     </label>
     <div class="g2f" style="margin-top:12px;">
       <div class="row"><label class="lbl">Nome</label><input class="inp" id="pr-n-${i}" value="${esc(pr.name)}"></div>
@@ -694,12 +641,10 @@ function sTech(){cTech();saveAll();showMsg('msg-tech');}
 /* ═════ TEMA ═════ */
 function tTheme(){
   const th=D.theme||{};
-  const tc=th.textColor||'#c9d1d9';
-  const td=th.textDim||'#6e7f95';
-  const tb=th.textBright||'#e6edf3';
+  const tc=th.textColor||'#c9d1d9',td=th.textDim||'#6e7f95',tb=th.textBright||'#e6edf3';
   return`
   <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Customização de Cor de Texto</h3>
-  <div class="hint" style="margin-bottom:20px;">Apenas cores de texto são ajustáveis. Layout, fundo e neon permanecem os mesmos.<br>Dica: clareie as cores para melhorar a leitura em telas mais claras.</div>
+  <div class="hint" style="margin-bottom:20px;">Apenas cores de texto são ajustáveis. Layout, fundo e neon permanecem os mesmos.</div>
   ${[['th-tc','th-th','th-prev','--t (texto principal)','#c9d1d9',tc],
      ['th-dc','th-dh','th-dprev','--td (texto suave)','#6e7f95',td],
      ['th-bc','th-bh','th-bprev','--tb (títulos)','#e6edf3',tb]].map(([cid,hid,pid,lbl,def,val])=>`
@@ -720,9 +665,9 @@ function tTheme(){
 function syncH(cid,hid,pid){const c=document.getElementById(cid)?.value;const h=document.getElementById(hid);const p=document.getElementById(pid);if(h)h.value=c;if(p&&c)p.style.background=c;}
 function syncC(hid,cid,pid){const h=document.getElementById(hid)?.value;if(!/^#[0-9a-fA-F]{6}$/.test(h))return;const c=document.getElementById(cid);const p=document.getElementById(pid);if(c)c.value=h;if(p)p.style.background=h;}
 function getThemeVals(){return{tc:v('th-th').trim()||v('th-tc').trim(),td:v('th-dh').trim()||v('th-dc').trim(),tb:v('th-bh').trim()||v('th-bc').trim()};}
-function prevTheme(){const {tc,td,tb}=getThemeVals();const r=document.documentElement;if(/^#[0-9a-fA-F]{6}$/.test(tc))r.style.setProperty('--t',tc);if(/^#[0-9a-fA-F]{6}$/.test(td))r.style.setProperty('--td',td);if(/^#[0-9a-fA-F]{6}$/.test(tb))r.style.setProperty('--tb',tb);showMsg('msg-th','✓ Preview aplicado!');}
+function prevTheme(){const{tc,td,tb}=getThemeVals();const r=document.documentElement;if(/^#[0-9a-fA-F]{6}$/.test(tc))r.style.setProperty('--t',tc);if(/^#[0-9a-fA-F]{6}$/.test(td))r.style.setProperty('--td',td);if(/^#[0-9a-fA-F]{6}$/.test(tb))r.style.setProperty('--tb',tb);showMsg('msg-th','✓ Preview aplicado!');}
 function rstTheme(){const r=document.documentElement;r.style.setProperty('--t','#c9d1d9');r.style.setProperty('--td','#6e7f95');r.style.setProperty('--tb','#e6edf3');D.theme={textColor:'',textDim:'',textBright:''};renderTab('theme');showMsg('msg-th','✓ Resetado.');}
-function cTheme(){const {tc,td,tb}=getThemeVals();if(!D.theme)D.theme={};D.theme.textColor=/^#[0-9a-fA-F]{6}$/.test(tc)?tc:'';D.theme.textDim=/^#[0-9a-fA-F]{6}$/.test(td)?td:'';D.theme.textBright=/^#[0-9a-fA-F]{6}$/.test(tb)?tb:'';}
+function cTheme(){const{tc,td,tb}=getThemeVals();if(!D.theme)D.theme={};D.theme.textColor=/^#[0-9a-fA-F]{6}$/.test(tc)?tc:'';D.theme.textDim=/^#[0-9a-fA-F]{6}$/.test(td)?td:'';D.theme.textBright=/^#[0-9a-fA-F]{6}$/.test(tb)?tb:'';}
 function sTheme(){cTheme();prevTheme();saveAll();showMsg('msg-th');}
 
 /* ═════ CONFIGURAÇÕES ═════ */
@@ -730,59 +675,43 @@ function tSettings(){return`
   <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;">Configurações</h3>
 
   <div style="background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);border-radius:var(--r);padding:16px;margin-bottom:24px;">
-    <div style="font-family:var(--mono);font-size:11px;color:var(--neon);margin-bottom:8px;">🔒 Sobre a Senha</div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.8;">A senha fica no <code style="color:var(--neon2);">localStorage</code> deste dispositivo.<br>Se acessar de outro dispositivo, use a senha padrão: <code style="color:var(--neon);">dego2026</code></div>
-  </div>
-
-  <div style="max-width:400px;">
-    <div class="row"><label class="lbl">Senha Atual</label><input type="password" class="inp" id="s-old" placeholder="Senha atual"></div>
-    <div class="row"><label class="lbl">Nova Senha</label><input type="password" class="inp" id="s-new" placeholder="Mínimo 4 caracteres"></div>
-    <div class="row"><label class="lbl">Confirmar</label><input type="password" class="inp" id="s-conf"></div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <button class="btn btn-c" onclick="chgPwd()">🔑 Alterar Senha</button>
-      <span class="smsg" id="msg-pwd"></span>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon);margin-bottom:8px;">🔒 Segurança</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;">
+      A senha é validada pelo servidor (Netlify Function).<br>
+      Nenhuma credencial existe nos arquivos HTML ou JS do cliente.<br>
+      Para alterar a senha, atualize a variável <code style="color:var(--neon2);">CV_ADMIN_PASSWORD</code> no Netlify.
     </div>
   </div>
 
-  <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--border);">
-    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">🔄 Forçar atualização dos dados padrão</div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:12px;line-height:1.7;">Sobrescreve o JSONBin com os DEFAULTS atuais do código.<br>Use quando o CV estiver mostrando dados antigos após atualização de código.</div>
-    <button class="btn btn-c" onclick="pushDefaults()">⬆ Publicar DEFAULTS no JSONBin</button>
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">🔄 Forçar publicação dos DEFAULTS</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:12px;line-height:1.7;">Sobrescreve o JSONBin com os dados padrão do código. Use quando o CV estiver mostrando dados desatualizados.</div>
+    <button class="btn btn-c" onclick="pushDefaults()">⬆ Publicar DEFAULTS</button>
     <span class="smsg" id="msg-push" style="margin-left:12px;"></span>
   </div>
 
   <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--border);">
     <div style="font-family:var(--mono);font-size:11px;color:#ff6b6b;font-weight:600;margin-bottom:8px;">⚠ Zona de Perigo</div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:12px;">Apaga todos os dados do JSONBin e restaura os valores padrão.</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:12px;">Apaga todos os dados e restaura os valores padrão.</div>
     <button class="btn btn-r" onclick="resetAll()">⚠ Resetar para padrão</button>
   </div>
 
   <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--border);">
     <div style="font-family:var(--mono);font-size:10px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">Status</div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--td);line-height:1.9;">
-      Bin ID: <code style="color:var(--neon);">${BIN_ID}</code><br>
-      Cloud: <code style="color:var(--neon2);">JSONBin (sincronização automática)</code><br>
+      Leitura: <code style="color:var(--neon2);">/.netlify/functions/cv-read</code><br>
+      Escrita: <code style="color:var(--neon2);">/.netlify/functions/cv-write</code><br>
       Imagens: <code style="color:var(--td);">localStorage deste dispositivo</code>
     </div>
   </div>`;}
 
-function chgPwd(){
-  const old=v('s-old'),nw=v('s-new'),cf=v('s-conf');
-  if(old!==getPwd()){showMsg('msg-pwd','❌ Senha atual errada');return;}
-  if(nw.length<4){showMsg('msg-pwd','❌ Mínimo 4 caracteres');return;}
-  if(nw!==cf){showMsg('msg-pwd','❌ Senhas não coincidem');return;}
-  setPwd(nw);
-  showMsg('msg-pwd','✓ Senha alterada neste dispositivo!');
-}
-
 async function pushDefaults(){
   const el=document.getElementById('msg-push');
-  if(el)el.textContent='⏳ Publicando...';
-  if(el)el.classList.add('show');
+  if(el){el.textContent='⏳ Publicando...';el.classList.add('show');}
   try{
-    const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY},
+    const res=await fetch(CV_WRITE_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Admin-Password':SESSION_PWD},
       body:JSON.stringify(DEFAULTS)
     });
     if(res.ok){D=JSON.parse(JSON.stringify(DEFAULTS));if(el)el.textContent='✓ DEFAULTS publicados!';buildUI();}
@@ -797,11 +726,7 @@ async function resetAll(){
 }
 
 /* ═══ INIT ═══ */
-// 1. Load cloud data (async)
-loadCloud().then(() => {
-  // 2. After cloud loads, show the login form
-  showLoginForm();
-});
+loadCloud().then(() => showLoginForm());
 </script>
 </body>
 </html>
