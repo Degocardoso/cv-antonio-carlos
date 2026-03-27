@@ -494,34 +494,31 @@ const DEFAULTS = {
 let D = JSON.parse(JSON.stringify(DEFAULTS));
 let IMGS = {};
 
-/* ═══ DEEP MERGE ═══ */
-function deepMerge(base, over) {
-  if (!over || typeof over !== 'object') return base;
-  const r = Array.isArray(base) ? [...base] : {...base};
-  for (const k of Object.keys(over)) {
-    if (over[k] && typeof over[k] === 'object' && !Array.isArray(over[k]))
-      r[k] = deepMerge(base[k] || {}, over[k]);
-    else r[k] = over[k];
-  }
-  return r;
-}
+/* ═══ MERGE — JSONBin é a ÚNICA fonte da verdade ═══
+   JSONBin sempre ganha, sem exceção.
+   DEFAULTS só preenchem chaves COMPLETAMENTE ausentes.
+═══════════════════════════════════════════════════════ */
+function mergeFromCloud(record) {
+  // Parte do JSONBin como fonte primária (deep copy)
+  const result = JSON.parse(JSON.stringify(record));
 
-/* ═══ MIGRATION: corrige dados stale do JSONBin ═══ */
-function migrate(data) {
-  // Se o bin ainda tem o apelido antigo, atualiza para o novo padrão
-  if (data.profile && data.profile.nickname === 'Dêgo') {
-    data.profile.nickname = DEFAULTS.profile.nickname;
-    data.profile.fullname = DEFAULTS.profile.fullname;
+  // Preenche só o que está 100% ausente no JSONBin
+  for (const k of Object.keys(DEFAULTS)) {
+    if (result[k] === null || result[k] === undefined) {
+      result[k] = JSON.parse(JSON.stringify(DEFAULTS[k]));
+    } else if (
+      typeof DEFAULTS[k] === 'object' && !Array.isArray(DEFAULTS[k]) &&
+      typeof result[k]   === 'object' && !Array.isArray(result[k])
+    ) {
+      // Objeto aninhado: preenche só subcampos ausentes
+      for (const sk of Object.keys(DEFAULTS[k])) {
+        if (result[k][sk] === null || result[k][sk] === undefined) {
+          result[k][sk] = JSON.parse(JSON.stringify(DEFAULTS[k][sk]));
+        }
+      }
+    }
   }
-  // Garante que certifications têm o campo certUrl
-  if (Array.isArray(data.certifications)) {
-    data.certifications = data.certifications.map(c => ({certUrl:'', ...c}));
-  }
-  // Garante que projects têm o campo featured
-  if (Array.isArray(data.projects)) {
-    data.projects = data.projects.map((p, i) => ({featured: i < 3, ...p}));
-  }
-  return data;
+  return result;
 }
 
 /* ═══ THEME ═══ */
@@ -535,19 +532,32 @@ function applyTheme() {
 
 /* ═══ LOAD DATA ═══ */
 async function loadData() {
+  let fetchOk = false;
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
       headers: { 'X-Access-Key': READ_KEY },
       cache: 'no-cache'
     });
+    console.log('[CV] JSONBin status:', res.status);
     if (res.ok) {
       const json = await res.json();
-      const raw = json.record || {};
-      const migrated = migrate(JSON.parse(JSON.stringify(raw)));
-      D = deepMerge(DEFAULTS, migrated);
+      const record = json.record || {};
+      console.log('[CV] JSONBin record keys:', Object.keys(record));
+      console.log('[CV] profile.nickname from cloud:', record?.profile?.nickname);
+      if (Object.keys(record).length > 0) {
+        D = mergeFromCloud(record);
+        fetchOk = true;
+        console.log('[CV] Dados do JSONBin aplicados. nickname final:', D.profile.nickname);
+      }
+    } else {
+      console.warn('[CV] JSONBin retornou erro:', res.status);
     }
   } catch(e) {
-    // Silent fallback to DEFAULTS
+    console.warn('[CV] Fetch falhou (rede/CORS):', e.message);
+  }
+
+  if (!fetchOk) {
+    console.warn('[CV] Usando DEFAULTS como fallback.');
   }
 
   // Images from localStorage (base64 too large for JSONBin)
