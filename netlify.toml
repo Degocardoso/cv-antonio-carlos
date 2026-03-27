@@ -2,8 +2,15 @@
   publish = "."
   functions = "netlify/functions"
 
-# Garante que as funções respondem com CORS correto
+[functions]
+  node_bundler = "esbuild"
+
+[context.production.environment]
+  NODE_VERSION = "18"
+
 [[headers]]
   for = "/.netlify/functions/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, X-Admin-Password"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
