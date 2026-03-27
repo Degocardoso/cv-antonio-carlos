@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antônio Carlos Ferreira — CRM &amp; Data Science</title>
+<meta name="description" content="Analista de CRM e Desenvolvedor Web com 3+ anos na FECAP. Especialista em Dynamics 365, Power Platform e Data Science. São Paulo, SP.">
+<meta property="og:title" content="Antônio Carlos Ferreira — CRM & Data Science">
+<meta property="og:description" content="Analista de CRM · Desenvolvedor Web · Data Science · Dynamics 365 · Power Platform · São Paulo, SP">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta name="theme-color" content="#080c10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c10;--bg2:#0d1117;--bg3:#111820;--panel:#0e1520;
+  --border:#1a2535;--bb:#1e3a5f;
+  --neon:#00ff88;--neon2:#00cfff;--neon3:#ff6b35;--neon4:#a855f7;--neon5:#7ec8a0;
+  --t:#c9d1d9;--td:#6e7f95;--tb:#e6edf3;
+  --mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;--r:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);pointer-events:none;z-index:998;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.022) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* SCROLL PROGRESS */
+#pb{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--neon),var(--neon2));z-index:10000;box-shadow:0 0 8px rgba(0,255,136,.6);transition:width .08s linear;}
+
+/* WELCOME SCREEN */
+#loading{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;transition:opacity .7s ease;}
+#loading.out{opacity:0;pointer-events:none;}
+.ld-name{font-family:var(--mono);font-size:clamp(40px,7vw,76px);font-weight:700;color:var(--neon);letter-spacing:-3px;line-height:1;animation:ldIn .9s ease both;}
+.ld-role{font-family:var(--mono);font-size:12px;color:var(--td);margin-top:8px;letter-spacing:3px;text-transform:uppercase;animation:ldIn .9s ease .3s both;}
+.ld-msg{font-family:var(--mono);font-size:13px;color:var(--neon2);display:flex;align-items:center;gap:4px;justify-content:center;animation:ldIn .9s ease .5s both;margin-top:8px;}
+.ld-cur{display:inline-block;width:8px;height:14px;background:var(--neon2);animation:blink 1.1s infinite;vertical-align:middle;}
+.ld-bar{width:200px;height:1px;background:var(--border);border-radius:1px;overflow:hidden;margin-top:28px;animation:ldIn .9s ease .7s both;}
+.ld-fill{height:100%;background:linear-gradient(90deg,var(--neon),var(--neon2));animation:ldBar 2.2s ease-in-out infinite;}
+@keyframes ldIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+@keyframes ldBar{0%{width:0%;margin-left:0;}70%{width:100%;margin-left:0;}100%{width:0%;margin-left:100%;}}
+
+.w{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:20px;}
+
+/* TOPBAR */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;font-family:var(--mono);font-size:11px;color:var(--td);}
+.dots{display:flex;gap:6px;}
+.dot{width:10px;height:10px;border-radius:50%;}
+.dr{background:#ff5f57;}.dy{background:#ffbd2e;}.dg{background:#28ca41;}
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--neon);animation:pk 2s infinite;flex-shrink:0;}
+@keyframes pk{0%,100%{opacity:1;box-shadow:0 0 6px var(--neon);}50%{opacity:.3;box-shadow:none;}}
+.cur2{display:inline-block;width:7px;height:13px;background:var(--neon);animation:blink 1.2s infinite;vertical-align:middle;}
+
+/* HERO */
+.hero{background:var(--bg2);border:1px solid var(--border);border-top:none;padding:32px 40px 28px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;right:0;width:500px;height:400px;background:radial-gradient(circle,rgba(0,255,136,.05) 0%,transparent 70%);pointer-events:none;}
+.hero-layout{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;flex-wrap:wrap;}
+.hero-left{flex:1;min-width:280px;}
+.hp{font-family:var(--mono);font-size:11px;color:var(--neon);display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.hero-name{font-family:var(--mono);font-size:clamp(32px,4.5vw,58px);font-weight:700;color:var(--tb);letter-spacing:-2px;line-height:1;margin-bottom:4px;}
+.hero-name span{color:var(--neon);}
+.hero-full{font-family:var(--mono);font-size:11px;color:var(--td);margin-bottom:8px;}
+.hero-role{font-size:14px;color:var(--td);font-family:var(--mono);margin-bottom:14px;}
+
+/* CONTACT STRIP */
+.cstrip{display:flex;flex-wrap:wrap;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;gap:3px 0;}
+.ci{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--td);text-decoration:none;transition:color .2s;padding:3px 14px 3px 0;}
+.ci:hover{color:var(--neon2);}
+.copy-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;font-family:var(--mono);font-size:11px;color:var(--td);cursor:pointer;padding:3px 14px 3px 0;transition:color .2s;}
+.copy-btn:hover{color:var(--neon);}
+.copy-hint{font-size:9px;opacity:.5;}
+.copy-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--neon);color:var(--neon);font-family:var(--mono);font-size:12px;padding:8px 20px;border-radius:var(--r);z-index:8000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.copy-toast.show{opacity:1;}
+
+.hero-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.tag{padding:4px 10px;border:1px solid var(--bb);border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--td);background:rgba(0,207,255,.04);transition:all .2s;cursor:default;}
+.tag:hover{border-color:var(--neon2);color:var(--neon2);}
+.hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.avail{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);border-radius:20px;font-family:var(--mono);font-size:11px;color:var(--neon);}
+.wa-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);border-radius:var(--r);font-family:var(--mono);font-size:11px;color:#25d366;text-decoration:none;transition:all .2s;}
+.wa-btn:hover{background:rgba(37,211,102,.2);}
+
+/* PDF GROUP */
+.pdf-group{display:inline-flex;border-radius:var(--r);overflow:hidden;border:1px solid rgba(0,255,136,.35);}
+.pdf-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(0,255,136,.12);font-family:var(--mono);font-size:11px;color:var(--neon);cursor:pointer;font-weight:600;transition:all .2s;border:none;outline:none;white-space:nowrap;}
+.pdf-btn:hover{background:rgba(0,255,136,.24);}
+.pdf-btn+.pdf-btn{border-left:1px solid rgba(0,255,136,.2);background:rgba(0,207,255,.08);color:var(--neon2);}
+.pdf-btn+.pdf-btn:hover{background:rgba(0,207,255,.18);}
+
+/* HERO STATS */
+.hero-stats{display:flex;flex-direction:column;gap:8px;min-width:196px;}
+.sbox{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.slabel{font-family:var(--mono);font-size:9px;color:var(--td);text-transform:uppercase;letter-spacing:1px;}
+.sval{font-family:var(--mono);font-size:12px;color:var(--neon2);margin-top:2px;}
+
+/* LAYOUT */
+.gap2{margin-top:2px;}
+.full{background:var(--panel);border:1px solid var(--border);padding:24px;transition:border-color .3s;}
+.full:hover{border-color:var(--bb);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;}
+.panel{background:var(--panel);border:1px solid var(--border);padding:24px;transition:border-color .3s;}
+.panel:hover{border-color:var(--bb);}
+@media(max-width:920px){.g2,.g3{grid-template-columns:1fr;}.hero-layout{flex-direction:column;}.hero{padding:24px 20px 20px;}}
+
+/* PANEL HEADER */
+.ph{display:flex;align-items:center;gap:9px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.pi{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.pi-g{background:rgba(0,255,136,.1);color:var(--neon);}
+.pi-c{background:rgba(0,207,255,.1);color:var(--neon2);}
+.pi-o{background:rgba(255,107,53,.1);color:var(--neon3);}
+.pi-p{background:rgba(168,85,247,.1);color:var(--neon4);}
+.pt{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--td);}
+.pb{margin-left:auto;padding:2px 8px;border-radius:20px;font-family:var(--mono);font-size:9px;font-weight:600;}
+.pb-g{background:rgba(0,255,136,.1);color:var(--neon);border:1px solid rgba(0,255,136,.2);}
+.pb-c{background:rgba(0,207,255,.1);color:var(--neon2);border:1px solid rgba(0,207,255,.2);}
+.pb-o{background:rgba(255,107,53,.1);color:var(--neon3);border:1px solid rgba(255,107,53,.2);}
+.pb-p{background:rgba(168,85,247,.1);color:var(--neon4);border:1px solid rgba(168,85,247,.2);}
+
+/* SOBRE MIM */
+.sobre{font-size:14px;line-height:1.9;color:var(--t);}
+.sobre strong{color:var(--tb);}
+.sobre .metric{color:var(--neon);font-family:var(--mono);font-weight:700;}
+
+/* SKILLS */
+.sg{margin-bottom:16px;}.sg:last-child{margin-bottom:0;}
+.sg-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.sg-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.sg-label.adv{color:var(--neon);}.sg-label.int{color:var(--neon2);}.sg-label.bsc{color:var(--neon5);}.sg-label.lng{color:var(--neon3);}
+.stags{display:flex;flex-wrap:wrap;gap:6px;}
+.stag{padding:5px 12px;border:1px solid;border-radius:4px;font-size:12px;transition:all .2s;cursor:default;}
+.stag.adv{border-color:rgba(0,255,136,.3);color:var(--t);background:rgba(0,255,136,.04);}
+.stag.adv:hover{border-color:var(--neon);color:var(--neon);}
+.stag.int{border-color:rgba(0,207,255,.3);color:var(--t);background:rgba(0,207,255,.04);}
+.stag.int:hover{border-color:var(--neon2);color:var(--neon2);}
+.stag.bsc{border-color:rgba(126,200,160,.3);color:var(--t);background:rgba(126,200,160,.04);}
+.stag.bsc:hover{border-color:var(--neon5);color:var(--neon5);}
+.stag.lng{border-color:rgba(255,107,53,.3);color:var(--t);background:rgba(255,107,53,.04);}
+.stag.lng:hover{border-color:var(--neon3);color:var(--neon3);}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;}
+.ti{display:flex;gap:13px;padding-bottom:18px;}.ti:last-child{padding-bottom:0;}
+.tl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.td2{width:9px;height:9px;border-radius:50%;border:2px solid;background:var(--bg);flex-shrink:0;margin-top:4px;}
+.td2.g{border-color:var(--neon);box-shadow:0 0 6px rgba(0,255,136,.4);}
+.td2.c{border-color:var(--neon2);box-shadow:0 0 6px rgba(0,207,255,.4);}
+.td2.o{border-color:var(--neon3);box-shadow:0 0 6px rgba(255,107,53,.4);}
+.td2.p{border-color:var(--neon4);box-shadow:0 0 6px rgba(168,85,247,.4);}
+.tc{width:1px;flex:1;background:var(--border);margin-top:4px;}
+.tp{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+.tp.g{color:var(--neon);}.tp.c{color:var(--neon2);}.tp.o{color:var(--neon3);}.tp.p{color:var(--neon4);}
+.tt{font-size:13px;font-weight:600;color:var(--tb);margin-bottom:1px;}
+.ts{font-size:11px;color:var(--td);margin-bottom:5px;}
+.tdesc{font-size:11px;color:var(--td);line-height:1.65;margin-bottom:4px;}
+.thl{display:flex;align-items:flex-start;gap:5px;font-family:var(--mono);font-size:10px;color:var(--neon);margin-top:3px;}
+
+/* PROJECTS */
+.proj{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color .25s;}
+.proj:last-child{margin-bottom:0;}
+.proj::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.proj.g::before{background:var(--neon);}.proj.c::before{background:var(--neon2);}
+.proj.o::before{background:var(--neon3);}.proj.p::before{background:var(--neon4);}
+.proj:hover{border-color:var(--bb);}
+.proj-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px;}
+.proj-name{font-weight:600;font-size:13px;color:var(--tb);}
+.proj-stack{font-family:var(--mono);font-size:10px;color:var(--td);text-align:right;flex-shrink:0;}
+.result{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--neon);margin-bottom:7px;}
+.proj-desc{font-size:12px;color:var(--td);line-height:1.6;margin-bottom:8px;}
+.pills{display:flex;flex-wrap:wrap;gap:4px;}
+.pill{padding:2px 7px;border-radius:3px;font-family:var(--mono);font-size:10px;border:1px solid;}
+.pill.g{background:rgba(0,255,136,.06);border-color:rgba(0,255,136,.15);color:var(--neon);}
+.pill.c{background:rgba(0,207,255,.06);border-color:rgba(0,207,255,.15);color:var(--neon2);}
+.pill.o{background:rgba(255,107,53,.06);border-color:rgba(255,107,53,.15);color:var(--neon3);}
+.pill.p{background:rgba(168,85,247,.06);border-color:rgba(168,85,247,.15);color:var(--neon4);}
+.proj-imgs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.proj-img{width:120px;height:75px;object-fit:cover;border-radius:4px;border:1px solid var(--border);cursor:zoom-in;transition:all .2s;}
+.proj-img:hover{border-color:var(--neon2);transform:scale(1.04);}
+
+/* VIEW ALL */
+.view-all-wrap{text-align:center;margin-top:14px;}
+.view-all-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 28px;background:var(--bg3);border:1px solid var(--bb);border-radius:var(--r);font-family:var(--mono);font-size:12px;color:var(--neon2);cursor:pointer;transition:all .25s;font-weight:600;}
+.view-all-btn:hover{border-color:var(--neon2);background:rgba(0,207,255,.06);transform:translateY(-2px);}
+
+/* PORTFOLIO OVERLAY */
+#po{position:fixed;inset:0;z-index:4000;background:var(--bg);overflow-y:auto;display:none;}
+#po.open{display:block;}
+.po-top{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--bg2);border-bottom:1px solid var(--border);}
+.po-title{font-family:var(--mono);font-size:13px;color:var(--neon);}
+.po-close{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);font-family:var(--mono);font-size:11px;color:var(--t);cursor:pointer;transition:all .2s;}
+.po-close:hover{border-color:var(--neon3);color:var(--neon3);}
+.po-body{max-width:1280px;margin:0 auto;padding:32px;}
+.po-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
+@media(max-width:700px){.po-grid{grid-template-columns:1fr;}.po-body{padding:16px;}.po-top{padding:12px 16px;}}
+.po-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:border-color .25s,transform .25s;}
+.po-card:hover{border-color:var(--bb);transform:translateY(-3px);}
+.po-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.po-card.g::before{background:var(--neon);}.po-card.c::before{background:var(--neon2);}
+.po-card.o::before{background:var(--neon3);}.po-card.p::before{background:var(--neon4);}
+.po-feat{position:absolute;top:12px;right:12px;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.3);border-radius:20px;font-family:var(--mono);font-size:9px;color:var(--neon);padding:2px 8px;}
+.po-name{font-weight:600;font-size:14px;color:var(--tb);margin-bottom:4px;}
+.po-stack{font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:10px;}
+.po-result{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--neon);margin-bottom:8px;}
+.po-desc{font-size:12px;color:var(--td);line-height:1.65;margin-bottom:10px;}
+.po-imgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.po-img{width:90px;height:56px;object-fit:cover;border-radius:4px;border:1px solid var(--border);cursor:zoom-in;transition:all .2s;}
+.po-img:hover{border-color:var(--neon2);transform:scale(1.04);}
+
+/* CERTIFICATIONS */
+.cert-list{display:flex;flex-direction:column;gap:8px;}
+.cert-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);transition:border-color .2s;}
+.cert-item.clickable{cursor:pointer;}
+.cert-item.clickable:hover{border-color:var(--neon2);}
+.cert-badge{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:rgba(0,207,255,.08);border:1px solid rgba(0,207,255,.15);}
+.cert-name{font-size:12px;font-weight:600;color:var(--tb);margin-bottom:1px;}
+.cert-issuer{font-family:var(--mono);font-size:10px;color:var(--td);}
+.cert-year{font-family:var(--mono);font-size:10px;color:var(--neon2);margin-left:auto;flex-shrink:0;}
+.cert-hint{font-family:var(--mono);font-size:9px;color:var(--neon2);opacity:.7;margin-left:3px;}
+
+/* TECH GRID */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:6px;}
+.tgitem{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 5px;text-align:center;transition:all .2s;cursor:default;}
+.tgitem:hover{border-color:var(--bb);transform:translateY(-2px);}
+.tg-e{font-size:18px;display:block;margin-bottom:3px;}
+.tg-l{font-family:var(--mono);font-size:10px;color:var(--td);}
+
+/* LIGHTBOX */
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:9500;display:flex;align-items:center;justify-content:center;}
+.lb-inner{max-width:92vw;max-height:90vh;position:relative;}
+.lb-inner img{max-width:92vw;max-height:88vh;border-radius:8px;border:1px solid var(--bb);display:block;}
+.lb-inner iframe{width:min(860px,92vw);height:min(620px,88vh);border-radius:8px;border:1px solid var(--bb);background:white;}
+.lb-x{position:absolute;top:-32px;right:0;color:white;font-size:20px;cursor:pointer;opacity:.7;transition:opacity .2s;font-family:var(--mono);}
+.lb-x:hover{opacity:1;}
+
+/* BOTTOMBAR */
+.bottombar{background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;color:var(--td);margin-top:2px;}
+
+@keyframes fu{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.hero,.full,.panel{animation:fu .45s ease forwards;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bb);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--neon);}
+
+/* ═══════ PRINT — ATS (default) ═══════ */
+@media print{
+  @page{size:A4 portrait;margin:13mm 17mm;}
+  #pb,#loading,#po,#lb,body::before,.copy-toast,.wa-btn,
+  .view-all-wrap,.tgitem,.proj-imgs,.po-imgs,
+  .avail,.pulse,.cur2,.hero::before,.hero-stats,
+  .pdf-group{display:none!important;}
+  body:not(.pm-dark) *,body:not(.pm-dark) *::before,body:not(.pm-dark) *::after{
+    background:white!important;color:#111!important;box-shadow:none!important;
+    text-shadow:none!important;border-color:#d0d0d0!important;
+    animation:none!important;transition:none!important;
+    font-family:Arial,Helvetica,sans-serif!important;}
+  body:not(.pm-dark) a{text-decoration:none!important;}
+  body:not(.pm-dark) .w{max-width:100%!important;padding:0!important;}
+  body:not(.pm-dark) .gap2{margin-top:8px!important;}
+  body:not(.pm-dark) .hero{border:none!important;border-bottom:2px solid #111!important;padding:0 0 10px!important;border-radius:0!important;}
+  body:not(.pm-dark) .hero-layout{flex-direction:row!important;gap:0!important;}
+  body:not(.pm-dark) .hero-name{font-size:22pt!important;letter-spacing:-1px!important;color:#111!important;}
+  body:not(.pm-dark) .hero-name span{color:#111!important;}
+  body:not(.pm-dark) .hero-full{font-size:9pt!important;color:#555!important;}
+  body:not(.pm-dark) .hero-role{font-size:10pt!important;color:#333!important;margin-bottom:7px!important;}
+  body:not(.pm-dark) .hp{display:none!important;}
+  body:not(.pm-dark) .cstrip{background:white!important;border:none!important;border-bottom:1px solid #ccc!important;border-radius:0!important;padding:4px 0 7px!important;}
+  body:not(.pm-dark) .ci,.copy-btn{color:#444!important;font-size:8pt!important;padding-right:12px!important;}
+  body:not(.pm-dark) .hero-tags{gap:3px!important;margin-bottom:0!important;}
+  body:not(.pm-dark) .tag{border-color:#bbb!important;color:#555!important;font-size:7.5pt!important;padding:1px 5px!important;}
+  body:not(.pm-dark) .full{border:none!important;padding:7px 0!important;border-bottom:1px solid #eee!important;}
+  body:not(.pm-dark) .g2,.g3{grid-template-columns:1fr 1fr!important;gap:10px!important;}
+  body:not(.pm-dark) .panel{border:none!important;padding:7px 0!important;border-right:1px solid #e0e0e0!important;padding-right:10px!important;page-break-inside:avoid;}
+  body:not(.pm-dark) .panel:last-child{border-right:none!important;padding-right:0!important;padding-left:10px!important;}
+  body:not(.pm-dark) .ph{border-bottom-color:#bbb!important;padding-bottom:3px!important;margin-bottom:7px!important;}
+  body:not(.pm-dark) .pi{background:white!important;border:1px solid #bbb!important;color:#111!important;}
+  body:not(.pm-dark) .pt{color:#111!important;font-size:7.5pt!important;font-weight:bold!important;}
+  body:not(.pm-dark) .pb{display:none!important;}
+  body:not(.pm-dark) .sobre{font-size:8.5pt!important;line-height:1.5!important;}
+  body:not(.pm-dark) .sobre strong,.sobre .metric{color:#111!important;font-weight:bold!important;}
+  body:not(.pm-dark) .sg{margin-bottom:7px!important;}
+  body:not(.pm-dark) .sg-label{color:#111!important;font-size:7.5pt!important;font-weight:bold!important;}
+  body:not(.pm-dark) .sg-label::after{background:#ccc!important;}
+  body:not(.pm-dark) .stag{border-color:#ccc!important;color:#333!important;font-size:8pt!important;padding:2px 6px!important;}
+  body:not(.pm-dark) .td2{border-color:#555!important;box-shadow:none!important;}
+  body:not(.pm-dark) .tc{background:#ccc!important;}
+  body:not(.pm-dark) .tp{color:#555!important;font-size:7.5pt!important;font-weight:bold!important;}
+  body:not(.pm-dark) .tt{color:#111!important;font-size:10pt!important;}
+  body:not(.pm-dark) .ts{color:#555!important;font-size:8pt!important;}
+  body:not(.pm-dark) .tdesc{color:#444!important;font-size:8pt!important;}
+  body:not(.pm-dark) .thl{color:#111!important;font-size:7.5pt!important;font-weight:bold!important;}
+  body:not(.pm-dark) .proj{border-color:#ddd!important;page-break-inside:avoid;margin-bottom:6px!important;padding:7px 7px 7px 10px!important;}
+  body:not(.pm-dark) .proj::before{background:#555!important;width:2px!important;}
+  body:not(.pm-dark) .proj-name{color:#111!important;font-size:9.5pt!important;}
+  body:not(.pm-dark) .proj-stack{color:#555!important;font-size:8pt!important;}
+  body:not(.pm-dark) .result{background:white!important;border-color:#999!important;color:#111!important;font-weight:bold!important;font-size:7.5pt!important;}
+  body:not(.pm-dark) .proj-desc{color:#444!important;font-size:8pt!important;}
+  body:not(.pm-dark) .pill{border-color:#bbb!important;color:#555!important;font-size:7pt!important;}
+  body:not(.pm-dark) .cert-item{background:white!important;border-color:#ddd!important;padding:5px 7px!important;}
+  body:not(.pm-dark) .cert-badge{background:white!important;border-color:#ccc!important;}
+  body:not(.pm-dark) .cert-name{color:#111!important;font-size:8.5pt!important;}
+  body:not(.pm-dark) .cert-issuer,.cert-year,.cert-hint{color:#555!important;font-size:8pt!important;}
+  body:not(.pm-dark) a[href^="mailto"]:after{content:" <"attr(href)">";font-size:7pt;color:#777!important;}
+  body:not(.pm-dark) a[href^="https"]:after{content:" ("attr(href)")";font-size:7pt;color:#777!important;}
+  body:not(.pm-dark) a[href^="tel"]:after{content:"";}
+  /* Dark PDF */
+  body.pm-dark{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  body.pm-dark::after{display:none!important;}
+  body.pm-dark .pdf-group,body.pm-dark .hp,body.pm-dark .hero-stats{display:none!important;}
+  body.pm-dark .w{max-width:100%!important;padding:8px!important;}
+  body.pm-dark .hero{padding:20px 24px!important;}
+  body.pm-dark .hero-layout{flex-wrap:nowrap!important;}
+  body.pm-dark .hero-name{font-size:28pt!important;}
+}
+</style>
+</head>
+<body>
+
+<div id="pb"></div>
+<div class="copy-toast" id="copyToast">✓ E-mail copiado!</div>
+
+<!-- WELCOME SCREEN -->
+<div id="loading">
+  <div style="text-align:center;">
+    <div class="ld-name">Antônio</div>
+    <div class="ld-role">CRM · Dev · Data Science</div>
+    <div class="ld-msg"><span id="ldMsg">Acessando histórico profissional</span><span class="ld-cur"></span></div>
+    <div class="ld-bar"><div class="ld-fill"></div></div>
+  </div>
+</div>
+
+<!-- PORTFOLIO OVERLAY -->
+<div id="po">
+  <div class="po-top">
+    <div class="po-title">◈ Portfólio Completo <span style="color:var(--td);font-size:10px;" id="poCount"></span></div>
+    <button class="po-close" onclick="closePO()">✕ Fechar</button>
+  </div>
+  <div class="po-body"><div class="po-grid" id="poGrid"></div></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lb" style="display:none;" onclick="if(event.target===this)closeLB()">
+  <div class="lb-inner">
+    <span class="lb-x" onclick="closeLB()">✕ Fechar</span>
+    <div id="lb-content"></div>
+  </div>
+</div>
+
+<div class="w">
+  <div class="topbar">
+    <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+    <span style="color:var(--neon);" id="topTitle">~/antonio/portfolio</span>
+    <div style="display:flex;align-items:center;gap:7px;"><span class="pulse"></span><span>ONLINE · São Paulo, BR</span></div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-layout">
+      <div class="hero-left">
+        <div class="hp"><span>root@cv:~$</span><span id="tw"></span><span class="cur2"></span></div>
+        <div class="hero-name"><span id="hNick">Antônio</span></div>
+        <div class="hero-full" id="hFull"></div>
+        <div class="hero-role" id="hRole"></div>
+        <div class="cstrip" id="cstrip"></div>
+        <div class="hero-tags" id="htags"></div>
+        <div class="hero-actions" id="heroActions"></div>
+      </div>
+      <div class="hero-stats" id="hstats"></div>
+    </div>
+  </div>
+
+  <div class="full gap2">
+    <div class="ph"><div class="pi pi-g">👤</div><div class="pt">Sobre Mim</div></div>
+    <p class="sobre" id="sobreEl"></p>
+  </div>
+
+  <div class="g2 gap2">
+    <div class="panel">
+      <div class="ph"><div class="pi pi-c">◷</div><div class="pt">Experiência Profissional</div><div class="pb pb-c">TIMELINE</div></div>
+      <div class="timeline" id="expEl"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><div class="pi pi-o">◈</div><div class="pt">Projetos em Destaque</div><div class="pb pb-o">TOP 3</div></div>
+      <div id="projEl"></div>
+      <div class="view-all-wrap">
+        <button class="view-all-btn" onclick="openPO()">◈ Acessar portfólio completo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3 gap2">
+    <div class="panel">
+      <div class="ph"><div class="pi pi-g">⚡</div><div class="pt">Habilidades Técnicas</div><div class="pb pb-g">SKILLS</div></div>
+      <div id="skillsEl"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><div class="pi pi-p">🎓</div><div class="pt">Formação Acadêmica</div></div>
+      <div class="timeline" id="eduEl"></div>
+      <div style="margin-top:18px;">
+        <div class="ph" style="margin-bottom:10px;"><div class="pi pi-o">◻</div><div class="pt">Stack</div></div>
+        <div class="tgrid" id="techEl"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ph"><div class="pi pi-c">★</div><div class="pt">Certificações &amp; Cursos</div><div class="pb pb-c">EXTRA</div></div>
+      <div class="cert-list" id="certEl"></div>
+    </div>
+  </div>
+
+  <div class="bottombar">
+    <div style="display:flex;gap:14px;"><span>UTF-8</span><span style="color:var(--neon);">● LIVE</span></div>
+    <div><span id="bname"></span> · <span id="yr"></span> · São Paulo, BR</div>
+    <div><span id="clk" style="color:var(--neon2);"></span></div>
+  </div>
+</div>
+
+<script>
+/* ═══ JSONBIN CREDENTIALS ═══ */
+const BIN_ID   = '69c6add4b7ec241ddcad6ee8';
+const READ_KEY = '$2a$10$GiP2dBC2HekdnLPBfxLPkufZlf771fy8v18tkMwxitZkH7WXUZUFC';
+
+/* ═══ DEFAULTS ═══ */
+const DEFAULTS = {
+  profile:{
+    nickname:"Antônio",
+    fullname:"Antônio Carlos Cardoso Fagundes Ferreira",
+    role:"Analista de CRM · Desenvolvedor Web · Data Science",
+    location:"Freguesia do Ó — São Paulo, SP",
+    phone:"(11) 99297-8652",
+    email:"degofagundes088@gmail.com",
+    linkedin:"linkedin.com/in/seu-perfil",
+    github:"github.com/seu-usuario",
+    whatsapp:"5511992978652",
+    portfolio:"",
+    available:true
+  },
+  heroStats:[
+    {label:"Experiência",val:"3+ anos · CRM & Dev",ico:"💼"},
+    {label:"Formação",   val:"FIAP · FECAP",       ico:"🎓"},
+    {label:"Pós-Grad.", val:"Data Science · 2026", ico:"📊"},
+    {label:"Localização",val:"São Paulo, SP",       ico:"📍"}
+  ],
+  objective:"Com mais de <strong>3 anos de experiência</strong> na interseção entre CRM e desenvolvimento de software, atuo na FECAP como Analista de CRM e Desenvolvedor Web — construindo uma trajetória marcada por resultados mensuráveis. Lidero tecnicamente integrações com o <strong>Microsoft Dynamics 365</strong> e o desenvolvimento de soluções em <strong>Power Platform</strong>, incluindo um sistema de gestão de fila que reduziu o tempo de espera de 3 horas para 30 minutos (<span class='metric'>↓83%</span>). Em paralelo, consolido minha formação em <strong>Data Science</strong> pela FIAP e avanço na pós-graduação na FECAP com foco em analytics aplicado a finanças. Meu diferencial é combinar visão estratégica de CRM com a capacidade técnica de desenvolver e automatizar soluções <em>end-to-end</em>.",
+  tags:["Dynamics 365","Power Platform","Python","PHP","SQL","Data Science","SendGrid","ETL","Machine Learning","Azure","Node.js"],
+  skills:[
+    {name:"Microsoft Dynamics 365",category:"advanced"},
+    {name:"Office 365 / Excel / VBA",category:"advanced"},
+    {name:"Google Workspace",category:"advanced"},
+    {name:"E-mail Marketing (SendGrid)",category:"advanced"},
+    {name:"Jira / Trello / Notion",category:"advanced"},
+    {name:"Power Platform (Apps + Automate)",category:"intermediate"},
+    {name:"PHP",category:"intermediate"},
+    {name:"HTML / CSS / JavaScript",category:"intermediate"},
+    {name:"SQL",category:"intermediate"},
+    {name:"Python",category:"intermediate"},
+    {name:"Linux",category:"intermediate"},
+    {name:"Machine Learning",category:"intermediate"},
+    {name:"Node.js",category:"intermediate"},
+    {name:"Inglês — A2",category:"language"}
+  ],
+  experience:[{
+    period:"02/2022 – Presente",color:"g",
+    title:"Analista de CRM e Desenvolvedor Web",
+    company:"FECAP — São Paulo, SP",
+    description:"Sustentação e desenvolvimento de integrações via API no Microsoft Dynamics 365. Liderança técnica no desenvolvimento com Power Platform (App totem digital). Chatbots e automação de campanhas de e-mail com foco em retenção.",
+    highlights:["↓83% no tempo de espera presencial (3h → 30min)","↓85% no tempo de criação de e-mails (20min → 3min)"]
+  }],
+  projects:[
+    {name:"Digitalização de Fila Presencial",stack:"Power Apps · Power Automate",color:"g",featured:true,description:"Sistema de gestão de senhas com Power Platform. Alunos aguardam em sala em vez de filas físicas, reduzindo evasão.",result:"↓83% no tempo de espera (3h → 30min)",pills:["Power Apps","Power Automate","UX Design"]},
+    {name:"Gerador de E-mails Integrado ao CRM",stack:"PHP · Dynamics 365 · TinyMCE",color:"c",featured:true,description:"Gerador integrado ao Dynamics CRM, eliminando edição manual. Padronizou layouts com elementos variáveis e centralizou KPIs.",result:"↓85% no tempo de criação (20min → 3min)",pills:["PHP","Dynamics 365","TinyMCE","HTML/CSS"]},
+    {name:"Análise de Métricas de E-mail Marketing",stack:"SQL · Dashboard · CRM",color:"o",featured:true,description:"Centraliza Taxas de Abertura, CTR, Entregabilidade e Intervalos de Disparo. Filtragem por campanha com exclusão de dados de teste.",result:"Insights em tempo real",pills:["SQL","Dashboard","SendGrid","Dynamics 365"]},
+    {name:"Aplicativo de Gestão Financeira",stack:"Node.js · CSV · ML Preditivo",color:"p",featured:false,description:"App mobile para gestão financeira pessoal. Importação via CSV e análise preditiva de fluxo de caixa.",result:"Projeção inteligente de saúde financeira",pills:["Node.js","JavaScript","CSV","ML preditivo"]}
+  ],
+  education:[
+    {period:"2026",color:"p",title:"Pós-Grad. em Data Science e Analytics",company:"Aplicado a Finanças — FECAP",description:"Especialização em análise de dados financeiros, modelagem preditiva e business intelligence."},
+    {period:"2025",color:"c",title:"Graduação em Data Science",company:"FIAP — São Paulo",description:"Machine Learning, Deep Learning, ETL, Cloud Azure, Python, visualização e análise de dados."},
+    {period:"2022",color:"p",title:"Análise e Desenvolvimento de Sistemas",company:"FECAP — São Paulo",description:"Desenvolvimento web, banco de dados, arquitetura de sistemas e programação orientada a objetos."}
+  ],
+  certifications:[
+    {emoji:"☁️",name:"Microsoft Azure Fundamentals (AZ-900)",issuer:"Microsoft",year:"2024",certUrl:""},
+    {emoji:"⚡",name:"Power Platform Fundamentals (PL-900)",issuer:"Microsoft",year:"2024",certUrl:""},
+    {emoji:"📊",name:"Dynamics 365 Fundamentals (MB-910)",issuer:"Microsoft",year:"2023",certUrl:""},
+    {emoji:"🤖",name:"Machine Learning — Formação FIAP",issuer:"FIAP",year:"2024",certUrl:""},
+    {emoji:"🐍",name:"Python para Data Science",issuer:"FIAP",year:"2023",certUrl:""}
+  ],
+  tech:[
+    {emoji:"📊",label:"Dynamics 365"},{emoji:"⚡",label:"Power Apps"},{emoji:"🔄",label:"Power Auto."},
+    {emoji:"🐘",label:"PHP"},{emoji:"🐍",label:"Python"},{emoji:"🗄️",label:"SQL"},
+    {emoji:"🌐",label:"HTML/CSS/JS"},{emoji:"📧",label:"SendGrid"},
+    {emoji:"☁️",label:"Azure"},{emoji:"🤖",label:"ML / AI"},{emoji:"📋",label:"Excel/VBA"},{emoji:"🔀",label:"Git/CI-CD"}
+  ],
+  theme:{textColor:'',textDim:'',textBright:''}
+};
+
+/* ═══ STATE ═══ */
+let D = JSON.parse(JSON.stringify(DEFAULTS));
+let IMGS = {};
+
+/* ═══ DEEP MERGE ═══ */
+function deepMerge(base, over) {
+  if (!over || typeof over !== 'object') return base;
+  const r = Array.isArray(base) ? [...base] : {...base};
+  for (const k of Object.keys(over)) {
+    if (over[k] && typeof over[k] === 'object' && !Array.isArray(over[k]))
+      r[k] = deepMerge(base[k] || {}, over[k]);
+    else r[k] = over[k];
+  }
+  return r;
+}
+
+/* ═══ MIGRATION: corrige dados stale do JSONBin ═══ */
+function migrate(data) {
+  // Se o bin ainda tem o apelido antigo, atualiza para o novo padrão
+  if (data.profile && data.profile.nickname === 'Dêgo') {
+    data.profile.nickname = DEFAULTS.profile.nickname;
+    data.profile.fullname = DEFAULTS.profile.fullname;
+  }
+  // Garante que certifications têm o campo certUrl
+  if (Array.isArray(data.certifications)) {
+    data.certifications = data.certifications.map(c => ({certUrl:'', ...c}));
+  }
+  // Garante que projects têm o campo featured
+  if (Array.isArray(data.projects)) {
+    data.projects = data.projects.map((p, i) => ({featured: i < 3, ...p}));
+  }
+  return data;
+}
+
+/* ═══ THEME ═══ */
+function applyTheme() {
+  const th = D.theme || {};
+  const r = document.documentElement;
+  if (th.textColor) r.style.setProperty('--t', th.textColor);
+  if (th.textDim)   r.style.setProperty('--td', th.textDim);
+  if (th.textBright)r.style.setProperty('--tb', th.textBright);
+}
+
+/* ═══ LOAD DATA ═══ */
+async function loadData() {
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Access-Key': READ_KEY },
+      cache: 'no-cache'
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const raw = json.record || {};
+      const migrated = migrate(JSON.parse(JSON.stringify(raw)));
+      D = deepMerge(DEFAULTS, migrated);
+    }
+  } catch(e) {
+    // Silent fallback to DEFAULTS
+  }
+
+  // Images from localStorage (base64 too large for JSONBin)
+  for (let i = 0; i < D.projects.length; i++) {
+    try {
+      const r = localStorage.getItem('dego_cv_imgs_' + i);
+      IMGS[i] = r ? JSON.parse(r) : [];
+    } catch(e) { IMGS[i] = []; }
+  }
+
+  applyTheme();
+  render();
+  hideLoading();
+}
+
+function hideLoading() {
+  const el = document.getElementById('loading');
+  el.classList.add('out');
+  setTimeout(() => el.style.display = 'none', 750);
+}
+
+/* ═══ HELPERS ═══ */
+function esc(s){ const d=document.createElement('div'); d.textContent=String(s||''); return d.innerHTML; }
+const CC={g:'g',c:'c',o:'o',p:'p',green:'g',cyan:'c',orange:'o',purple:'p'};
+function cc(v){ return CC[v]||'g'; }
+function copyEmail(e){
+  navigator.clipboard.writeText(e).then(() => {
+    const t=document.getElementById('copyToast'); t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2200);
+  });
+}
+
+/* ═══ RENDER ═══ */
+function render() {
+  const p = D.profile;
+  document.getElementById('hNick').textContent = p.nickname;
+  document.getElementById('hFull').textContent = p.fullname;
+  document.getElementById('hRole').textContent = p.role;
+  document.getElementById('topTitle').textContent = '~/' + p.nickname.toLowerCase().replace(/[\s']/g,'-') + '/portfolio';
+  document.getElementById('bname').textContent = p.nickname;
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  document.title = p.nickname + ' — CRM & Data Science';
+
+  // Contact
+  const eH = `<button class="copy-btn" onclick="copyEmail('${p.email}')" title="Clique para copiar">✉️ ${esc(p.email)} <span class="copy-hint">⧉</span></button>`;
+  const liH = p.linkedin ? `<a class="ci" href="https://${p.linkedin}" target="_blank" rel="noopener">💼 ${esc(p.linkedin)}</a>` : '';
+  const ghH = p.github   ? `<a class="ci" href="https://${p.github}" target="_blank" rel="noopener">🐙 GitHub</a>` : '';
+  const phH = `<a class="ci" href="tel:${p.phone.replace(/\D/g,'')}">📱 ${esc(p.phone)}</a>`;
+  const lH  = `<span class="ci" style="cursor:default;">📍 ${esc(p.location)}</span>`;
+  document.getElementById('cstrip').innerHTML = eH + liH + ghH + phH + lH;
+
+  document.getElementById('htags').innerHTML = (D.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
+
+  const waH = p.whatsapp ? `<a class="wa-btn" href="https://wa.me/${p.whatsapp}?text=${encodeURIComponent('Olá, vi seu CV e gostaria de conversar!')}" target="_blank" rel="noopener">💬 WhatsApp</a>` : '';
+  document.getElementById('heroActions').innerHTML =
+    (p.available ? '<div class="avail"><span class="pulse"></span>Disponível para oportunidades</div>' : '') +
+    `<div class="pdf-group">
+      <button class="pdf-btn" onclick="printDark()">⬇ PDF Design</button>
+      <button class="pdf-btn" onclick="window.print()">⬇ PDF ATS</button>
+    </div>` + waH;
+
+  document.getElementById('hstats').innerHTML = (D.heroStats || DEFAULTS.heroStats).map(s =>
+    `<div class="sbox"><div><div class="slabel">${esc(s.label)}</div><div class="sval">${esc(s.val)}</div></div><span style="font-size:18px;">${s.ico}</span></div>`
+  ).join('');
+
+  document.getElementById('sobreEl').innerHTML = D.objective || '';
+
+  // Skills (4 cats)
+  const catCls = {advanced:'adv', intermediate:'int', basic:'bsc', language:'lng'};
+  const catLbl = {advanced:'Avançado', intermediate:'Intermediário', basic:'Básico', language:'Idiomas'};
+  const grp = {};
+  (D.skills||[]).forEach(s => { const c=s.category||'intermediate'; if(!grp[c])grp[c]=[]; grp[c].push(s.name); });
+  document.getElementById('skillsEl').innerHTML = ['advanced','intermediate','basic','language']
+    .filter(k => grp[k]&&grp[k].length)
+    .map(k => `<div class="sg"><div class="sg-label ${catCls[k]}">${catLbl[k]}</div><div class="stags">${grp[k].map(n=>`<span class="stag ${catCls[k]}">${esc(n)}</span>`).join('')}</div></div>`)
+    .join('');
+
+  // Experience
+  document.getElementById('expEl').innerHTML = (D.experience||[]).map((e,i,a) => {
+    const c=cc(e.color);
+    return `<div class="ti"><div class="tl"><div class="td2 ${c}"></div>${i<a.length-1?'<div class="tc"></div>':''}</div><div><div class="tp ${c}">${esc(e.period)}</div><div class="tt">${esc(e.title)}</div><div class="ts">${esc(e.company)}</div><div class="tdesc">${esc(e.description)}</div>${(e.highlights||[]).map(h=>`<div class="thl"><span>▸</span><span>${esc(h)}</span></div>`).join('')}</div></div>`;
+  }).join('');
+
+  // Featured projects (home — up to 3)
+  const featured = (D.projects||[]).filter(p => p.featured).slice(0, 3);
+  const homeProjs = featured.length ? featured : (D.projects||[]).slice(0, 3);
+  document.getElementById('projEl').innerHTML = homeProjs.map((pr, i) => {
+    const c = cc(pr.color);
+    const realIdx = (D.projects||[]).indexOf(pr);
+    const imgs = IMGS[realIdx >= 0 ? realIdx : i] || [];
+    return `<div class="proj ${c}"><div class="proj-top"><div class="proj-name">${esc(pr.name)}</div><div class="proj-stack">${esc(pr.stack)}</div></div>${pr.result?`<div class="result">✦ ${esc(pr.result)}</div>`:''}<div class="proj-desc">${esc(pr.description)}</div><div class="pills">${(pr.pills||[]).map(pl=>`<span class="pill ${c}">${esc(pl)}</span>`).join('')}</div>${imgs.length?`<div class="proj-imgs">${imgs.map(src=>`<img class="proj-img" src="${src}" alt="" onclick="openLB('${src}')">`).join('')}</div>`:''}</div>`;
+  }).join('');
+
+  // Education
+  document.getElementById('eduEl').innerHTML = (D.education||[]).map((e,i,a) => {
+    const c=cc(e.color);
+    return `<div class="ti"><div class="tl"><div class="td2 ${c}"></div>${i<a.length-1?'<div class="tc"></div>':''}</div><div><div class="tp ${c}">${esc(e.period)}</div><div class="tt">${esc(e.title)}</div><div class="ts">${esc(e.company)}</div><div class="tdesc">${esc(e.description)}</div></div></div>`;
+  }).join('');
+
+  // Certifications
+  document.getElementById('certEl').innerHTML = (D.certifications||[]).map((cert, i) => {
+    const has = cert.certUrl && cert.certUrl.trim();
+    return `<div class="cert-item ${has?'clickable':''}" ${has?`onclick="openCert(${i})"`:''}><div class="cert-badge">${cert.emoji}</div><div><div class="cert-name">${esc(cert.name)}</div><div class="cert-issuer">${esc(cert.issuer)}</div></div><div class="cert-year">${esc(cert.year)}${has?'<span class="cert-hint"> ↗</span>':''}</div></div>`;
+  }).join('');
+
+  // Tech
+  document.getElementById('techEl').innerHTML = (D.tech||[]).map(t =>
+    `<div class="tgitem"><span class="tg-e">${t.emoji}</span><div class="tg-l">${esc(t.label)}</div></div>`
+  ).join('');
+}
+
+/* ═══ PORTFOLIO OVERLAY ═══ */
+function openPO() {
+  const el = document.getElementById('po');
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('poCount').textContent = `— ${(D.projects||[]).length} projetos`;
+  document.getElementById('poGrid').innerHTML = (D.projects||[]).map((pr, i) => {
+    const c = cc(pr.color);
+    const imgs = IMGS[i] || [];
+    return `<div class="po-card ${c}">${pr.featured?'<div class="po-feat">✦ Destaque</div>':''}<div class="po-name">${esc(pr.name)}</div><div class="po-stack">${esc(pr.stack)}</div>${pr.result?`<div class="po-result">✦ ${esc(pr.result)}</div>`:''}<div class="po-desc">${esc(pr.description)}</div><div class="pills">${(pr.pills||[]).map(pl=>`<span class="pill ${c}">${esc(pl)}</span>`).join('')}</div>${imgs.length?`<div class="po-imgs">${imgs.map(src=>`<img class="po-img" src="${src}" alt="" onclick="event.stopPropagation();openLB('${src}')">`).join('')}</div>`:''}</div>`;
+  }).join('');
+}
+function closePO() { document.getElementById('po').classList.remove('open'); document.body.style.overflow = ''; }
+
+/* ═══ LIGHTBOX ═══ */
+function openLB(src) {
+  const isImg = /\.(jpe?g|png|gif|webp|svg)(\?.*)?$/i.test(src);
+  document.getElementById('lb-content').innerHTML = isImg
+    ? `<img src="${src}" alt="">`
+    : `<iframe src="${src}" frameborder="0"></iframe>`;
+  document.getElementById('lb').style.display = 'flex';
+}
+function openCert(i) {
+  const c = (D.certifications||[])[i];
+  if (c && c.certUrl) openLB(c.certUrl);
+}
+function closeLB() { document.getElementById('lb').style.display = 'none'; document.getElementById('lb-content').innerHTML = ''; }
+document.addEventListener('keydown', e => { if(e.key==='Escape'){closeLB();closePO();} });
+
+/* ═══ PDF ═══ */
+function printDark() { document.body.classList.add('pm-dark'); window.print(); setTimeout(()=>document.body.classList.remove('pm-dark'),800); }
+
+/* ═══ SCROLL ═══ */
+window.addEventListener('scroll', () => {
+  const e = document.documentElement;
+  document.getElementById('pb').style.width = ((e.scrollTop/(e.scrollHeight-e.clientHeight))*100) + '%';
+}, {passive:true});
+
+/* ═══ TYPEWRITER ═══ */
+const phrases = ['cat perfil.json','git log --oneline','python analise.py','az login --ok'];
+let pi=0,ci=0,dl=false;
+const tw = document.getElementById('tw');
+function type() {
+  const c = phrases[pi];
+  if (!dl) { tw.textContent=c.slice(0,++ci); if(ci===c.length){dl=true;setTimeout(type,1800);return;} }
+  else { tw.textContent=c.slice(0,--ci); if(ci===0){dl=false;pi=(pi+1)%phrases.length;} }
+  setTimeout(type, dl?35:70);
+}
+setTimeout(type, 700);
+
+/* ═══ CLOCK ═══ */
+function tick() { const e=document.getElementById('clk'); if(e) e.textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+tick(); setInterval(tick, 1000);
+
+/* ═══ LOADING MESSAGES ═══ */
+const ldMsgs = ['Acessando histórico profissional','Carregando portfólio','Bem-vindo ao meu CV'];
+let ldIdx = 0;
+const ldEl = document.getElementById('ldMsg');
+const ldInterval = setInterval(() => {
+  ldIdx = (ldIdx+1) % ldMsgs.length;
+  if (ldEl) ldEl.textContent = ldMsgs[ldIdx];
+}, 1800);
+
+/* ═══ INIT ═══ */
+loadData().then(() => clearInterval(ldInterval));
+</script>
+</body>
+</html>
