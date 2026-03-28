@@ -8,37 +8,69 @@ import { CV_READ_URL } from './api.js';
 import { render, renderPortfolio } from '../view/index-view.js';
 import { copyEmail, escAttr } from '../utils.js';
 
+/* ═══ GALLERY STATE ═══ */
+let gallery = [];    // lista de URLs da galeria atual
+let galleryIdx = 0;  // índice atual
+
 /** Inicializa o CV público */
 export async function init() {
   // Expõe funções necessárias para onclick inline
   window.__copyEmail = copyEmail;
   window.__printDesign = printDesign;
   window.__printATS = printATS;
+  window.closeLB = closeLB;
 
-  // Event delegation para lightbox (corrige XSS do onclick inline)
+  // Event delegation para lightbox e certificações
   document.addEventListener('click', (e) => {
+    // Fechar lightbox pelo X
+    if (e.target.closest('.lb-x')) {
+      closeLB();
+      return;
+    }
+
+    // Imagens de projeto — abrir galeria com navegação
     const lbTrigger = e.target.closest('[data-lightbox]');
     if (lbTrigger) {
       e.stopPropagation();
-      openLB(lbTrigger.dataset.lightbox);
+      const container = lbTrigger.closest('.proj-imgs, .po-imgs');
+      if (container) {
+        const allImgs = Array.from(container.querySelectorAll('[data-lightbox]'));
+        gallery = allImgs.map(el => el.dataset.lightbox);
+        galleryIdx = allImgs.indexOf(lbTrigger);
+        if (galleryIdx < 0) galleryIdx = 0;
+      } else {
+        gallery = [lbTrigger.dataset.lightbox];
+        galleryIdx = 0;
+      }
+      showGalleryItem();
       return;
     }
+
+    // Certificações — abrir link em nova aba
     const certItem = e.target.closest('[data-cert-url]');
     if (certItem) {
-      openLB(certItem.dataset.certUrl);
+      window.open(certItem.dataset.certUrl, '_blank', 'noopener');
       return;
     }
   });
 
-  // Fechar lightbox/portfolio com Escape
+  // Fechar lightbox/portfolio com Escape, navegar com setas
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closeLB(); closePO(); }
+    if (document.getElementById('lb').style.display === 'flex') {
+      if (e.key === 'ArrowRight') navGallery(1);
+      if (e.key === 'ArrowLeft') navGallery(-1);
+    }
   });
 
   // Lightbox close on background click
   document.getElementById('lb').addEventListener('click', function(e) {
     if (e.target === this) closeLB();
   });
+
+  // Lightbox nav buttons
+  document.getElementById('lbPrev').addEventListener('click', () => navGallery(-1));
+  document.getElementById('lbNext').addEventListener('click', () => navGallery(1));
 
   // Portfolio button
   window.openPO = openPO;
@@ -94,29 +126,39 @@ function hideLoading() {
   setTimeout(() => el.style.display = 'none', 750);
 }
 
-/* ═══ LIGHTBOX — seguro contra XSS ═══ */
-function openLB(src) {
+/* ═══ LIGHTBOX com galeria ═══ */
+function showGalleryItem() {
+  const src = gallery[galleryIdx];
   const container = document.getElementById('lb-content');
   container.innerHTML = '';
 
-  const isImg = /\.(jpe?g|png|gif|webp|svg)(\?.*)?$/i.test(src);
-  if (isImg) {
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = '';
-    container.appendChild(img);
-  } else {
-    const iframe = document.createElement('iframe');
-    iframe.src = src;
-    iframe.frameBorder = '0';
-    container.appendChild(iframe);
-  }
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = '';
+  container.appendChild(img);
+
+  // Mostrar/esconder nav
+  const hasNav = gallery.length > 1;
+  document.getElementById('lbPrev').style.display = hasNav ? '' : 'none';
+  document.getElementById('lbNext').style.display = hasNav ? '' : 'none';
+  const counter = document.getElementById('lbCounter');
+  counter.style.display = hasNav ? '' : 'none';
+  counter.textContent = `${galleryIdx + 1} / ${gallery.length}`;
+
   document.getElementById('lb').style.display = 'flex';
+}
+
+function navGallery(dir) {
+  if (gallery.length <= 1) return;
+  galleryIdx = (galleryIdx + dir + gallery.length) % gallery.length;
+  showGalleryItem();
 }
 
 function closeLB() {
   document.getElementById('lb').style.display = 'none';
   document.getElementById('lb-content').innerHTML = '';
+  gallery = [];
+  galleryIdx = 0;
 }
 
 /* ═══ PORTFOLIO OVERLAY ═══ */

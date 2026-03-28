@@ -2,13 +2,14 @@
 @media print {
   @page { size: A4 portrait; margin: 14mm 18mm; }
 
+  * { animation: none !important; transition: none !important; }
+
   #pb, #loading, #po, #lb,
   body::before, body::after,
   .copy-toast, .wa-btn, .view-all-wrap,
   .avail, .pulse, .cur2, .hero::before,
   .pdf-group, .topbar, .bottombar,
-  .proj-imgs, .po-imgs,
-  * { animation: none !important; transition: none !important; }
+  .proj-imgs, .po-imgs { display: none !important; }
 
   /* ═══ PDF DESIGN ═══ */
   body.pm-design { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -76,10 +77,11 @@
     --t:#111;--td:#444;--tb:#000;
     --neon:#111;--neon2:#333;--neon3:#333;--neon4:#333;--neon5:#333;
   }
-  body.pm-ats *, body.pm-ats *::before, body.pm-ats *::after {
+  body.pm-ats, body.pm-ats *, body.pm-ats *::before, body.pm-ats *::after {
     background: white !important; color: #111 !important; box-shadow: none !important;
     text-shadow: none !important; border: none !important;
     font-family: Arial, Helvetica, sans-serif !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   body.pm-ats a { text-decoration: none !important; }
   body.pm-ats .w { max-width: 100% !important; padding: 0 !important; }
