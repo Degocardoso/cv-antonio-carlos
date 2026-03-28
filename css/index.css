@@ -221,11 +221,16 @@ body.cv-page { overflow-x: hidden; }
 
 /* LIGHTBOX */
 #lb { position: fixed; inset: 0; background: rgba(0,0,0,.94); z-index: 9500; display: flex; align-items: center; justify-content: center; }
-.lb-inner { max-width: 92vw; max-height: 90vh; position: relative; }
-.lb-inner img { max-width: 92vw; max-height: 88vh; border-radius: 8px; border: 1px solid var(--bb); display: block; }
-.lb-inner iframe { width: min(860px, 92vw); height: min(620px, 88vh); border-radius: 8px; border: 1px solid var(--bb); background: white; }
-.lb-x { position: absolute; top: -32px; right: 0; color: white; font-size: 20px; cursor: pointer; opacity: .7; transition: opacity .2s; font-family: var(--mono); }
+.lb-inner { max-width: 92vw; max-height: 90vh; position: relative; display: flex; align-items: center; justify-content: center; }
+.lb-inner img { max-width: 80vw; max-height: 88vh; border-radius: 8px; border: 1px solid var(--bb); display: block; }
+.lb-x { position: absolute; top: -32px; right: 0; color: white; font-size: 20px; cursor: pointer; opacity: .7; transition: opacity .2s; font-family: var(--mono); z-index: 2; }
 .lb-x:hover { opacity: 1; }
+.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2); color: white; font-size: 32px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; z-index: 2; font-family: var(--mono); line-height: 1; padding: 0; }
+.lb-nav:hover { background: rgba(0,255,136,.2); border-color: var(--neon); }
+.lb-prev { left: -56px; }
+.lb-next { right: -56px; }
+.lb-counter { position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,.6); white-space: nowrap; }
+@media(max-width:700px) { .lb-prev { left: 4px; } .lb-next { right: 4px; } .lb-nav { width: 36px; height: 36px; font-size: 24px; background: rgba(0,0,0,.8); } }
 
 /* BOTTOMBAR */
 .bottombar { background: var(--bg2); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--r) var(--r); padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 10px; color: var(--td); margin-top: 2px; }
