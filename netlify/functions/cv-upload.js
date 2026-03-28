@@ -1,12 +1,12 @@
 // netlify/functions/cv-upload.js
-// Recebe uma imagem em base64 do admin e faz upload para o Cloudinary
-// As credenciais ficam no servidor — nunca expostas no HTML
+// Recebe imagem em base64 e faz upload para o Cloudinary
+// SENHA VEM NO BODY (não no header) — evita strip pelo Netlify em requisições POST
 //
-// Variáveis de ambiente necessárias no Netlify:
-//   CLOUDINARY_CLOUD_NAME   → nome do cloud (ex: "meu-cloud")
-//   CLOUDINARY_API_KEY      → API Key do Cloudinary
-//   CLOUDINARY_API_SECRET   → API Secret do Cloudinary
-//   CV_ADMIN_PASSWORD       → mesma senha do admin (valida que só o dono pode fazer upload)
+// Variáveis de ambiente necessárias:
+//   CLOUDINARY_CLOUD_NAME
+//   CLOUDINARY_API_KEY
+//   CLOUDINARY_API_SECRET
+//   CV_ADMIN_PASSWORD
 
 const https = require('https');
 const crypto = require('crypto');
@@ -14,13 +14,12 @@ const crypto = require('crypto');
 function httpsRequest(url, options = {}) {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
-    const reqOptions = {
+    const req = https.request({
       hostname: urlObj.hostname,
       path: urlObj.pathname + urlObj.search,
       method: options.method || 'POST',
       headers: options.headers || {},
-    };
-    const req = https.request(reqOptions, (res) => {
+    }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => resolve({ status: res.statusCode, body: data }));
@@ -31,151 +30,85 @@ function httpsRequest(url, options = {}) {
   });
 }
 
-// Gera assinatura Cloudinary para upload autenticado
 function signCloudinary(params, apiSecret) {
-  const sortedKeys = Object.keys(params).sort();
-  const str = sortedKeys.map(k => `${k}=${params[k]}`).join('&') + apiSecret;
+  const str = Object.keys(params).sort().map(k => `${k}=${params[k]}`).join('&') + apiSecret;
   return crypto.createHash('sha256').update(str).digest('hex');
 }
 
-// Encode multipart/form-data manualmente (sem dependências)
 function buildMultipart(fields, boundary) {
   let body = '';
   for (const [key, value] of Object.entries(fields)) {
-    body += `--${boundary}\r\n`;
-    body += `Content-Disposition: form-data; name="${key}"\r\n\r\n`;
-    body += `${value}\r\n`;
+    body += `--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${value}\r\n`;
   }
   body += `--${boundary}--\r\n`;
   return body;
 }
 
+function strip(s) {
+  return (s || '').replace(/[\r\n\t\u200b\u00a0\ufeff]/g, '').trim();
+}
+
 exports.handler = async (event) => {
-  const corsHeaders = {
+  const cors = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
+    'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: corsHeaders, body: '' };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: cors, body: '' };
+  if (event.httpMethod !== 'POST') return { statusCode: 405, headers: cors, body: JSON.stringify({ error: 'Método não permitido.' }) };
+
+  // Check env vars
+  const CLOUD = process.env.CLOUDINARY_CLOUD_NAME;
+  const KEY   = process.env.CLOUDINARY_API_KEY;
+  const SEC   = process.env.CLOUDINARY_API_SECRET;
+  const PWD   = process.env.CV_ADMIN_PASSWORD;
+
+  if (!CLOUD || !KEY || !SEC || !PWD) {
+    return { statusCode: 500, headers: cors, body: JSON.stringify({ error: 'Variáveis de ambiente faltando.', missing: { CLOUD: !CLOUD, KEY: !KEY, SEC: !SEC, PWD: !PWD } }) };
   }
 
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: corsHeaders, body: JSON.stringify({ error: 'Método não permitido.' }) };
-  }
-
-  // Valida variáveis de ambiente
-  const CLOUD_NAME  = process.env.CLOUDINARY_CLOUD_NAME;
-  const API_KEY     = process.env.CLOUDINARY_API_KEY;
-  const API_SECRET  = process.env.CLOUDINARY_API_SECRET;
-  const PASSWORD    = process.env.CV_ADMIN_PASSWORD;
-
-  if (!CLOUD_NAME || !API_KEY || !API_SECRET || !PASSWORD) {
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({
-        error: 'Variáveis de ambiente não configuradas.',
-        hint: 'Configure CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET no Netlify.',
-      }),
-    };
-  }
-
-  // Valida senha do admin
-  // Netlify lowercases all request headers automatically
-  const submittedPwd = (
-    event.headers['x-admin-password'] ||
-    event.headers['X-Admin-Password'] ||
-    ''
-  ).trim();
-
-  // Remove any invisible chars from env var (copy-paste artifacts)
-  const cleanPassword = PASSWORD.replace(/[\r\n\t\u200b\u00a0\ufeff]/g, '').trim();
-
-  if (!submittedPwd) {
-    return {
-      statusCode: 401,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: 'Senha não informada.', hint: 'Sessão pode ter expirado — recarregue o admin e faça login novamente.' }),
-    };
-  }
-
-  if (submittedPwd !== cleanPassword) {
-    return {
-      statusCode: 401,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: 'Senha incorreta.', hint: 'Verifique a variável CV_ADMIN_PASSWORD no Netlify.' }),
-    };
-  }
-
-  // Lê body
+  // Parse body
   let body;
-  try {
-    body = JSON.parse(event.body);
-  } catch {
-    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Body inválido.' }) };
+  try { body = JSON.parse(event.body); }
+  catch { return { statusCode: 400, headers: cors, body: JSON.stringify({ error: 'Body JSON inválido.' }) }; }
+
+  // Validate password from body (not header — avoids Netlify header stripping)
+  const submitted = strip(body.password || '');
+  const expected  = strip(PWD);
+
+  if (!submitted) {
+    return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Campo password ausente no body.', hint: 'Sessão expirada — faça logout e login novamente.' }) };
+  }
+  if (submitted !== expected) {
+    return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Senha incorreta.', submitted_len: submitted.length, expected_len: expected.length }) };
   }
 
-  const { file, folder = 'cv-portfolio', projectIndex } = body;
-  if (!file) {
-    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Campo "file" (base64) obrigatório.' }) };
-  }
+  const { file, projectIndex } = body;
+  if (!file) return { statusCode: 400, headers: cors, body: JSON.stringify({ error: 'Campo file ausente.' }) };
 
-  // Gera assinatura para upload autenticado
+  // Upload to Cloudinary
+  const folder    = 'cv-portfolio';
   const timestamp = Math.round(Date.now() / 1000);
-  const publicId = `cv-portfolio/projeto-${projectIndex !== undefined ? projectIndex : 'x'}-${timestamp}`;
-  const signParams = { folder, public_id: publicId, timestamp };
-  const signature = signCloudinary(signParams, API_SECRET);
+  const publicId  = `cv-portfolio/proj-${projectIndex !== undefined ? projectIndex : 'x'}-${timestamp}`;
+  const signature = signCloudinary({ folder, public_id: publicId, timestamp }, SEC);
 
-  // Monta formulário multipart
-  const boundary = '----CloudinaryBoundary' + timestamp;
-  const formFields = {
-    file,
-    api_key: API_KEY,
-    timestamp: String(timestamp),
-    folder,
-    public_id: publicId,
-    signature,
-  };
-
-  const formBody = buildMultipart(formFields, boundary);
-  const contentType = `multipart/form-data; boundary=${boundary}`;
+  const boundary = 'CvBoundary' + timestamp;
+  const formBody  = buildMultipart({ file, api_key: KEY, timestamp: String(timestamp), folder, public_id: publicId, signature }, boundary);
 
   try {
-    const res = await httpsRequest(
-      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': contentType,
-          'Content-Length': Buffer.byteLength(formBody, 'utf8'),
-        },
-        body: formBody,
-      }
-    );
+    const res  = await httpsRequest(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}`, 'Content-Length': Buffer.byteLength(formBody, 'utf8') },
+      body: formBody,
+    });
 
     const json = JSON.parse(res.body);
+    if (res.status !== 200) return { statusCode: res.status, headers: cors, body: JSON.stringify({ error: 'Cloudinary recusou.', detail: json.error }) };
 
-    if (res.status !== 200) {
-      return {
-        statusCode: res.status,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: 'Erro no Cloudinary.', detail: json }),
-      };
-    }
-
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: JSON.stringify({ url: json.secure_url, publicId: json.public_id }),
-    };
+    return { statusCode: 200, headers: cors, body: JSON.stringify({ url: json.secure_url, publicId: json.public_id }) };
   } catch (err) {
-    return {
-      statusCode: 502,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: 'Falha ao conectar com o Cloudinary.', detail: err.message }),
-    };
+    return { statusCode: 502, headers: cors, body: JSON.stringify({ error: 'Falha ao conectar com Cloudinary.', detail: err.message }) };
   }
 };

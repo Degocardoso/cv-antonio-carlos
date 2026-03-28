@@ -687,11 +687,8 @@ async function handleImgs(idx, inp) {
     try {
       const response = await fetch(CV_UPLOAD_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Password': SESSION_PWD,
-        },
-        body: JSON.stringify({ file: base64, projectIndex: idx }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: base64, projectIndex: idx, password: SESSION_PWD }),
       });
 
       const result = await response.json();
