@@ -86,7 +86,7 @@
   body.pm-ats .hero-actions,
   body.pm-ats .pi, body.pm-ats .pb,
   body.pm-ats .cert-badge, body.pm-ats .cert-hint,
-  body.pm-ats .tgrid, body.pm-ats .tl,
+  body.pm-ats .tl,
   body.pm-ats .result, body.pm-ats .proj-stack,
   body.pm-ats .pills, body.pm-ats .proj-imgs,
   body.pm-ats .copy-hint, body.pm-ats .sg-label::after,
@@ -168,6 +168,14 @@
   body.pm-ats .stag { font-weight: 700 !important; }
   /* Idiomas como seção separada */
   body.pm-ats .sg:last-child .sg-label.lng { display: block !important; font-size: 11pt !important; font-weight: 700 !important; border-bottom: 1.5px solid #000 !important; padding-bottom: 3px !important; margin-top: 14px !important; margin-bottom: 8px !important; }
+
+  /* ── Tech Stack — lista inline ── */
+  body.pm-ats .tgrid { display: block !important; }
+  body.pm-ats .tgitem { display: inline !important; font-size: 9.5pt !important; color: #000 !important; padding: 0 !important; border: none !important; background: none !important; }
+  body.pm-ats .tgitem .tg-e { display: none !important; }
+  body.pm-ats .tgitem .tg-l { display: inline !important; font-size: 9.5pt !important; font-weight: 700 !important; }
+  body.pm-ats .tgitem::after { content: ' · ' !important; }
+  body.pm-ats .tgitem:last-child::after { content: '' !important; }
 
   /* ── Projetos — título bold + parágrafo descritivo ── */
   body.pm-ats .proj { padding: 0 0 10px !important; margin-bottom: 4px !important; border-bottom: none !important; }
