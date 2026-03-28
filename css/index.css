@@ -97,6 +97,23 @@ body.cv-page { overflow-x: hidden; }
 .panel { background: var(--panel); border: 1px solid var(--border); padding: 24px; transition: border-color .3s; }
 .panel:hover { border-color: var(--bb); }
 @media(max-width:920px) { .g2,.g3 { grid-template-columns: 1fr; } .hero-layout { flex-direction: column; } .hero { padding: 24px 20px 20px; } }
+@media(max-width:480px) {
+  .w { padding: 8px; }
+  .hero { padding: 16px 14px 14px; }
+  .hero-name { font-size: 28px !important; }
+  .cstrip { padding: 8px 10px; font-size: 10px; }
+  .ci, .copy-btn { font-size: 10px; padding: 3px 8px 3px 0; }
+  .panel { padding: 16px 12px; }
+  .topbar { padding: 6px 10px; font-size: 10px; }
+  .bottombar { padding: 6px 10px; font-size: 9px; }
+  .hero-actions { flex-direction: column; gap: 8px; }
+  .pdf-group { width: 100%; }
+  .pdf-btn { flex: 1; justify-content: center; font-size: 10px; padding: 10px 8px; }
+  .proj-img { width: 80px; height: 50px; }
+  .tag { font-size: 10px; padding: 3px 8px; }
+  .cert-item { flex-wrap: wrap; gap: 6px; }
+  .cert-year { margin-left: 0; }
+}
 
 /* PANEL HEADER */
 .ph { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }

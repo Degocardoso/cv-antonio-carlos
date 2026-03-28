@@ -27,7 +27,7 @@ function exposeGlobals() {
     addEdu, rmEdu, addCert, rmCert, addTech, rmTech,
     rmImg, handleImgs,
     syncH, syncC, prevTheme, rstTheme,
-    reloadFromCloud: reloadFromCloudUI, resetAll,
+    reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults,
   };
 
   // Color dot handlers (up to 20 items)
@@ -458,4 +458,32 @@ async function resetAll() {
   await window.saveAll();
   buildUI();
   flash('✓ Resetado!');
+}
+
+/* ═══ EXPORT DEFAULTS ═══ */
+function exportDefaults() {
+  collectCurrent();
+  const D = getData();
+  const clean = JSON.parse(JSON.stringify(D));
+  // Remove campos internos que não devem estar no defaults
+  delete clean.password;
+
+  const content = `/**
+ * Model — Dados padrão do CV (DEFAULTS)
+ * Fonte única de verdade — compartilhado entre index e admin
+ * Gerado em: ${new Date().toISOString().split('T')[0]}
+ */
+export const DEFAULTS = ${JSON.stringify(clean, null, 2)};
+`;
+
+  const blob = new Blob([content], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'defaults.js';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  flash('📥 defaults.js baixado!');
 }
