@@ -417,6 +417,8 @@ function buildUI() {
   abody.insertBefore(banner, document.getElementById('secEl'));
 
   renderTab(curTab);
+  // Update session status indicator
+  setTimeout(updateSessionStatus, 50);
 }
 
 async function retryAndRebuild() {
@@ -440,6 +442,38 @@ function esc(s){const d=document.createElement('div');d.textContent=String(s||''
 function escRaw(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showMsg(id,txt){const e=document.getElementById(id);if(!e)return;e.textContent=txt||'✓ Salvo!';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500);}
 function cDots(sel,cb){return`<div class="cdots">${['g','c','o','p'].map(c=>`<div class="cdot ${c} ${sel===c?'on':''}" onclick="${cb}('${c}',this)"></div>`).join('')}</div>`;}
+
+/* ── SESSION / UPLOAD AUTH HELPERS ── */
+function updateSessionStatus() {
+  const el = document.getElementById('session-status');
+  if (el) el.textContent = SESSION_PWD ? '✓ Ativa' : '✗ Expirada';
+}
+
+async function testUploadAuth() {
+  const resultEl = document.getElementById('upload-auth-result');
+  if (!SESSION_PWD) {
+    if (resultEl) resultEl.innerHTML = '<span style="color:#ff6b6b;">✗ SESSION_PWD vazio — faça logout e login novamente</span>';
+    return;
+  }
+  if (resultEl) resultEl.textContent = '⏳ Testando...';
+  try {
+    const res = await fetch('/.netlify/functions/cv-ping', {
+      headers: { 'X-Admin-Password': SESSION_PWD }
+    });
+    const json = await res.json();
+    const pt = json.password_test;
+    if (pt && pt.match) {
+      if (resultEl) resultEl.innerHTML = '<span style="color:var(--neon);">✓ Senha OK — upload deve funcionar</span>';
+    } else if (pt) {
+      if (resultEl) resultEl.innerHTML = `<span style="color:#ff6b6b;">✗ Senha NÃO bate. Enviado: ${pt.submitted_length} chars, Esperado: ${pt.expected_length} chars</span>`;
+    } else {
+      if (resultEl) resultEl.innerHTML = '<span style="color:var(--neon3);">⚠ ' + JSON.stringify(pt) + '</span>';
+    }
+  } catch(e) {
+    if (resultEl) resultEl.innerHTML = '<span style="color:#ff6b6b;">✗ Erro: ' + e.message + '</span>';
+  }
+}
+
 
 /* ═════ PERFIL ═════ */
 function tProfile(){const p=D.profile;return`
@@ -577,7 +611,7 @@ function tProjs(){const fc=(D.projects||[]).filter(p=>p.featured).length;return`
     <button class="btn btn-g" onclick="addProj()">+ Adicionar</button>
   </div>
   <div style="font-family:var(--mono);font-size:10px;color:var(--neon);margin-bottom:10px;" id="feat-count">✦ ${fc} em destaque na home</div>
-  <div style="background:rgba(0,207,255,.06);border:1px solid rgba(0,207,255,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-family:var(--mono);font-size:10px;color:var(--neon2);line-height:1.7;">☁ Fotos são enviadas para o <strong>Cloudinary</strong> e ficam visíveis para todos os visitantes. Requer as variáveis <code>CLOUDINARY_*</code> configuradas no Netlify.</div>
+  <div style="background:rgba(0,207,255,.06);border:1px solid rgba(0,207,255,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-family:var(--mono);font-size:10px;color:var(--neon2);line-height:1.7;">☁ Fotos são enviadas para o <strong>Cloudinary</strong> e ficam visíveis para todos os visitantes. Sessão: <span id="session-status" style="color:var(--neon);font-weight:600;"></span> <button onclick="testUploadAuth()" style="margin-left:10px;background:rgba(0,207,255,.1);border:1px solid rgba(0,207,255,.3);border-radius:4px;color:var(--neon2);font-family:var(--mono);font-size:10px;padding:3px 10px;cursor:pointer;">🔌 Testar autenticação</button><span id="upload-auth-result" style="margin-left:8px;font-family:var(--mono);font-size:10px;"></span></div>
   <div id="proj-list">${rProjs()}</div>
   <div class="sbar"><span class="smsg" id="msg-proj"></span><button class="btn btn-g btn-big" onclick="sProjs()">💾 Salvar</button></div>`;}
 function rProjs(){return(D.projects||[]).map((pr,i)=>`
