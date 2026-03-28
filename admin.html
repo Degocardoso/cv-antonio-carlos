@@ -268,18 +268,28 @@ function mergeFromCloud(record) {
 }
 
 /* ═══ LOAD ═══ */
+let DATA_SOURCE = 'defaults'; // 'cloud' | 'defaults'
+
 async function loadCloud() {
   setBadge('loading', '☁ Carregando...');
+  DATA_SOURCE = 'defaults';
   try {
     const res = await fetch(CV_READ_URL, { cache: 'no-cache' });
     if (res.ok) {
       const record = await res.json();
-      if (record && Object.keys(record).length > 0) D = mergeFromCloud(record);
-      setBadge('ok', '☁ Conectado');
+      if (record && !record.error && Object.keys(record).length > 0) {
+        D = mergeFromCloud(record);
+        DATA_SOURCE = 'cloud';
+        setBadge('ok', '☁ JSONBin carregado');
+      } else {
+        setBadge('err', record && record.error ? '☁ ' + record.error : '☁ Bin vazio');
+      }
     } else {
       setBadge('err', '☁ Erro ' + res.status);
     }
-  } catch(e) { setBadge('err', '☁ Sem conexão'); }
+  } catch(e) {
+    setBadge('err', '☁ Sem conexão: ' + e.message);
+  }
   for (let i = 0; i < (D.projects||[]).length; i++) {
     try { const r = localStorage.getItem('dego_cv_imgs_' + i); IMGS[i] = r ? JSON.parse(r) : []; }
     catch(e) { IMGS[i] = []; }
@@ -343,10 +353,30 @@ function logout() {
 }
 
 function showLoginForm() {
-  document.getElementById('loginLoading').style.display = 'none';
-  document.getElementById('pi').style.display = '';
-  document.getElementById('loginBtn').style.display = '';
-  setTimeout(() => document.getElementById('pi').focus(), 100);
+  const loading = document.getElementById('loginLoading');
+  const pi = document.getElementById('pi');
+  const btn = document.getElementById('loginBtn');
+  const sub = document.querySelector('.login-sub');
+
+  loading.style.display = 'none';
+  pi.style.display = '';
+  btn.style.display = '';
+
+  // Mostra claramente se os dados vieram do JSONBin ou dos DEFAULTS
+  if (DATA_SOURCE === 'cloud') {
+    if (sub) sub.innerHTML = 'Painel de edição do CV — acesso restrito<br><span style="color:var(--neon);font-size:10px;">✓ Dados do JSONBin carregados</span>';
+  } else {
+    if (sub) sub.innerHTML = 'Painel de edição do CV — acesso restrito<br><span style="color:#ff6b6b;font-size:10px;">⚠ JSONBin indisponível — usando DEFAULTS<br><a onclick="retryCloud()" style="color:var(--neon2);cursor:pointer;text-decoration:underline;">↺ Tentar novamente</a></span>';
+  }
+
+  setTimeout(() => pi.focus(), 100);
+}
+
+async function retryCloud() {
+  const sub = document.querySelector('.login-sub');
+  if (sub) sub.innerHTML = 'Painel de edição do CV — acesso restrito<br><span style="color:var(--neon2);font-size:10px;">⏳ Reconectando...</span>';
+  await loadCloud();
+  showLoginForm();
 }
 
 /* ═══ TABS ═══ */
@@ -369,7 +399,31 @@ function buildUI() {
   document.getElementById('tabsEl').innerHTML = TABS.map(t =>
     `<div class="tab ${t.id===curTab?'on':''}" onclick="switchTab('${t.id}')">${t.label}</div>`
   ).join('');
+
+  // Banner de origem dos dados — visível no topo do admin
+  const existing = document.getElementById('data-source-banner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'data-source-banner';
+  if (DATA_SOURCE === 'cloud') {
+    banner.style.cssText = 'background:rgba(0,255,136,.08);border-bottom:1px solid rgba(0,255,136,.2);padding:7px 24px;font-family:var(--mono);font-size:11px;color:var(--neon);display:flex;align-items:center;gap:8px;';
+    banner.innerHTML = '✓ Editando dados do <strong>JSONBin</strong> — alterações refletem no CV ao salvar';
+  } else {
+    banner.style.cssText = 'background:rgba(255,107,53,.08);border-bottom:1px solid rgba(255,107,53,.3);padding:7px 24px;font-family:var(--mono);font-size:11px;color:var(--neon3);display:flex;align-items:center;justify-content:space-between;gap:8px;';
+    banner.innerHTML = '<span>⚠ JSONBin indisponível — editando DEFAULTS locais. Salvar vai sobrescrever o JSONBin com estes dados.</span><button onclick="retryAndRebuild()" style="background:rgba(255,107,53,.15);border:1px solid rgba(255,107,53,.3);border-radius:4px;color:var(--neon3);font-family:var(--mono);font-size:10px;padding:4px 10px;cursor:pointer;">↺ Recarregar do JSONBin</button>';
+  }
+
+  const abody = document.getElementById('secEl').parentElement;
+  abody.insertBefore(banner, document.getElementById('secEl'));
+
   renderTab(curTab);
+}
+
+async function retryAndRebuild() {
+  await loadCloud();
+  buildUI();
+  flash(DATA_SOURCE === 'cloud' ? '✓ Dados do JSONBin carregados!' : '⚠ Ainda sem conexão com JSONBin.', DATA_SOURCE !== 'cloud');
 }
 function switchTab(id) { collectCurrent(); curTab=id; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on')); document.querySelector(`.tab[onclick="switchTab('${id}')"]`).classList.add('on'); renderTab(id); }
 function renderTab(id) {
@@ -439,7 +493,7 @@ function tObj(){return`
   <div class="g2f" style="gap:20px;align-items:start;">
     <div>
       <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:8px;">👤 Sobre Mim</div>
-      <div class="row"><textarea class="inp" id="f-obj" style="min-height:200px;">${escRaw(D.objective)}</textarea></div>
+      <div class="row"><textarea class="inp" id="f-obj" style="min-height:200px;" oninput="document.getElementById('obj-prev').innerHTML=this.value">${escRaw(D.objective)}</textarea></div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:4px;">
         <div style="font-family:var(--mono);font-size:9px;color:var(--td);margin-bottom:6px;">PREVIEW</div>
         <p style="font-size:12px;line-height:1.8;color:var(--t);" id="obj-prev">${D.objective}</p>
@@ -447,17 +501,14 @@ function tObj(){return`
     </div>
     <div>
       <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:8px;">🎯 Objetivo</div>
-      <div class="row"><textarea class="inp" id="f-objetivo" style="min-height:200px;">${escRaw(D.objetivo||'')}</textarea></div>
+      <div class="row"><textarea class="inp" id="f-objetivo" style="min-height:200px;" oninput="document.getElementById('objetivo-prev').innerHTML=this.value">${escRaw(D.objetivo||'')}</textarea></div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:4px;">
         <div style="font-family:var(--mono);font-size:9px;color:var(--td);margin-bottom:6px;">PREVIEW</div>
         <p style="font-size:12px;line-height:1.8;color:var(--t);" id="objetivo-prev">${D.objetivo||''}</p>
       </div>
     </div>
   </div>
-  <script>
-    document.getElementById('f-obj').addEventListener('input',function(){document.getElementById('obj-prev').innerHTML=this.value;});
-    document.getElementById('f-objetivo').addEventListener('input',function(){document.getElementById('objetivo-prev').innerHTML=this.value;});
-  <\/script>
+
   <div class="sbar"><span class="smsg" id="msg-obj"></span><button class="btn btn-g btn-big" onclick="sObj()">💾 Salvar Textos</button></div>`;}
 function cObj(){if(document.getElementById('f-obj'))D.objective=document.getElementById('f-obj').value;if(document.getElementById('f-objetivo'))D.objetivo=document.getElementById('f-objetivo').value;}
 function sObj(){cObj();saveAll();showMsg('msg-obj');}
@@ -684,10 +735,19 @@ function tSettings(){return`
   </div>
 
   <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
-    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">🔄 Forçar publicação dos DEFAULTS</div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:12px;line-height:1.7;">Sobrescreve o JSONBin com os dados padrão do código. Use quando o CV estiver mostrando dados desatualizados.</div>
-    <button class="btn btn-c" onclick="pushDefaults()">⬆ Publicar DEFAULTS</button>
-    <span class="smsg" id="msg-push" style="margin-left:12px;"></span>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">🔄 Sincronização de DEFAULTS</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-bottom:14px;line-height:1.8;">
+      Use estas opções quando o admin estiver mostrando dados desatualizados.<br>
+      Os dados atuais são: <span id="current-data-source-label" style="color:var(--neon);font-weight:600;">${DATA_SOURCE === 'cloud' ? 'JSONBin ✓' : 'DEFAULTS ⚠'}</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;">
+      <button class="btn btn-c" onclick="reloadFromCloud()">↺ Recarregar do JSONBin</button>
+      <button class="btn btn-g" onclick="downloadUpdatedDefaults()">⬇ Baixar DEFAULTS atualizados</button>
+      <span class="smsg" id="msg-push" style="margin-left:4px;"></span>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-top:8px;line-height:1.7;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px;">
+      <strong style="color:var(--tb);">⬇ Baixar DEFAULTS atualizados:</strong> gera um novo <code style="color:var(--neon2);">admin.html</code> com os dados do JSONBin já dentro do código. Você substitui o arquivo no GitHub e o admin nunca mais mostra dados velhos mesmo se o JSONBin falhar.
+    </div>
   </div>
 
   <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--border);">
@@ -705,20 +765,48 @@ function tSettings(){return`
     </div>
   </div>`;}
 
-async function pushDefaults(){
+async function reloadFromCloud(){
   const el=document.getElementById('msg-push');
-  if(el){el.textContent='⏳ Publicando...';el.classList.add('show');}
-  try{
-    const res=await fetch(CV_WRITE_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Admin-Password':SESSION_PWD},
-      body:JSON.stringify(DEFAULTS)
-    });
-    if(res.ok){D=JSON.parse(JSON.stringify(DEFAULTS));if(el)el.textContent='✓ DEFAULTS publicados!';buildUI();}
-    else if(el)el.textContent='❌ Erro '+res.status;
-  }catch(e){if(el)el.textContent='❌ Sem conexão';}
+  if(el){el.textContent='⏳ Recarregando...';el.classList.add('show');}
+  await loadCloud();
+  buildUI();
+  if(el){
+    el.textContent = DATA_SOURCE==='cloud' ? '✓ Dados do JSONBin carregados!' : '⚠ JSONBin indisponível.';
+    setTimeout(()=>el.classList.remove('show'),3000);
+  }
 }
 
+function downloadUpdatedDefaults(){
+  collectCurrent();
+  const dJson = JSON.stringify(D, null, 2);
+
+  // Build the new admin.html by replacing the DEFAULTS block
+  // Use a split approach instead of regex to avoid multiline string issues
+  const currentHtml = document.documentElement.outerHTML;
+  const marker = '/* \u2550\u2550\u2550 STATE \u2550\u2550\u2550 */';
+  const defaultsMarker = 'const DEFAULTS =';
+
+  const defStart = currentHtml.indexOf(defaultsMarker);
+  const stateStart = currentHtml.indexOf(marker);
+
+  if (defStart === -1 || stateStart === -1) {
+    flash('\u26a0 N\u00e3o foi poss\u00edvel localizar o bloco DEFAULTS no HTML.', true);
+    return;
+  }
+
+  const before = currentHtml.substring(0, defStart);
+  const after  = currentHtml.substring(stateStart);
+  const newHtml = before + 'const DEFAULTS = ' + dJson + ';\n\n' + after;
+
+  const blob = new Blob([newHtml], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'admin.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  flash('\u2713 admin.html baixado! Suba no GitHub para atualizar o site.');
+}
 async function resetAll(){
   if(!confirm('Resetar TUDO para padrão? Não pode ser desfeito.'))return;
   D=JSON.parse(JSON.stringify(DEFAULTS));IMGS={};
