@@ -621,10 +621,10 @@ const DEFAULTS = {
     highlights:["↓83% no tempo de espera presencial (3h → 30min)","↓85% no tempo de criação de e-mails (20min → 3min)"]
   }],
   projects:[
-    {name:"Digitalização de Fila Presencial",stack:"Power Apps · Power Automate",color:"g",featured:true,description:"Sistema de gestão de senhas com Power Platform. Alunos aguardam em sala em vez de filas físicas, reduzindo evasão.",result:"↓83% no tempo de espera (3h → 30min)",pills:["Power Apps","Power Automate","UX Design"]},
-    {name:"Gerador de E-mails Integrado ao CRM",stack:"PHP · Dynamics 365 · TinyMCE",color:"c",featured:true,description:"Gerador integrado ao Dynamics CRM, eliminando edição manual. Padronizou layouts com elementos variáveis e centralizou KPIs.",result:"↓85% no tempo de criação (20min → 3min)",pills:["PHP","Dynamics 365","TinyMCE","HTML/CSS"]},
-    {name:"Análise de Métricas de E-mail Marketing",stack:"SQL · Dashboard · CRM",color:"o",featured:true,description:"Centraliza Taxas de Abertura, CTR, Entregabilidade e Intervalos de Disparo. Filtragem por campanha com exclusão de dados de teste.",result:"Insights em tempo real",pills:["SQL","Dashboard","SendGrid","Dynamics 365"]},
-    {name:"Aplicativo de Gestão Financeira",stack:"Node.js · CSV · ML Preditivo",color:"p",featured:false,description:"App mobile para gestão financeira pessoal. Importação via CSV e análise preditiva de fluxo de caixa.",result:"Projeção inteligente de saúde financeira",pills:["Node.js","JavaScript","CSV","ML preditivo"]}
+    {name:"Digitalização de Fila Presencial",stack:"Power Apps · Power Automate",color:"g",featured:true,description:"Sistema de gestão de senhas com Power Platform. Alunos aguardam em sala em vez de filas físicas, reduzindo evasão.",result:"↓83% no tempo de espera (3h → 30min)",pills:["Power Apps","Power Automate","UX Design"],images:[]},
+    {name:"Gerador de E-mails Integrado ao CRM",stack:"PHP · Dynamics 365 · TinyMCE",color:"c",featured:true,description:"Gerador integrado ao Dynamics CRM, eliminando edição manual. Padronizou layouts com elementos variáveis e centralizou KPIs.",result:"↓85% no tempo de criação (20min → 3min)",pills:["PHP","Dynamics 365","TinyMCE","HTML/CSS"],images:[]},
+    {name:"Análise de Métricas de E-mail Marketing",stack:"SQL · Dashboard · CRM",color:"o",featured:true,description:"Centraliza Taxas de Abertura, CTR, Entregabilidade e Intervalos de Disparo. Filtragem por campanha com exclusão de dados de teste.",result:"Insights em tempo real",pills:["SQL","Dashboard","SendGrid","Dynamics 365"],images:[]},
+    {name:"Aplicativo de Gestão Financeira",stack:"Node.js · CSV · ML Preditivo",color:"p",featured:false,description:"App mobile para gestão financeira pessoal. Importação via CSV e análise preditiva de fluxo de caixa.",result:"Projeção inteligente de saúde financeira",pills:["Node.js","JavaScript","CSV","ML preditivo"],images:[]}
   ],
   education:[
     {period:"2026",color:"p",title:"Pós-Grad. em Data Science e Analytics",company:"Aplicado a Finanças — FECAP",description:"Especialização em análise de dados financeiros, modelagem preditiva e business intelligence."},
@@ -649,7 +649,7 @@ const DEFAULTS = {
 
 /* ═══ STATE ═══ */
 let D = JSON.parse(JSON.stringify(DEFAULTS));
-let IMGS = {};
+// Imagens são URLs do Cloudinary guardadas em D.projects[i].images[]
 
 /* ═══ MERGE — JSONBin é a ÚNICA fonte da verdade ═══
    JSONBin sempre ganha, sem exceção.
@@ -703,13 +703,7 @@ async function loadData() {
     // silently fall back to DEFAULTS
   }
 
-  // Images from localStorage (base64 too large for cloud)
-  for (let i = 0; i < D.projects.length; i++) {
-    try {
-      const r = localStorage.getItem('dego_cv_imgs_' + i);
-      IMGS[i] = r ? JSON.parse(r) : [];
-    } catch(e) { IMGS[i] = []; }
-  }
+  // Imagens vêm como URLs (Cloudinary) dentro de D.projects[i].images — não precisa de localStorage
 
   applyTheme();
   render();
@@ -788,10 +782,9 @@ function render() {
   // Featured projects (home — up to 3)
   const featured = (D.projects||[]).filter(p => p.featured).slice(0, 3);
   const homeProjs = featured.length ? featured : (D.projects||[]).slice(0, 3);
-  document.getElementById('projEl').innerHTML = homeProjs.map((pr, i) => {
+  document.getElementById('projEl').innerHTML = homeProjs.map((pr) => {
     const c = cc(pr.color);
-    const realIdx = (D.projects||[]).indexOf(pr);
-    const imgs = IMGS[realIdx >= 0 ? realIdx : i] || [];
+    const imgs = pr.images || [];
     return `<div class="proj ${c}"><div class="proj-top"><div class="proj-name">${esc(pr.name)}</div><div class="proj-stack">${esc(pr.stack)}</div></div>${pr.result?`<div class="result">✦ ${esc(pr.result)}</div>`:''}<div class="proj-desc">${esc(pr.description)}</div><div class="pills">${(pr.pills||[]).map(pl=>`<span class="pill ${c}">${esc(pl)}</span>`).join('')}</div>${imgs.length?`<div class="proj-imgs">${imgs.map(src=>`<img class="proj-img" src="${src}" alt="" onclick="openLB('${src}')">`).join('')}</div>`:''}</div>`;
   }).join('');
 
@@ -821,7 +814,7 @@ function openPO() {
   document.getElementById('poCount').textContent = `— ${(D.projects||[]).length} projetos`;
   document.getElementById('poGrid').innerHTML = (D.projects||[]).map((pr, i) => {
     const c = cc(pr.color);
-    const imgs = IMGS[i] || [];
+    const imgs = pr.images || [];
     return `<div class="po-card ${c}">${pr.featured?'<div class="po-feat">✦ Destaque</div>':''}<div class="po-name">${esc(pr.name)}</div><div class="po-stack">${esc(pr.stack)}</div>${pr.result?`<div class="po-result">✦ ${esc(pr.result)}</div>`:''}<div class="po-desc">${esc(pr.description)}</div><div class="pills">${(pr.pills||[]).map(pl=>`<span class="pill ${c}">${esc(pl)}</span>`).join('')}</div>${imgs.length?`<div class="po-imgs">${imgs.map(src=>`<img class="po-img" src="${src}" alt="" onclick="event.stopPropagation();openLB('${src}')">`).join('')}</div>`:''}</div>`;
   }).join('');
 }

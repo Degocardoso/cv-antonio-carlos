@@ -170,8 +170,9 @@ select.inp{cursor:pointer;}
    Toda comunicação passa pelas Netlify Functions.
    As chaves ficam em variáveis de ambiente no servidor.
 ═══════════════════════════════════════════════════════ */
-const CV_READ_URL  = '/.netlify/functions/cv-read';
-const CV_WRITE_URL = '/.netlify/functions/cv-write';
+const CV_READ_URL   = '/.netlify/functions/cv-read';
+const CV_WRITE_URL  = '/.netlify/functions/cv-write';
+const CV_UPLOAD_URL = '/.netlify/functions/cv-upload';
 
 /* ═══ DEFAULTS ═══ */
 const DEFAULTS = {
@@ -221,10 +222,10 @@ const DEFAULTS = {
     highlights:["↓83% no tempo de espera presencial (3h → 30min)","↓85% no tempo de criação de e-mails (20min → 3min)"]
   }],
   projects:[
-    {name:"Digitalização de Fila Presencial",stack:"Power Apps · Power Automate",color:"g",featured:true,description:"Sistema de gestão de senhas com Power Platform. Alunos aguardam em sala de aula em vez de filas físicas.",result:"↓83% no tempo de espera (3h → 30min)",pills:["Power Apps","Power Automate","UX Design"]},
-    {name:"Gerador de E-mails Integrado ao CRM",stack:"PHP · Dynamics 365 · TinyMCE",color:"c",featured:true,description:"Gerador integrado ao Dynamics CRM, eliminando edição manual. Padronizou layouts e centralizou KPIs.",result:"↓85% no tempo de criação (20min → 3min)",pills:["PHP","Dynamics 365","TinyMCE","HTML/CSS"]},
-    {name:"Análise de Métricas de E-mail Marketing",stack:"SQL · Dashboard · CRM",color:"o",featured:true,description:"Centraliza Taxas de Abertura, CTR, Entregabilidade e Intervalos de Disparo.",result:"Insights em tempo real",pills:["SQL","Dashboard","SendGrid","Dynamics 365"]},
-    {name:"Aplicativo de Gestão Financeira",stack:"Node.js · CSV · ML Preditivo",color:"p",featured:false,description:"App mobile para gestão financeira pessoal. Importação via CSV e análise preditiva de fluxo de caixa.",result:"Projeção inteligente de saúde financeira",pills:["Node.js","JavaScript","CSV","ML preditivo"]}
+    {name:"Digitalização de Fila Presencial",stack:"Power Apps · Power Automate",color:"g",featured:true,description:"Sistema de gestão de senhas com Power Platform. Alunos aguardam em sala de aula em vez de filas físicas.",result:"↓83% no tempo de espera (3h → 30min)",pills:["Power Apps","Power Automate","UX Design"],images:[]},
+    {name:"Gerador de E-mails Integrado ao CRM",stack:"PHP · Dynamics 365 · TinyMCE",color:"c",featured:true,description:"Gerador integrado ao Dynamics CRM, eliminando edição manual. Padronizou layouts e centralizou KPIs.",result:"↓85% no tempo de criação (20min → 3min)",pills:["PHP","Dynamics 365","TinyMCE","HTML/CSS"],images:[]},
+    {name:"Análise de Métricas de E-mail Marketing",stack:"SQL · Dashboard · CRM",color:"o",featured:true,description:"Centraliza Taxas de Abertura, CTR, Entregabilidade e Intervalos de Disparo.",result:"Insights em tempo real",pills:["SQL","Dashboard","SendGrid","Dynamics 365"],images:[]},
+    {name:"Aplicativo de Gestão Financeira",stack:"Node.js · CSV · ML Preditivo",color:"p",featured:false,description:"App mobile para gestão financeira pessoal. Importação via CSV e análise preditiva de fluxo de caixa.",result:"Projeção inteligente de saúde financeira",pills:["Node.js","JavaScript","CSV","ML preditivo"],images:[]}
   ],
   education:[
     {period:"2026",color:"p",title:"Pós-Grad. em Data Science e Analytics",company:"Aplicado a Finanças — FECAP",description:"Especialização em análise de dados financeiros, modelagem preditiva e business intelligence."},
@@ -251,6 +252,8 @@ const DEFAULTS = {
 let D = JSON.parse(JSON.stringify(DEFAULTS));
 let IMGS = {};
 let SESSION_PWD = ''; // senha apenas em memória — nunca em arquivo ou localStorage
+// Imagens agora são URLs do Cloudinary guardadas em D.projects[i].images[]
+// Não há mais localStorage para imagens
 
 /* ═══ MERGE ═══ */
 function mergeFromCloud(record) {
@@ -290,10 +293,7 @@ async function loadCloud() {
   } catch(e) {
     setBadge('err', '☁ Sem conexão: ' + e.message);
   }
-  for (let i = 0; i < (D.projects||[]).length; i++) {
-    try { const r = localStorage.getItem('dego_cv_imgs_' + i); IMGS[i] = r ? JSON.parse(r) : []; }
-    catch(e) { IMGS[i] = []; }
-  }
+  // Imagens carregadas via Cloudinary URLs em D.projects[i].images
 }
 
 /* ═══ SAVE ═══ */
@@ -310,8 +310,7 @@ async function saveAll() {
     else if (res.status === 401) { flash('❌ Sessão expirada. Faça login novamente.', true); setBadge('err', '☁ Não autorizado'); logout(); }
     else { flash('⚠ Erro ao salvar: ' + res.status, true); setBadge('err', '☁ Erro'); }
   } catch(e) { flash('⚠ Sem conexão.', true); setBadge('err', '☁ Sem conexão'); }
-  for (let i = 0; i < D.projects.length; i++)
-    localStorage.setItem('dego_cv_imgs_' + i, JSON.stringify(IMGS[i] || []));
+  // Imagens já estão em D.projects[i].images (URLs Cloudinary) — salvas via saveAll normal
 }
 
 function setBadge(cls, txt) { const el=document.getElementById('cloudBadge'); if(!el)return; el.className='cloud-badge '+cls; el.textContent=txt; }
@@ -578,7 +577,7 @@ function tProjs(){const fc=(D.projects||[]).filter(p=>p.featured).length;return`
     <button class="btn btn-g" onclick="addProj()">+ Adicionar</button>
   </div>
   <div style="font-family:var(--mono);font-size:10px;color:var(--neon);margin-bottom:10px;" id="feat-count">✦ ${fc} em destaque na home</div>
-  <div class="hint" style="margin-bottom:14px;">⚠ Fotos ficam apenas neste dispositivo (localStorage).</div>
+  <div style="background:rgba(0,207,255,.06);border:1px solid rgba(0,207,255,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-family:var(--mono);font-size:10px;color:var(--neon2);line-height:1.7;">☁ Fotos são enviadas para o <strong>Cloudinary</strong> e ficam visíveis para todos os visitantes. Requer as variáveis <code>CLOUDINARY_*</code> configuradas no Netlify.</div>
   <div id="proj-list">${rProjs()}</div>
   <div class="sbar"><span class="smsg" id="msg-proj"></span><button class="btn btn-g btn-big" onclick="sProjs()">💾 Salvar</button></div>`;}
 function rProjs(){return(D.projects||[]).map((pr,i)=>`
@@ -597,22 +596,106 @@ function rProjs(){return(D.projects||[]).map((pr,i)=>`
     <div class="row"><label class="lbl">Pills (vírgula)</label><input class="inp" id="pr-p-${i}" value="${(pr.pills||[]).join(', ')}"></div>
     <div class="crow"><label>Cor:</label>${cDots(pr.color,'sPrC'+i)}</div>
     <div style="margin-top:14px;">
-      <label class="lbl">📷 Fotos / Prints</label>
-      <div class="ithumb-wrap" id="ith-${i}">${(IMGS[i]||[]).map((s,j)=>`<div class="ithumb"><img src="${s}" alt=""><button class="ithumb-del" onclick="rmImg(${i},${j})">✕</button></div>`).join('')}</div>
-      <div class="izone"><label for="if-${i}">📁 Adicionar imagens</label><input type="file" id="if-${i}" accept="image/*" multiple style="display:none;" onchange="handleImgs(${i},this)"></div>
+      <label class="lbl">📷 Fotos do Projeto (hospedadas no Cloudinary)</label>
+      <div class="ithumb-wrap" id="ith-${i}">${(pr.images||[]).map((url,j)=>`<div class="ithumb"><img src="${url}" alt=""><button class="ithumb-del" onclick="rmImg(${i},${j})">✕</button></div>`).join('')}</div>
+      <div id="upload-status-${i}"></div>
+      <div class="izone"><label for="if-${i}">📁 Clique para enviar imagens (JPG, PNG — máx. 5MB cada)</label><input type="file" id="if-${i}" accept="image/*" multiple style="display:none;" onchange="handleImgs(${i},this)"></div>
     </div>
     <div style="text-align:right;margin-top:10px;"><button class="btn btn-r" onclick="rmProj(${i})">✕ Remover</button></div>
   </div>`).join('');}
 function togFeat(i){const cb=document.getElementById(`pr-f-${i}`);const lb=document.getElementById(`ft-${i}`);if(!cb||!lb)return;D.projects[i].featured=!D.projects[i].featured;cb.checked=D.projects[i].featured;lb.className=`feat-toggle ${D.projects[i].featured?'on':''}`;const fc=(D.projects||[]).filter(p=>p.featured).length;const el=document.getElementById('feat-count');if(el)el.textContent=`✦ ${fc} em destaque na home`;}
 function setPrC(i,c,el){D.projects[i].color=c;el.closest('.cdots').querySelectorAll('.cdot').forEach(d=>d.classList.remove('on'));el.classList.add('on');}
 for(let i=0;i<20;i++){window['sPrC'+i]=(c,el)=>setPrC(i,c,el);}
-function handleImgs(idx,inp){if(!IMGS[idx])IMGS[idx]=[];let rem=inp.files.length;Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{IMGS[idx].push(e.target.result);if(!--rem)rThumbs(idx);};r.readAsDataURL(f);});inp.value='';}
-function rmImg(idx,j){IMGS[idx].splice(j,1);rThumbs(idx);}
-function rThumbs(idx){const el=document.getElementById('ith-'+idx);if(!el)return;el.innerHTML=(IMGS[idx]||[]).map((s,j)=>`<div class="ithumb"><img src="${s}" alt=""><button class="ithumb-del" onclick="rmImg(${idx},${j})">✕</button></div>`).join('');}
-function cPrI(){D.projects=D.projects.map((_,i)=>({name:v(`pr-n-${i}`),stack:v(`pr-s-${i}`),color:D.projects[i].color,featured:!!document.getElementById(`pr-f-${i}`)?.checked,description:v(`pr-d-${i}`),result:v(`pr-r-${i}`),pills:v(`pr-p-${i}`).split(',').map(s=>s.trim()).filter(Boolean)}));}
+
+/* ── IMAGE UPLOAD via Cloudinary (through Netlify Function) ── */
+async function handleImgs(idx, inp) {
+  if (!inp.files.length) return;
+  if (!D.projects[idx].images) D.projects[idx].images = [];
+
+  const files = Array.from(inp.files);
+  inp.value = '';
+
+  const statusEl = document.getElementById('upload-status-' + idx);
+  const total = files.length;
+  let done = 0, failed = 0;
+
+  if (statusEl) {
+    statusEl.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--neon2);padding:6px 0;">⏳ Enviando 0/${total}...</div>`;
+  }
+
+  for (const file of files) {
+    if (file.size > 5 * 1024 * 1024) {
+      failed++;
+      flash(`⚠ "${file.name}" é maior que 5MB e foi ignorado.`, true);
+      continue;
+    }
+
+    // Convert to base64
+    const base64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+
+    try {
+      const response = await fetch(CV_UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Password': SESSION_PWD,
+        },
+        body: JSON.stringify({ file: base64, projectIndex: idx }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.url) {
+        D.projects[idx].images = D.projects[idx].images || [];
+        D.projects[idx].images.push(result.url);
+        done++;
+        if (statusEl) statusEl.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--neon2);padding:6px 0;">⏳ Enviando ${done}/${total}...</div>`;
+        rThumbs(idx);
+      } else {
+        failed++;
+        flash(`⚠ Erro ao enviar "${file.name}": ${result.error || response.status}`, true);
+      }
+    } catch(e) {
+      failed++;
+      flash(`⚠ Falha de conexão ao enviar "${file.name}".`, true);
+    }
+  }
+
+  // Final status
+  if (statusEl) {
+    if (failed === 0) {
+      statusEl.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--neon);padding:6px 0;">✓ ${done} foto${done>1?'s':''} enviada${done>1?'s':''} com sucesso! Clique em 💾 Salvar para confirmar.</div>`;
+    } else {
+      statusEl.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--neon3);padding:6px 0;">⚠ ${done} ok, ${failed} com erro. Clique em 💾 Salvar para confirmar.</div>`;
+    }
+  }
+}
+
+function rmImg(idx, j) {
+  if (!D.projects[idx]) return;
+  D.projects[idx].images = D.projects[idx].images || [];
+  D.projects[idx].images.splice(j, 1);
+  rThumbs(idx);
+}
+
+function rThumbs(idx) {
+  const el = document.getElementById('ith-' + idx);
+  if (!el) return;
+  const imgs = D.projects[idx] && D.projects[idx].images ? D.projects[idx].images : [];
+  el.innerHTML = imgs.map((url, j) =>
+    `<div class="ithumb"><img src="${url}" alt=""><button class="ithumb-del" onclick="rmImg(${idx},${j})">✕</button></div>`
+  ).join('');
+}
+
+function cPrI(){D.projects=D.projects.map((_,i)=>({name:v(`pr-n-${i}`),stack:v(`pr-s-${i}`),color:D.projects[i].color,featured:!!document.getElementById(`pr-f-${i}`)?.checked,description:v(`pr-d-${i}`),result:v(`pr-r-${i}`),pills:v(`pr-p-${i}`).split(',').map(s=>s.trim()).filter(Boolean),images:D.projects[i].images||[]}));}
 function cProjs(){cPrI();}
-function addProj(){cPrI();const i=D.projects.length;D.projects.push({name:'Novo Projeto',stack:'Tech',color:'c',featured:false,description:'',result:'',pills:[]});IMGS[i]=[];document.getElementById('proj-list').innerHTML=rProjs();}
-function rmProj(i){cPrI();D.projects.splice(i,1);const n={};for(let k=0;k<D.projects.length;k++)n[k]=IMGS[k<i?k:k+1]||[];IMGS=n;document.getElementById('proj-list').innerHTML=rProjs();}
+function addProj(){cPrI();D.projects.push({name:'Novo Projeto',stack:'Tech',color:'c',featured:false,description:'',result:'',pills:[],images:[]});document.getElementById('proj-list').innerHTML=rProjs();}
+function rmProj(i){cPrI();D.projects.splice(i,1);document.getElementById('proj-list').innerHTML=rProjs();}
 function sProjs(){cProjs();saveAll();showMsg('msg-proj');}
 
 /* ═════ FORMAÇÃO ═════ */
@@ -725,6 +808,21 @@ function sTheme(){cTheme();prevTheme();saveAll();showMsg('msg-th');}
 function tSettings(){return`
   <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;">Configurações</h3>
 
+  <div style="background:rgba(0,207,255,.05);border:1px solid rgba(0,207,255,.2);border-radius:var(--r);padding:16px;margin-bottom:24px;">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">☁ Configurar Cloudinary (fotos dos projetos)</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;margin-bottom:12px;">
+      1. Crie conta grátis em <a href="https://cloudinary.com" target="_blank" style="color:var(--neon2);">cloudinary.com</a> (25GB grátis)<br>
+      2. No painel → Settings → API Keys → copie Cloud Name, API Key e API Secret<br>
+      3. Adicione as variáveis de ambiente no Netlify:
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-family:var(--mono);font-size:11px;color:var(--neon);line-height:2;">
+      CLOUDINARY_CLOUD_NAME = seu-cloud-name<br>
+      CLOUDINARY_API_KEY = 123456789012345<br>
+      CLOUDINARY_API_SECRET = ••••••••••••••••••••
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);margin-top:8px;">Depois de adicionar as variáveis, faça um novo deploy no Netlify (Trigger deploy).</div>
+  </div>
+
   <div style="background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);border-radius:var(--r);padding:16px;margin-bottom:24px;">
     <div style="font-family:var(--mono);font-size:11px;color:var(--neon);margin-bottom:8px;">🔒 Segurança</div>
     <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;">
@@ -761,7 +859,8 @@ function tSettings(){return`
     <div style="font-family:var(--mono);font-size:11px;color:var(--td);line-height:1.9;">
       Leitura: <code style="color:var(--neon2);">/.netlify/functions/cv-read</code><br>
       Escrita: <code style="color:var(--neon2);">/.netlify/functions/cv-write</code><br>
-      Imagens: <code style="color:var(--td);">localStorage deste dispositivo</code>
+      Upload: <code style="color:var(--neon2);">/.netlify/functions/cv-upload</code><br>
+      Imagens: <code style="color:var(--neon);">Cloudinary (disponíveis para todos)</code>
     </div>
   </div>`;}
 
