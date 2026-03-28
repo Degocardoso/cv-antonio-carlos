@@ -65,7 +65,7 @@ exports.handler = async (event) => {
     event.headers['X-Admin-Password'] ||
     ''
   ).trim();
-  const cleanPassword = PASSWORD.replace(/[\r\n\t]/g, '').trim();
+  const cleanPassword = PASSWORD.replace(/[\r\n\t\u200b\u00a0\ufeff]/g, '').trim();
 
   if (!submitted || submitted !== cleanPassword) {
     return {

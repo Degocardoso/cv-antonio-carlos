@@ -92,7 +92,7 @@ exports.handler = async (event) => {
   ).trim();
 
   // Remove any invisible chars from env var (copy-paste artifacts)
-  const cleanPassword = PASSWORD.replace(/[\r\n\t]/g, '').trim();
+  const cleanPassword = PASSWORD.replace(/[\r\n\t\u200b\u00a0\ufeff]/g, '').trim();
 
   if (!submittedPwd) {
     return {
