@@ -1,6 +1,6 @@
 // netlify/functions/cv-ping.js
-// Diagnóstico — acesse /.netlify/functions/cv-ping no browser
-// Para testar senha: envie com header X-Admin-Password
+// Diagnóstico — acesse /.netlify/functions/cv-ping
+const { stripPassword } = require('./lib/http');
 
 exports.handler = async (event) => {
   const PASSWORD = process.env.CV_ADMIN_PASSWORD || '';
@@ -17,24 +17,17 @@ exports.handler = async (event) => {
 
   const allOk = vars.JSONBIN_BIN_ID && vars.JSONBIN_MASTER_KEY && vars.CV_ADMIN_PASSWORD;
 
-  // Test password if header is provided — never reveals the actual value
-  const submitted = (
-    event.headers['x-admin-password'] ||
-    event.headers['X-Admin-Password'] ||
-    ''
-  ).trim();
+  const submitted = stripPassword(
+    event.headers['x-admin-password'] || event.headers['X-Admin-Password'] || ''
+  );
 
   let pwdTest = null;
   if (submitted) {
-    const clean = PASSWORD.replace(/[\r\n\t\u200b\u00a0]/g, '').trim();
+    const clean = stripPassword(PASSWORD);
     pwdTest = {
-      submitted_length:          submitted.length,
-      expected_length:           clean.length,
-      match:                     submitted === clean,
-      submitted_first_charcode:  submitted.charCodeAt(0),
-      submitted_last_charcode:   submitted.charCodeAt(submitted.length - 1),
-      expected_first_charcode:   clean.charCodeAt(0),
-      expected_last_charcode:    clean.charCodeAt(clean.length - 1),
+      submitted_length: submitted.length,
+      expected_length: clean.length,
+      match: submitted === clean,
     };
   }
 
@@ -48,7 +41,7 @@ exports.handler = async (event) => {
     body: JSON.stringify({
       status: allOk ? 'OK' : 'ERRO — variáveis faltando',
       variables: vars,
-      password_test: pwdTest || 'Envie o header X-Admin-Password para testar a comparação',
+      password_test: pwdTest || 'Envie o header X-Admin-Password para testar',
     }, null, 2),
   };
 };

@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/.netlify/functions/cv-read", "destination": "/api/cv-read" },
+    { "source": "/.netlify/functions/cv-write", "destination": "/api/cv-write" },
+    { "source": "/.netlify/functions/cv-upload", "destination": "/api/cv-upload" }
+  ]
+}

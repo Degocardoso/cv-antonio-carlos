@@ -1,0 +1,137 @@
+/* ═══ Print Styles ═══ */
+@media print {
+  @page { size: A4 portrait; margin: 14mm 18mm; }
+
+  #pb, #loading, #po, #lb,
+  body::before, body::after,
+  .copy-toast, .wa-btn, .view-all-wrap,
+  .avail, .pulse, .cur2, .hero::before,
+  .pdf-group, .topbar, .bottombar,
+  .proj-imgs, .po-imgs,
+  * { animation: none !important; transition: none !important; }
+
+  /* ═══ PDF DESIGN ═══ */
+  body.pm-design { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body.pm-design * { box-shadow: none !important; text-shadow: none !important; }
+  body.pm-design .w { max-width: 100% !important; padding: 0 !important; }
+  body.pm-design .gap2 { margin-top: 8px !important; }
+  body.pm-design .hero, body.pm-design .panel, body.pm-design .full,
+  body.pm-design .proj, body.pm-design .stag, body.pm-design .sbox,
+  body.pm-design .cstrip, body.pm-design .cert-item, body.pm-design .tgitem { background: white !important; }
+  body.pm-design .hp, body.pm-design .hero-stats { display: none !important; }
+  body.pm-design .hero { border: none !important; border-bottom: 1px solid #ddd !important; padding: 0 0 10px !important; border-radius: 0 !important; }
+  body.pm-design .hero-layout { flex-direction: row !important; gap: 0 !important; }
+  body.pm-design .hero-name { font-size: 22pt !important; letter-spacing: -1px !important; color: #111 !important; font-family: 'JetBrains Mono', monospace !important; }
+  body.pm-design .hero-name span { color: #222 !important; }
+  body.pm-design .hero-full { font-size: 9pt !important; color: #555 !important; }
+  body.pm-design .hero-role { font-size: 10pt !important; color: #333 !important; margin-bottom: 7px !important; }
+  body.pm-design .cstrip { border: none !important; border-bottom: 1px solid #eee !important; border-radius: 0 !important; padding: 4px 0 7px !important; }
+  body.pm-design .ci, body.pm-design .copy-btn { color: #444 !important; font-size: 8pt !important; padding-right: 12px !important; }
+  body.pm-design .hero-tags { gap: 3px !important; margin-bottom: 0 !important; }
+  body.pm-design .tag { border-color: #ccc !important; color: #555 !important; font-size: 7.5pt !important; padding: 1px 5px !important; }
+  body.pm-design .g2, body.pm-design .g3 { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  body.pm-design .panel { border: 1px solid #eee !important; padding: 8px !important; page-break-inside: avoid; }
+  body.pm-design .full { border: none !important; border-bottom: 1px solid #eee !important; padding: 7px 0 !important; }
+  body.pm-design .ph { border-bottom-color: #ddd !important; padding-bottom: 3px !important; margin-bottom: 8px !important; }
+  body.pm-design .pi { background: #f5f5f5 !important; border: 1px solid #ddd !important; color: #333 !important; }
+  body.pm-design .pt { color: #333 !important; font-size: 7.5pt !important; font-weight: bold !important; }
+  body.pm-design .pb { display: none !important; }
+  body.pm-design .sobre { font-size: 8.5pt !important; line-height: 1.55 !important; color: #333 !important; }
+  body.pm-design .sobre strong { color: #111 !important; }
+  body.pm-design .sobre .metric { color: #333 !important; font-weight: bold !important; }
+  body.pm-design .sg { margin-bottom: 7px !important; }
+  body.pm-design .sg-label { color: #333 !important; font-size: 7.5pt !important; font-weight: bold !important; }
+  body.pm-design .sg-label::after { background: #ddd !important; }
+  body.pm-design .stag { border-color: #ddd !important; color: #333 !important; font-size: 8pt !important; padding: 2px 6px !important; background: #f9f9f9 !important; }
+  body.pm-design .td2 { border-color: #666 !important; box-shadow: none !important; }
+  body.pm-design .tc { background: #ddd !important; }
+  body.pm-design .tp { color: #666 !important; font-size: 7.5pt !important; font-weight: bold !important; }
+  body.pm-design .tt { color: #111 !important; font-size: 10pt !important; }
+  body.pm-design .ts { color: #555 !important; font-size: 8pt !important; }
+  body.pm-design .tdesc { color: #444 !important; font-size: 8pt !important; }
+  body.pm-design .thl { color: #333 !important; font-size: 7.5pt !important; font-weight: bold !important; }
+  body.pm-design .proj { border: 1px solid #eee !important; page-break-inside: avoid; padding: 8px !important; }
+  body.pm-design .proj::before { background: #bbb !important; width: 2px !important; }
+  body.pm-design .proj-name { color: #111 !important; font-size: 9.5pt !important; }
+  body.pm-design .proj-stack { color: #666 !important; font-size: 8pt !important; }
+  body.pm-design .result { background: #f7f7f7 !important; border: 1px solid #ddd !important; color: #333 !important; font-weight: bold !important; font-size: 7.5pt !important; }
+  body.pm-design .proj-desc { color: #444 !important; font-size: 8pt !important; }
+  body.pm-design .pill { border: 1px solid #ddd !important; color: #555 !important; font-size: 7pt !important; background: #f5f5f5 !important; }
+  body.pm-design .cert-item { border: 1px solid #eee !important; padding: 5px 7px !important; }
+  body.pm-design .cert-badge { background: #f5f5f5 !important; border: 1px solid #eee !important; }
+  body.pm-design .cert-name { color: #111 !important; font-size: 8.5pt !important; }
+  body.pm-design .cert-issuer, body.pm-design .cert-year { color: #555 !important; font-size: 8pt !important; }
+  body.pm-design .slabel { color: #666 !important; }
+  body.pm-design .sval { color: #333 !important; }
+  body.pm-design a[href^="mailto"]:after { content: " <" attr(href) ">"; font-size: 7pt; color: #777 !important; }
+  body.pm-design a[href^="https"]:after { content: " (" attr(href) ")"; font-size: 7pt; color: #777 !important; }
+  body.pm-design a[href^="tel"]:after { content: ""; }
+
+  /* ═══ PDF ATS ═══ */
+  body.pm-ats {
+    background: white !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    --bg:#fff;--bg2:#fff;--bg3:#fff;--panel:#fff;
+    --border:#ccc;--bb:#bbb;
+    --t:#111;--td:#444;--tb:#000;
+    --neon:#111;--neon2:#333;--neon3:#333;--neon4:#333;--neon5:#333;
+  }
+  body.pm-ats *, body.pm-ats *::before, body.pm-ats *::after {
+    background: white !important; color: #111 !important; box-shadow: none !important;
+    text-shadow: none !important; border: none !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+  }
+  body.pm-ats a { text-decoration: none !important; }
+  body.pm-ats .w { max-width: 100% !important; padding: 0 !important; }
+  body.pm-ats .gap2 { margin-top: 6px !important; }
+  body.pm-ats .hp, body.pm-ats .hero-stats, body.pm-ats .hero-tags,
+  body.pm-ats .pi, body.pm-ats .pb,
+  body.pm-ats .cert-badge, body.pm-ats .cert-hint,
+  body.pm-ats .tgrid, body.pm-ats .tl,
+  body.pm-ats .result, body.pm-ats .proj-stack,
+  body.pm-ats .pills, body.pm-ats .proj-imgs,
+  body.pm-ats .copy-hint, body.pm-ats .sg-label::after { display: none !important; }
+  body.pm-ats .hero { border-bottom: 1.5px solid #222 !important; padding: 0 0 8px !important; }
+  body.pm-ats .hero-layout { flex-direction: column !important; gap: 2px !important; }
+  body.pm-ats .hero-name { font-size: 17pt !important; font-weight: 700 !important; letter-spacing: 0 !important; color: #000 !important; line-height: 1.2 !important; }
+  body.pm-ats .hero-name span { color: #000 !important; }
+  body.pm-ats .hero-full { font-size: 9pt !important; color: #444 !important; margin-bottom: 3px !important; }
+  body.pm-ats .hero-role { font-size: 9.5pt !important; font-weight: 600 !important; color: #222 !important; margin-bottom: 4px !important; }
+  body.pm-ats .cstrip { padding: 0 !important; display: flex !important; flex-wrap: wrap !important; gap: 0 !important; }
+  body.pm-ats .ci, body.pm-ats .copy-btn { font-size: 8.5pt !important; color: #333 !important; padding-right: 14px !important; }
+  body.pm-ats .g2, body.pm-ats .g3 { grid-template-columns: 1fr !important; gap: 0 !important; }
+  body.pm-ats .panel, body.pm-ats .full { padding: 5px 0 0 !important; page-break-inside: avoid; }
+  body.pm-ats .ph { display: flex !important; align-items: center !important; border-bottom: 1px solid #222 !important; padding-bottom: 2px !important; margin-bottom: 6px !important; margin-top: 8px !important; }
+  body.pm-ats .pt { font-size: 9pt !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; color: #000 !important; }
+  body.pm-ats .sobre { font-size: 9pt !important; line-height: 1.55 !important; color: #222 !important; }
+  body.pm-ats .sobre strong { color: #000 !important; font-weight: 700 !important; }
+  body.pm-ats .sobre .metric { color: #000 !important; font-weight: 700 !important; }
+  body.pm-ats .sg { display: block !important; margin-bottom: 3px !important; }
+  body.pm-ats .sg-label { display: inline !important; font-size: 9pt !important; font-weight: 700 !important; color: #000 !important; text-transform: none !important; letter-spacing: 0 !important; }
+  body.pm-ats .sg-label::after { display: none !important; }
+  body.pm-ats .stags { display: inline !important; }
+  body.pm-ats .stag { display: inline !important; font-size: 9pt !important; color: #222 !important; padding: 0 !important; border: none !important; background: none !important; }
+  body.pm-ats .stag::after { content: ', '; }
+  body.pm-ats .stag:last-child::after { content: ''; }
+  body.pm-ats .timeline { display: block !important; }
+  body.pm-ats .ti { display: block !important; padding-bottom: 8px !important; }
+  body.pm-ats .tp { font-size: 8.5pt !important; color: #555 !important; font-weight: 400 !important; display: block !important; margin-bottom: 0 !important; }
+  body.pm-ats .tt { font-size: 10pt !important; font-weight: 700 !important; color: #000 !important; display: block !important; margin-bottom: 0 !important; }
+  body.pm-ats .ts { font-size: 9pt !important; color: #333 !important; font-style: italic !important; display: block !important; margin-bottom: 3px !important; }
+  body.pm-ats .tdesc { font-size: 9pt !important; color: #222 !important; line-height: 1.5 !important; display: block !important; }
+  body.pm-ats .thl { display: block !important; font-size: 9pt !important; color: #222 !important; padding-left: 14px !important; text-indent: -14px !important; }
+  body.pm-ats .thl span:first-child { display: none !important; }
+  body.pm-ats .thl span:last-child::before { content: '\25CF '; font-size: 7pt !important; }
+  body.pm-ats .proj { padding: 0 0 7px !important; border-bottom: 1px solid #ddd !important; margin-bottom: 2px !important; }
+  body.pm-ats .proj::before { display: none !important; }
+  body.pm-ats .proj-name { font-size: 9.5pt !important; font-weight: 700 !important; color: #000 !important; display: block !important; margin-bottom: 2px !important; }
+  body.pm-ats .proj-desc { font-size: 9pt !important; color: #222 !important; line-height: 1.5 !important; display: block !important; }
+  body.pm-ats .cert-list { display: block !important; }
+  body.pm-ats .cert-item { display: flex !important; padding: 0 0 4px !important; align-items: baseline !important; gap: 8px !important; }
+  body.pm-ats .cert-name { font-size: 9pt !important; font-weight: 600 !important; color: #111 !important; flex: 1 !important; }
+  body.pm-ats .cert-issuer { font-size: 8.5pt !important; color: #555 !important; font-style: italic !important; }
+  body.pm-ats .cert-year { font-size: 8.5pt !important; color: #555 !important; margin-left: auto !important; }
+  body.pm-ats a[href^="mailto"]:after { content: " <" attr(href) ">"; font-size: 8pt; color: #555 !important; }
+  body.pm-ats a[href^="https"]:after { content: " (" attr(href) ")"; font-size: 8pt; color: #555 !important; }
+  body.pm-ats a[href^="tel"]:after { content: ""; }
+}
