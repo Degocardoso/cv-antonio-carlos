@@ -92,11 +92,19 @@
   body.pm-ats .copy-hint, body.pm-ats .sg-label::after,
   body.pm-ats .proj-top .proj-stack { display: none !important; }
 
-  /* ── Layout geral ── */
-  body.pm-ats .w { max-width: 100% !important; padding: 0 !important; }
+  /* ── Layout geral + reordenação: Sobre → Formação → Experiência → rest ── */
+  body.pm-ats .w { max-width: 100% !important; padding: 0 !important; display: flex !important; flex-direction: column !important; }
   body.pm-ats .gap2 { margin-top: 0 !important; }
-  body.pm-ats .g2, body.pm-ats .g3 { display: block !important; }
+  body.pm-ats .g2, body.pm-ats .g3 { display: contents !important; }
   body.pm-ats .panel, body.pm-ats .full { padding: 0 !important; page-break-inside: avoid; }
+  body.pm-ats .hero { order: 1 !important; }
+  body.pm-ats #sobre-row > .panel:first-child { order: 2 !important; }
+  body.pm-ats .g3 > .panel:nth-child(2) { order: 3 !important; }
+  body.pm-ats .g2:not(#sobre-row) > .panel:first-child { order: 4 !important; }
+  body.pm-ats .g3 > .panel:nth-child(3) { order: 5 !important; }
+  body.pm-ats .g3 > .panel:first-child { order: 6 !important; }
+  body.pm-ats .g2:not(#sobre-row) > .panel:nth-child(2) { order: 7 !important; }
+  body.pm-ats .bottombar { order: 99 !important; }
   body.pm-ats a { text-decoration: none !important; color: #000 !important; }
 
   /* ── HEADER: nome centralizado ── */
@@ -153,6 +161,13 @@
   body.pm-ats .stag { display: block !important; font-size: 9.5pt !important; color: #000 !important; padding: 1px 0 1px 16px !important; border: none !important; background: none !important; position: relative !important; }
   body.pm-ats .stag::before { content: '\25CF' !important; position: absolute !important; left: 0 !important; top: 3px !important; font-size: 7pt !important; }
   body.pm-ats .stag::after { content: '' !important; }
+  body.pm-ats .stag.adv::after { content: ': Avançado' !important; font-weight: 400 !important; }
+  body.pm-ats .stag.int::after { content: ': Intermediário' !important; font-weight: 400 !important; }
+  body.pm-ats .stag.bsc::after { content: ': Básico' !important; font-weight: 400 !important; }
+  body.pm-ats .stag.lng::after { content: '' !important; }
+  body.pm-ats .stag { font-weight: 700 !important; }
+  /* Idiomas como seção separada */
+  body.pm-ats .sg:last-child .sg-label.lng { display: block !important; font-size: 11pt !important; font-weight: 700 !important; border-bottom: 1.5px solid #000 !important; padding-bottom: 3px !important; margin-top: 14px !important; margin-bottom: 8px !important; }
 
   /* ── Projetos — título bold + parágrafo descritivo ── */
   body.pm-ats .proj { padding: 0 0 10px !important; margin-bottom: 4px !important; border-bottom: none !important; }

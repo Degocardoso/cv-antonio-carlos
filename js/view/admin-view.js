@@ -327,6 +327,15 @@ export function tSettings() {
     </div>
   </div>
 
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">📥 Exportar Defaults</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;margin-bottom:12px;">
+      Baixa os dados atuais do JSONBin como <code style="color:var(--neon);">defaults.js</code>.<br>
+      Use para atualizar o arquivo padrão no GitHub.
+    </div>
+    <button class="btn btn-g" onclick="window.__admin.exportDefaults()">📥 Baixar defaults.js</button>
+  </div>
+
   <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--border);">
     <div style="font-family:var(--mono);font-size:11px;color:#ff6b6b;font-weight:600;margin-bottom:8px;">⚠ Zona de Perigo</div>
     <button class="btn btn-r" onclick="window.__admin.resetAll()">⚠ Resetar para padrão</button>

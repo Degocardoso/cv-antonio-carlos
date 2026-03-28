@@ -111,3 +111,17 @@ select.inp { cursor: pointer; }
 .color-row .hex-inp { width: 100px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 8px 10px; color: var(--tb); font-family: var(--mono); font-size: 12px; outline: none; }
 .color-row .hex-inp:focus { border-color: var(--neon2); }
 .color-swatch { width: 80px; height: 36px; border-radius: var(--r); border: 1px solid var(--border); }
+
+/* MOBILE ADMIN */
+@media(max-width:480px) {
+  .atop { padding: 8px 12px; gap: 8px; }
+  .atitle { font-size: 11px; }
+  .atop-right { gap: 6px; }
+  .atop-right .btn { padding: 6px 10px; font-size: 10px; }
+  .atop-right .preview-a { padding: 5px 8px; font-size: 10px; }
+  .tabs .tab { padding: 8px 10px; font-size: 10px; }
+  .login-box { padding: 28px 20px; }
+  .sbar { flex-direction: column; align-items: stretch; }
+  .sbar .btn { width: 100%; text-align: center; }
+  .color-row { flex-direction: column; gap: 8px; }
+}

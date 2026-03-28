@@ -35,9 +35,10 @@ function renderContact(p) {
   const eH = `<button class="copy-btn" onclick="window.__copyEmail('${escAttr(p.email)}')" title="Clique para copiar">✉️ ${esc(p.email)} <span class="copy-hint">⧉</span></button>`;
   const liH = p.linkedin ? `<a class="ci" href="https://${escAttr(p.linkedin)}" target="_blank" rel="noopener">💼 ${esc(p.linkedin)}</a>` : '';
   const ghH = p.github ? `<a class="ci" href="https://${escAttr(p.github)}" target="_blank" rel="noopener">🐙 GitHub</a>` : '';
+  const portH = p.portfolio ? `<a class="ci" href="${escAttr(p.portfolio.startsWith('http') ? p.portfolio : 'https://' + p.portfolio)}" target="_blank" rel="noopener">🌐 Portfólio</a>` : '';
   const phH = `<a class="ci" href="tel:${p.phone.replace(/\D/g, '')}">📱 ${esc(p.phone)}</a>`;
   const lH = `<span class="ci" style="cursor:default;">📍 ${esc(p.location)}</span>`;
-  document.getElementById('cstrip').innerHTML = eH + liH + ghH + phH + lH;
+  document.getElementById('cstrip').innerHTML = eH + liH + ghH + portH + phH + lH;
 }
 
 function renderTags(D) {
