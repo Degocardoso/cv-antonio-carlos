@@ -59,12 +59,22 @@ exports.handler = async (event) => {
   }
 
   // Valida senha enviada no header X-Admin-Password
-  const submitted = (event.headers['x-admin-password'] || '').trim();
-  if (!submitted || submitted !== PASSWORD) {
+  // Netlify lowercases all headers; also strip invisible chars from env var
+  const submitted = (
+    event.headers['x-admin-password'] ||
+    event.headers['X-Admin-Password'] ||
+    ''
+  ).trim();
+  const cleanPassword = PASSWORD.replace(/[\r\n\t]/g, '').trim();
+
+  if (!submitted || submitted !== cleanPassword) {
     return {
       statusCode: 401,
       headers: corsHeaders,
-      body: JSON.stringify({ error: 'Senha incorreta ou não informada.' }),
+      body: JSON.stringify({
+        error: 'Senha incorreta ou não informada.',
+        hint: 'Verifique a variável CV_ADMIN_PASSWORD no Netlify (sem espaços extras).',
+      }),
     };
   }
 

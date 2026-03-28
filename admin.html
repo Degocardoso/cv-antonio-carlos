@@ -610,6 +610,18 @@ for(let i=0;i<20;i++){window['sPrC'+i]=(c,el)=>setPrC(i,c,el);}
 /* ── IMAGE UPLOAD via Cloudinary (through Netlify Function) ── */
 async function handleImgs(idx, inp) {
   if (!inp.files.length) return;
+
+  // SESSION_PWD must be set — if page was reloaded after login, it's lost
+  if (!SESSION_PWD) {
+    const statusEl = document.getElementById('upload-status-' + idx);
+    if (statusEl) {
+      statusEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:#ff6b6b;padding:8px;background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:4px;margin-top:8px;">❌ Sessão expirada. Clique em <strong>Sair</strong> e faça login novamente para enviar fotos.</div>';
+    }
+    flash('❌ Sessão expirada — faça login novamente para enviar fotos.', true);
+    inp.value = '';
+    return;
+  }
+
   if (!D.projects[idx].images) D.projects[idx].images = [];
 
   const files = Array.from(inp.files);
@@ -656,6 +668,16 @@ async function handleImgs(idx, inp) {
         done++;
         if (statusEl) statusEl.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--neon2);padding:6px 0;">⏳ Enviando ${done}/${total}...</div>`;
         rThumbs(idx);
+      } else if (response.status === 401) {
+        failed++;
+        if (statusEl) statusEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:#ff6b6b;padding:8px;background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:4px;margin-top:8px;">❌ Não autorizado (401). ' + (result.hint || 'Faça logout e login novamente.') + '</div>';
+        flash('❌ Erro 401: ' + (result.hint || 'Sessão expirada — faça login novamente.'), true);
+        break; // No point continuing if auth failed
+      } else if (response.status === 500 && result.hint) {
+        failed++;
+        if (statusEl) statusEl.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--neon3);padding:8px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.2);border-radius:4px;margin-top:8px;">⚠ Configuração: ${result.hint}</div>`;
+        flash('⚠ ' + result.hint, true);
+        break;
       } else {
         failed++;
         flash(`⚠ Erro ao enviar "${file.name}": ${result.error || response.status}`, true);

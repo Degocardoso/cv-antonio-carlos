@@ -84,9 +84,30 @@ exports.handler = async (event) => {
   }
 
   // Valida senha do admin
-  const submittedPwd = (event.headers['x-admin-password'] || '').trim();
-  if (!submittedPwd || submittedPwd !== PASSWORD) {
-    return { statusCode: 401, headers: corsHeaders, body: JSON.stringify({ error: 'Não autorizado.' }) };
+  // Netlify lowercases all request headers automatically
+  const submittedPwd = (
+    event.headers['x-admin-password'] ||
+    event.headers['X-Admin-Password'] ||
+    ''
+  ).trim();
+
+  // Remove any invisible chars from env var (copy-paste artifacts)
+  const cleanPassword = PASSWORD.replace(/[\r\n\t]/g, '').trim();
+
+  if (!submittedPwd) {
+    return {
+      statusCode: 401,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: 'Senha não informada.', hint: 'Sessão pode ter expirado — recarregue o admin e faça login novamente.' }),
+    };
+  }
+
+  if (submittedPwd !== cleanPassword) {
+    return {
+      statusCode: 401,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: 'Senha incorreta.', hint: 'Verifique a variável CV_ADMIN_PASSWORD no Netlify.' }),
+    };
   }
 
   // Lê body
