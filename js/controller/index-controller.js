@@ -5,7 +5,7 @@
 import { getData, setData, applyTheme, mergeFromCloud } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
 import { CV_READ_URL } from './api.js';
-import { render, renderPortfolio } from '../view/index-view.js';
+import { render, renderPortfolio, setLang } from '../view/index-view.js';
 import { copyEmail, escAttr } from '../utils.js';
 
 /* ═══ GALLERY STATE ═══ */
@@ -232,6 +232,7 @@ function startClock() {
 function toggleTheme() {
   document.documentElement.classList.toggle('light');
   updateThemeToggleBtn();
+  applyTheme();
 }
 
 function updateThemeToggleBtn() {
@@ -248,12 +249,11 @@ function toggleLang() {
   const D = getData();
   if (!D.i18n?.enabled) return;
   currentLang = currentLang === 'pt' ? 'en' : 'pt';
+  setLang(currentLang);
   const btn = document.getElementById('langToggle');
   if (btn) btn.textContent = currentLang.toUpperCase();
   render();
 }
-
-export function getCurrentLang() { return currentLang; }
 
 /* ═══ QR CODE ═══ */
 function generateQR() {

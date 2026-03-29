@@ -309,10 +309,17 @@ export const DEFAULTS = {
     }
   ],
   "theme": {
-    "textColor": "#c9d1d9",
-    "textDim": "#d1d1d1",
-    "textBright": "#e6edf3",
-    "mode": "dark"
+    "mode": "dark",
+    "dark": {
+      "textColor": "#c9d1d9",
+      "textDim": "#6e7f95",
+      "textBright": "#e6edf3"
+    },
+    "light": {
+      "textColor": "#1f2328",
+      "textDim": "#656d76",
+      "textBright": "#1f2328"
+    }
   },
   "sections": {
     "about": true,
@@ -333,15 +340,22 @@ export const DEFAULTS = {
     "en": {
       "objective": "",
       "objetivo": "",
-      "experienceLabel": "Professional Experience",
-      "projectsLabel": "Featured Projects",
-      "skillsLabel": "Technical Skills",
-      "educationLabel": "Education",
-      "certificationsLabel": "Certifications & Courses",
-      "techLabel": "Tech Stack",
-      "languagesLabel": "Languages",
-      "aboutLabel": "About Me",
-      "objectiveLabel": "Objective"
+      "role": "",
+      "labels": {
+        "about": "About Me",
+        "objective": "Objective",
+        "experience": "Professional Experience",
+        "projects": "Featured Projects",
+        "skills": "Technical Skills",
+        "education": "Education",
+        "certifications": "Certifications & Courses",
+        "tech": "Tech Stack",
+        "languages": "Languages"
+      },
+      "experience": [],
+      "projects": [],
+      "education": [],
+      "certifications": []
     }
   },
   "backups": [],

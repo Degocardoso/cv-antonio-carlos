@@ -275,11 +275,30 @@ export function rTech() {
 export function tTheme() {
   const th = getData().theme || {};
   const mode = th.mode || 'dark';
-  const tc = th.textColor || '#c9d1d9', td = th.textDim || '#6e7f95', tb = th.textBright || '#e6edf3';
+  const dk = th.dark || {};
+  const lt = th.light || {};
+  const dkTc = dk.textColor || '#c9d1d9', dkTd = dk.textDim || '#6e7f95', dkTb = dk.textBright || '#e6edf3';
+  const ltTc = lt.textColor || '#1f2328', ltTd = lt.textDim || '#656d76', ltTb = lt.textBright || '#1f2328';
+
+  function colorBlock(prefix, label, defTc, defTd, defTb, tc, td, tb) {
+    return [
+      [prefix+'-tc', prefix+'-th', prefix+'-prev', '--t (texto principal)', defTc, tc],
+      [prefix+'-dc', prefix+'-dh', prefix+'-dprev', '--td (texto suave)', defTd, td],
+      [prefix+'-bc', prefix+'-bh', prefix+'-bprev', '--tb (títulos)', defTb, tb]
+    ].map(([cid, hid, pid, lbl, def, val]) => `
+    <div class="card" style="margin-bottom:10px;padding:12px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--neon2);margin-bottom:8px;">${lbl} — padrão: <code style="color:var(--neon)">${def}</code></div>
+      <div class="color-row">
+        <input type="color" id="${cid}" value="${val}" oninput="window.__admin.syncH('${cid}','${hid}','${pid}')">
+        <input type="text" class="hex-inp" id="${hid}" value="${val}" maxlength="7" placeholder="${def}" oninput="window.__admin.syncC('${hid}','${cid}','${pid}')">
+        <div class="color-swatch" id="${pid}" style="background:${val};"></div>
+      </div>
+    </div>`).join('');
+  }
+
   return `
-  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Modo de Tema</h3>
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Modo de Tema Padrão</h3>
   <div class="card" style="margin-bottom:20px;padding:14px;">
-    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">Tema padrão do CV</div>
     <div class="g2f" style="gap:10px;">
       <label class="theme-mode-opt ${mode === 'dark' ? 'active' : ''}" onclick="window.__admin.setThemeMode('dark')">
         <input type="radio" name="themeMode" value="dark" ${mode === 'dark' ? 'checked' : ''}> 🌙 Escuro
@@ -288,23 +307,18 @@ export function tTheme() {
         <input type="radio" name="themeMode" value="light" ${mode === 'light' ? 'checked' : ''}> ☀️ Claro
       </label>
     </div>
-    <div class="hint" style="margin-top:8px;">O visitante pode alternar no topbar. Aqui define o padrão.</div>
+    <div class="hint" style="margin-top:8px;">O visitante pode alternar no topbar. Aqui define o padrão inicial.</div>
   </div>
-  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Customização de Cor de Texto</h3>
-  <div class="hint" style="margin-bottom:20px;">Apenas cores de texto são ajustáveis (modo escuro).</div>
-  ${[['th-tc','th-th','th-prev','--t (texto principal)','#c9d1d9', tc],
-     ['th-dc','th-dh','th-dprev','--td (texto suave)','#6e7f95', td],
-     ['th-bc','th-bh','th-bprev','--tb (títulos)','#e6edf3', tb]].map(([cid, hid, pid, lbl, def, val]) => `
-  <div class="card" style="margin-bottom:16px;">
-    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:12px;">${lbl} — padrão: <code style="color:var(--neon)">${def}</code></div>
-    <div class="color-row">
-      <span class="color-lbl">Cor</span>
-      <input type="color" id="${cid}" value="${val}" oninput="window.__admin.syncH('${cid}','${hid}','${pid}')">
-      <input type="text" class="hex-inp" id="${hid}" value="${val}" maxlength="7" placeholder="${def}" oninput="window.__admin.syncC('${hid}','${cid}','${pid}')">
-      <div class="color-swatch" id="${pid}" style="background:${val};"></div>
-    </div>
-  </div>`).join('')}
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">🌙 Cores do Tema Escuro</h3>
+  <div class="hint" style="margin-bottom:12px;">Cores de texto para o modo escuro.</div>
+  ${colorBlock('dk', 'Escuro', '#c9d1d9', '#6e7f95', '#e6edf3', dkTc, dkTd, dkTb)}
+
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin:20px 0 8px;">☀️ Cores do Tema Claro</h3>
+  <div class="hint" style="margin-bottom:12px;">Cores de texto para o modo claro.</div>
+  ${colorBlock('lt', 'Claro', '#1f2328', '#656d76', '#1f2328', ltTc, ltTd, ltTb)}
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;">
     <button class="btn btn-c" onclick="window.__admin.prevTheme()">👁 Preview</button>
     <button class="btn btn-r" onclick="window.__admin.rstTheme()">↺ Resetar</button>
   </div>
@@ -462,6 +476,43 @@ export function tI18n() {
   const D = getData();
   const i18n = D.i18n || {};
   const en = i18n.en || {};
+  const labels = en.labels || {};
+  const enExp = en.experience || [];
+  const enProj = en.projects || [];
+  const enEdu = en.education || [];
+  const enCert = en.certifications || [];
+
+  let expHtml = (D.experience || []).map((e, i) => {
+    const t = enExp[i] || {};
+    return `<div class="card" style="margin-bottom:8px;padding:12px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--neon2);margin-bottom:6px;">PT: ${esc(e.title)} — ${esc(e.company)}</div>
+      <div class="g2f"><div class="row"><label class="lbl">Title (EN)</label><input class="inp" id="i18n-ex-t-${i}" value="${esc(t.title || '')}"></div>
+      <div class="row"><label class="lbl">Company (EN)</label><input class="inp" id="i18n-ex-c-${i}" value="${esc(t.company || '')}"></div></div>
+      <div class="row"><label class="lbl">Description (EN)</label><textarea class="inp" id="i18n-ex-d-${i}" style="min-height:50px;">${esc(t.description || '')}</textarea></div>
+      <div class="row"><label class="lbl">Highlights (EN, one per line)</label><textarea class="inp" id="i18n-ex-h-${i}" style="min-height:40px;">${(t.highlights || []).join('\n')}</textarea></div>
+    </div>`;
+  }).join('');
+
+  let projHtml = (D.projects || []).map((p, i) => {
+    const t = enProj[i] || {};
+    return `<div class="card" style="margin-bottom:8px;padding:12px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--neon2);margin-bottom:6px;">PT: ${esc(p.name)}</div>
+      <div class="g2f"><div class="row"><label class="lbl">Name (EN)</label><input class="inp" id="i18n-pr-n-${i}" value="${esc(t.name || '')}"></div>
+      <div class="row"><label class="lbl">Stack (EN)</label><input class="inp" id="i18n-pr-s-${i}" value="${esc(t.stack || '')}"></div></div>
+      <div class="row"><label class="lbl">Description (EN)</label><textarea class="inp" id="i18n-pr-d-${i}" style="min-height:40px;">${esc(t.description || '')}</textarea></div>
+      <div class="row"><label class="lbl">Result (EN)</label><input class="inp" id="i18n-pr-r-${i}" value="${esc(t.result || '')}"></div>
+    </div>`;
+  }).join('');
+
+  let eduHtml = (D.education || []).map((e, i) => {
+    const t = enEdu[i] || {};
+    return `<div class="card" style="margin-bottom:8px;padding:12px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--neon2);margin-bottom:6px;">PT: ${esc(e.title)}</div>
+      <div class="g2f"><div class="row"><label class="lbl">Title (EN)</label><input class="inp" id="i18n-ed-t-${i}" value="${esc(t.title || '')}"></div>
+      <div class="row"><label class="lbl">Description (EN)</label><input class="inp" id="i18n-ed-d-${i}" value="${esc(t.description || '')}"></div></div>
+    </div>`;
+  }).join('');
+
   return `
   <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Internacionalização (EN/PT)</h3>
   <div class="card" style="margin-bottom:16px;padding:14px;">
@@ -471,22 +522,37 @@ export function tI18n() {
     </div>
   </div>
   <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:18px;font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.7;">
-    Preencha os textos em inglês abaixo. O português usa os campos padrão já existentes.
+    Preencha os textos em inglês. Campos vazios mantêm o texto em português.<br>
+    O visitante alterna com o botão PT/EN no topbar.
   </div>
-  <div class="row"><label class="lbl">About Me (EN)</label><textarea class="inp" id="i18n-obj" style="min-height:120px;">${escRaw(en.objective || '')}</textarea></div>
-  <div class="row"><label class="lbl">Objective (EN)</label><textarea class="inp" id="i18n-objetivo" style="min-height:120px;">${escRaw(en.objetivo || '')}</textarea></div>
-  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin:20px 0 12px;">Labels das Seções (EN)</h3>
-  <div class="g2f">
-    <div class="row"><label class="lbl">Experience</label><input class="inp" id="i18n-lbl-exp" value="${esc(en.experienceLabel || 'Professional Experience')}"></div>
-    <div class="row"><label class="lbl">Projects</label><input class="inp" id="i18n-lbl-proj" value="${esc(en.projectsLabel || 'Featured Projects')}"></div>
-    <div class="row"><label class="lbl">Skills</label><input class="inp" id="i18n-lbl-sk" value="${esc(en.skillsLabel || 'Technical Skills')}"></div>
-    <div class="row"><label class="lbl">Education</label><input class="inp" id="i18n-lbl-edu" value="${esc(en.educationLabel || 'Education')}"></div>
-    <div class="row"><label class="lbl">Certifications</label><input class="inp" id="i18n-lbl-cert" value="${esc(en.certificationsLabel || 'Certifications & Courses')}"></div>
-    <div class="row"><label class="lbl">Tech Stack</label><input class="inp" id="i18n-lbl-tech" value="${esc(en.techLabel || 'Tech Stack')}"></div>
-    <div class="row"><label class="lbl">Languages</label><input class="inp" id="i18n-lbl-lang" value="${esc(en.languagesLabel || 'Languages')}"></div>
-    <div class="row"><label class="lbl">About Me</label><input class="inp" id="i18n-lbl-about" value="${esc(en.aboutLabel || 'About Me')}"></div>
-    <div class="row"><label class="lbl">Objective</label><input class="inp" id="i18n-lbl-objetivo" value="${esc(en.objectiveLabel || 'Objective')}"></div>
+
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);margin-bottom:8px;">Textos Gerais</h3>
+  <div class="row"><label class="lbl">Role / Title (EN)</label><input class="inp" id="i18n-role" value="${esc(en.role || '')}"></div>
+  <div class="row"><label class="lbl">About Me (EN)</label><textarea class="inp" id="i18n-obj" style="min-height:100px;">${escRaw(en.objective || '')}</textarea></div>
+  <div class="row"><label class="lbl">Objective (EN)</label><textarea class="inp" id="i18n-objetivo" style="min-height:100px;">${escRaw(en.objetivo || '')}</textarea></div>
+
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);margin:16px 0 8px;">Labels das Seções</h3>
+  <div class="g2f" style="margin-bottom:16px;">
+    <div class="row"><label class="lbl">About Me</label><input class="inp" id="i18n-lbl-about" value="${esc(labels.about || 'About Me')}"></div>
+    <div class="row"><label class="lbl">Objective</label><input class="inp" id="i18n-lbl-objective" value="${esc(labels.objective || 'Objective')}"></div>
+    <div class="row"><label class="lbl">Experience</label><input class="inp" id="i18n-lbl-experience" value="${esc(labels.experience || 'Professional Experience')}"></div>
+    <div class="row"><label class="lbl">Projects</label><input class="inp" id="i18n-lbl-projects" value="${esc(labels.projects || 'Featured Projects')}"></div>
+    <div class="row"><label class="lbl">Skills</label><input class="inp" id="i18n-lbl-skills" value="${esc(labels.skills || 'Technical Skills')}"></div>
+    <div class="row"><label class="lbl">Education</label><input class="inp" id="i18n-lbl-education" value="${esc(labels.education || 'Education')}"></div>
+    <div class="row"><label class="lbl">Certifications</label><input class="inp" id="i18n-lbl-certifications" value="${esc(labels.certifications || 'Certifications & Courses')}"></div>
+    <div class="row"><label class="lbl">Tech Stack</label><input class="inp" id="i18n-lbl-tech" value="${esc(labels.tech || 'Tech Stack')}"></div>
+    <div class="row"><label class="lbl">Languages</label><input class="inp" id="i18n-lbl-languages" value="${esc(labels.languages || 'Languages')}"></div>
   </div>
+
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);margin:16px 0 8px;">💼 Experiências (EN)</h3>
+  ${expHtml || '<div class="hint">Nenhuma experiência cadastrada.</div>'}
+
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);margin:16px 0 8px;">◈ Projetos (EN)</h3>
+  ${projHtml || '<div class="hint">Nenhum projeto cadastrado.</div>'}
+
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);margin:16px 0 8px;">🎓 Formação (EN)</h3>
+  ${eduHtml || '<div class="hint">Nenhuma formação cadastrada.</div>'}
+
   <div class="sbar"><span class="smsg" id="msg-i18n"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('i18n')">💾 Salvar</button></div>`;
 }
 

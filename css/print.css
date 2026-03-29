@@ -12,9 +12,8 @@
   .proj-imgs, .po-imgs,
   .theme-toggle, .lang-toggle { display: none !important; }
 
-  /* QR Code in print */
-  .qr-print-section { display: block !important; text-align: center; margin-top: 14px; page-break-inside: avoid; }
-  .qr-print-section canvas, .qr-print-section img { width: 80px; height: 80px; }
+  /* QR Code — hidden by default in print, shown only in ATS */
+  .qr-print-section { display: none !important; }
 
   /* ═══ PDF DESIGN ═══ */
   body.pm-design { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -212,9 +211,10 @@
   body.pm-ats .exp-results .thl span:first-child { display: none !important; }
   body.pm-ats .exp-results .thl span:last-child::before { content: '\25CF  ' !important; font-size: 7pt !important; }
 
-  /* ── QR Code no PDF ── */
-  body.pm-design .qr-print-section { display: block !important; text-align: right; margin-top: 10px; }
-  body.pm-ats .qr-print-section { display: block !important; text-align: right; margin-top: 10px; }
+  /* ── QR Code — only in ATS at the end ── */
+  body.pm-ats .qr-print-section { display: block !important; text-align: center; margin-top: 16px; order: 98 !important; page-break-inside: avoid; }
+  body.pm-ats .qr-print-section img { width: 70px; height: 70px; }
+  body.pm-ats .qr-label { font-size: 8pt !important; color: #555 !important; }
 
   /* ── Links no rodapé ── */
   body.pm-ats a[href^="mailto"]:after { content: ""; }

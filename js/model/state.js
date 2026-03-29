@@ -61,7 +61,17 @@ export function mergeFromCloud(record) {
 export function applyTheme() {
   const th = D.theme || {};
   const r = document.documentElement;
-  if (th.textColor)  r.style.setProperty('--t', th.textColor);
-  if (th.textDim)    r.style.setProperty('--td', th.textDim);
-  if (th.textBright) r.style.setProperty('--tb', th.textBright);
+  const isLight = r.classList.contains('light');
+  const mode = isLight ? 'light' : 'dark';
+  const colors = th[mode] || {};
+  // Fallback to legacy flat fields for backward compatibility
+  const tc = colors.textColor || (!th.dark && !th.light ? th.textColor : '');
+  const td = colors.textDim || (!th.dark && !th.light ? th.textDim : '');
+  const tb = colors.textBright || (!th.dark && !th.light ? th.textBright : '');
+  if (tc) r.style.setProperty('--t', tc);
+  else r.style.removeProperty('--t');
+  if (td) r.style.setProperty('--td', td);
+  else r.style.removeProperty('--td');
+  if (tb) r.style.setProperty('--tb', tb);
+  else r.style.removeProperty('--tb');
 }

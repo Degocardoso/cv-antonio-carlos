@@ -279,14 +279,29 @@ function cTech() {
 
 function cTheme() {
   const D = getData();
-  const vals = getThemeVals();
   if (!D.theme) D.theme = {};
-  D.theme.textColor = /^#[0-9a-fA-F]{6}$/.test(vals.tc) ? vals.tc : '';
-  D.theme.textDim = /^#[0-9a-fA-F]{6}$/.test(vals.td) ? vals.td : '';
-  D.theme.textBright = /^#[0-9a-fA-F]{6}$/.test(vals.tb) ? vals.tb : '';
-  // Preserve mode from radio buttons
   const modeRadio = document.querySelector('input[name="themeMode"]:checked');
   if (modeRadio) D.theme.mode = modeRadio.value;
+
+  // Collect dark colors
+  const dkTc = v('dk-th').trim() || v('dk-tc').trim();
+  const dkTd = v('dk-dh').trim() || v('dk-dc').trim();
+  const dkTb = v('dk-bh').trim() || v('dk-bc').trim();
+  D.theme.dark = {
+    textColor: /^#[0-9a-fA-F]{6}$/.test(dkTc) ? dkTc : '#c9d1d9',
+    textDim: /^#[0-9a-fA-F]{6}$/.test(dkTd) ? dkTd : '#6e7f95',
+    textBright: /^#[0-9a-fA-F]{6}$/.test(dkTb) ? dkTb : '#e6edf3',
+  };
+
+  // Collect light colors
+  const ltTc = v('lt-th').trim() || v('lt-tc').trim();
+  const ltTd = v('lt-dh').trim() || v('lt-dc').trim();
+  const ltTb = v('lt-bh').trim() || v('lt-bc').trim();
+  D.theme.light = {
+    textColor: /^#[0-9a-fA-F]{6}$/.test(ltTc) ? ltTc : '#1f2328',
+    textDim: /^#[0-9a-fA-F]{6}$/.test(ltTd) ? ltTd : '#656d76',
+    textBright: /^#[0-9a-fA-F]{6}$/.test(ltTb) ? ltTb : '#1f2328',
+  };
 }
 
 function cLangs() {
@@ -309,18 +324,32 @@ function cI18n() {
   const D = getData();
   if (!D.i18n) D.i18n = { enabled: false, default: 'pt', en: {} };
   D.i18n.enabled = !!document.getElementById('i18n-enabled')?.checked;
+  const labelKeys = ['about','objective','experience','projects','skills','education','certifications','tech','languages'];
+  const labels = {};
+  labelKeys.forEach(k => { labels[k] = v(`i18n-lbl-${k}`); });
+
+  const enExp = (D.experience || []).map((_, i) => ({
+    title: v(`i18n-ex-t-${i}`), company: v(`i18n-ex-c-${i}`),
+    description: v(`i18n-ex-d-${i}`),
+    highlights: v(`i18n-ex-h-${i}`).split('\n').map(s => s.trim()).filter(Boolean)
+  }));
+  const enProj = (D.projects || []).map((_, i) => ({
+    name: v(`i18n-pr-n-${i}`), stack: v(`i18n-pr-s-${i}`),
+    description: v(`i18n-pr-d-${i}`), result: v(`i18n-pr-r-${i}`)
+  }));
+  const enEdu = (D.education || []).map((_, i) => ({
+    title: v(`i18n-ed-t-${i}`), description: v(`i18n-ed-d-${i}`)
+  }));
+
   D.i18n.en = {
     objective: document.getElementById('i18n-obj')?.value || '',
     objetivo: document.getElementById('i18n-objetivo')?.value || '',
-    experienceLabel: v('i18n-lbl-exp'),
-    projectsLabel: v('i18n-lbl-proj'),
-    skillsLabel: v('i18n-lbl-sk'),
-    educationLabel: v('i18n-lbl-edu'),
-    certificationsLabel: v('i18n-lbl-cert'),
-    techLabel: v('i18n-lbl-tech'),
-    languagesLabel: v('i18n-lbl-lang'),
-    aboutLabel: v('i18n-lbl-about'),
-    objectiveLabel: v('i18n-lbl-objetivo'),
+    role: v('i18n-role'),
+    labels,
+    experience: enExp,
+    projects: enProj,
+    education: enEdu,
+    certifications: D.i18n.en?.certifications || []
   };
 }
 
@@ -444,14 +473,6 @@ function rThumbs(idx) {
 }
 
 /* ═══ THEME ═══ */
-function getThemeVals() {
-  return {
-    tc: v('th-th').trim() || v('th-tc').trim(),
-    td: v('th-dh').trim() || v('th-dc').trim(),
-    tb: v('th-bh').trim() || v('th-bc').trim()
-  };
-}
-
 function syncH(cid, hid, pid) {
   const c = document.getElementById(cid)?.value;
   const h = document.getElementById(hid);
@@ -470,20 +491,19 @@ function syncC(hid, cid, pid) {
 }
 
 function prevTheme() {
-  const { tc, td, tb } = getThemeVals();
-  const r = document.documentElement;
-  if (/^#[0-9a-fA-F]{6}$/.test(tc)) r.style.setProperty('--t', tc);
-  if (/^#[0-9a-fA-F]{6}$/.test(td)) r.style.setProperty('--td', td);
-  if (/^#[0-9a-fA-F]{6}$/.test(tb)) r.style.setProperty('--tb', tb);
+  cTheme();
+  applyTheme();
   showMsg('msg-th', '✓ Preview aplicado!');
 }
 
 function rstTheme() {
-  const r = document.documentElement;
-  r.style.setProperty('--t', '#c9d1d9');
-  r.style.setProperty('--td', '#6e7f95');
-  r.style.setProperty('--tb', '#e6edf3');
-  getData().theme = { textColor: '', textDim: '', textBright: '' };
+  const D = getData();
+  D.theme = {
+    mode: D.theme?.mode || 'dark',
+    dark: { textColor: '#c9d1d9', textDim: '#6e7f95', textBright: '#e6edf3' },
+    light: { textColor: '#1f2328', textDim: '#656d76', textBright: '#1f2328' }
+  };
+  applyTheme();
   renderTab('theme');
   showMsg('msg-th', '✓ Resetado.');
 }
@@ -589,11 +609,17 @@ function createBackup() {
 }
 
 function showBackups() {
-  const D = getData();
   const el = document.getElementById('backupsList');
   if (!el) return;
+  // Toggle: if already visible, hide
+  if (el.innerHTML.trim() && el.style.display !== 'none') {
+    el.style.display = 'none';
+    return;
+  }
+  el.style.display = '';
+  const D = getData();
   const backups = D.backups || [];
-  if (!backups.length) { el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--td);">Nenhum backup disponível.</div>'; return; }
+  if (!backups.length) { el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--td);padding:8px 0;">Nenhum backup disponível.</div>'; return; }
   el.innerHTML = backups.map((b, i) => {
     const d = new Date(b.timestamp);
     return `<div class="backup-item"><span class="backup-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR')}</span><button class="btn btn-c" onclick="window.__admin.restoreBackup(${i})">↺ Restaurar</button></div>`;
