@@ -44,6 +44,14 @@ export function mergeFromCloud(record) {
           result[k][sk] = JSON.parse(JSON.stringify(DEFAULTS[k][sk]));
         }
       }
+      // Deep merge nested objects like i18n.en
+      if (k === 'i18n' && DEFAULTS[k].en && result[k].en) {
+        for (const sk2 of Object.keys(DEFAULTS[k].en)) {
+          if (result[k].en[sk2] === null || result[k].en[sk2] === undefined) {
+            result[k].en[sk2] = DEFAULTS[k].en[sk2];
+          }
+        }
+      }
     }
   }
   return result;

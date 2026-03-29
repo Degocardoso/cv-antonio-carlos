@@ -57,7 +57,11 @@
   <div class="topbar">
     <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
     <span style="color:var(--neon);" id="topTitle">~/antonio/portfolio</span>
-    <div style="display:flex;align-items:center;gap:7px;"><span class="pulse"></span><span>ONLINE · São Paulo, BR</span></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="theme-toggle" id="themeToggle" onclick="window.__toggleTheme()" title="Alternar tema claro/escuro">🌙</button>
+      <button class="lang-toggle" id="langToggle" onclick="window.__toggleLang()" title="EN/PT" style="display:none;">PT</button>
+      <span class="pulse"></span><span>ONLINE · São Paulo, BR</span>
+    </div>
   </div>
 
   <div class="hero">
@@ -76,22 +80,22 @@
   </div>
 
   <div class="g2 gap2" id="sobre-row">
-    <div class="panel">
+    <div class="panel" id="sec-about">
       <div class="ph"><div class="pi pi-g">👤</div><div class="pt">Sobre Mim</div></div>
       <p class="sobre" id="sobreEl"></p>
     </div>
-    <div class="panel">
+    <div class="panel" id="sec-objective">
       <div class="ph"><div class="pi pi-c">🎯</div><div class="pt">Objetivo</div></div>
       <p class="sobre" id="objetivoEl"></p>
     </div>
   </div>
 
   <div class="g2 gap2">
-    <div class="panel">
+    <div class="panel" id="sec-experience">
       <div class="ph"><div class="pi pi-c">◷</div><div class="pt">Experiência Profissional</div><div class="pb pb-c">TIMELINE</div></div>
       <div class="timeline" id="expEl"></div>
     </div>
-    <div class="panel">
+    <div class="panel" id="sec-projects">
       <div class="ph"><div class="pi pi-o">◈</div><div class="pt">Projetos em Destaque</div><div class="pb pb-o">TOP 3</div></div>
       <div id="projEl"></div>
       <div class="view-all-wrap">
@@ -101,22 +105,32 @@
   </div>
 
   <div class="g3 gap2">
-    <div class="panel">
+    <div class="panel" id="sec-skills">
       <div class="ph"><div class="pi pi-g">⚡</div><div class="pt">Habilidades Técnicas</div><div class="pb pb-g">SKILLS</div></div>
       <div id="skillsEl"></div>
+      <div id="langSection" style="margin-top:18px;">
+        <div class="ph" style="margin-bottom:10px;"><div class="pi pi-o">🌐</div><div class="pt">Idiomas</div></div>
+        <div id="langEl"></div>
+      </div>
     </div>
-    <div class="panel">
+    <div class="panel" id="sec-education">
       <div class="ph"><div class="pi pi-p">🎓</div><div class="pt">Formação Acadêmica</div></div>
       <div class="timeline" id="eduEl"></div>
-      <div style="margin-top:18px;">
+      <div style="margin-top:18px;" id="sec-tech">
         <div class="ph" style="margin-bottom:10px;"><div class="pi pi-o">◻</div><div class="pt">Stack</div></div>
         <div class="tgrid" id="techEl"></div>
       </div>
     </div>
-    <div class="panel">
+    <div class="panel" id="sec-certifications">
       <div class="ph"><div class="pi pi-c">★</div><div class="pt">Certificações &amp; Cursos</div><div class="pb pb-c">EXTRA</div></div>
       <div class="cert-list" id="certEl"></div>
     </div>
+  </div>
+
+  <!-- QR Code for print -->
+  <div id="qrSection" class="qr-print-section">
+    <div id="qrCode"></div>
+    <div class="qr-label">Escaneie para ver online</div>
   </div>
 
   <div class="bottombar">
