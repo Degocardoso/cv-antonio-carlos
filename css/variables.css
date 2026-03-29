@@ -18,3 +18,29 @@
   --sans: 'Space Grotesk', sans-serif;
   --r: 6px;
 }
+
+/* ═══ Light Mode ═══ */
+html.light {
+  --bg: #f5f6f8;
+  --bg2: #ffffff;
+  --bg3: #ebedf0;
+  --panel: #ffffff;
+  --border: #d0d7de;
+  --bb: #a8b3c2;
+  --neon: #00875a;
+  --neon2: #0078a8;
+  --neon3: #d04a18;
+  --neon4: #7c3aed;
+  --neon5: #3d8b5e;
+  --t: #24292f;
+  --td: #57606a;
+  --tb: #1b1f23;
+}
+html.light body::after {
+  background-image:
+    linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px) !important;
+}
+html.light body.cv-page::before {
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.01) 2px, rgba(0,0,0,.01) 4px) !important;
+}

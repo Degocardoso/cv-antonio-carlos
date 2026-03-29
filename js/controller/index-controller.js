@@ -18,6 +18,8 @@ export async function init() {
   window.__copyEmail = copyEmail;
   window.__printDesign = printDesign;
   window.__printATS = printATS;
+  window.__toggleTheme = toggleTheme;
+  window.__toggleLang = toggleLang;
   window.closeLB = closeLB;
 
   // Event delegation para lightbox e certificações
@@ -115,8 +117,23 @@ async function loadData() {
     // silently fall back to DEFAULTS
   }
 
+  const D = getData();
+
+  // Apply saved theme mode
+  const mode = D.theme?.mode || 'dark';
+  if (mode === 'light') document.documentElement.classList.add('light');
+  updateThemeToggleBtn();
+
+  // i18n toggle visibility
+  if (D.i18n?.enabled) {
+    const btn = document.getElementById('langToggle');
+    if (btn) btn.style.display = '';
+  }
+
   applyTheme();
   render();
+  generateQR();
+  trackVisit();
   hideLoading();
 }
 
@@ -209,4 +226,52 @@ function startClock() {
   }
   tick();
   setInterval(tick, 1000);
+}
+
+/* ═══ THEME TOGGLE ═══ */
+function toggleTheme() {
+  document.documentElement.classList.toggle('light');
+  updateThemeToggleBtn();
+}
+
+function updateThemeToggleBtn() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const isLight = document.documentElement.classList.contains('light');
+  btn.textContent = isLight ? '☀️' : '🌙';
+  btn.title = isLight ? 'Mudar para tema escuro' : 'Mudar para tema claro';
+}
+
+/* ═══ I18N TOGGLE ═══ */
+let currentLang = 'pt';
+function toggleLang() {
+  const D = getData();
+  if (!D.i18n?.enabled) return;
+  currentLang = currentLang === 'pt' ? 'en' : 'pt';
+  const btn = document.getElementById('langToggle');
+  if (btn) btn.textContent = currentLang.toUpperCase();
+  render();
+}
+
+export function getCurrentLang() { return currentLang; }
+
+/* ═══ QR CODE ═══ */
+function generateQR() {
+  const container = document.getElementById('qrCode');
+  if (!container) return;
+  const url = window.location.href.split('?')[0].split('#')[0];
+  // Simple QR code via canvas-free SVG approach using a public-domain QR library fallback
+  // We'll use a tiny inline QR generation for the print version
+  const size = 80;
+  container.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}" alt="QR Code" width="${size}" height="${size}" style="border:1px solid #ddd;border-radius:4px;">`;
+}
+
+/* ═══ VISIT COUNTER ═══ */
+async function trackVisit() {
+  try {
+    const base = document.querySelector('meta[name="api-base"]')?.content || '/.netlify/functions';
+    await fetch(`${base}/cv-ping`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  } catch (e) {
+    // silent
+  }
 }

@@ -111,10 +111,6 @@ export const DEFAULTS = {
       "name": "Node.js",
       "category": "intermediate"
     },
-    {
-      "name": "Inglês — A2 (Básico)",
-      "category": "language"
-    }
   ],
   "experience": [
     {
@@ -124,6 +120,10 @@ export const DEFAULTS = {
       "company": "FECAP — São Paulo, SP",
       "description": "Sustentação e desenvolvimento de integrações via API no Microsoft Dynamics 365. Liderança técnica no desenvolvimento de aplicações internas com Power Platform (App totem digital). Desenvolvimento de chatbots e automação de campanhas de e-mail com foco em permanência e retenção.",
       "highlights": [
+        "↓83% no tempo de espera presencial (3h → 30min)",
+        "↓85% no tempo de criação de e-mails (20min → 3min)"
+      ],
+      "results": [
         "↓83% no tempo de espera presencial (3h → 30min)",
         "↓85% no tempo de criação de e-mails (20min → 3min)"
       ]
@@ -294,10 +294,56 @@ export const DEFAULTS = {
       "label": "Git/CI-CD"
     }
   ],
+  "languages": [
+    {
+      "name": "Português",
+      "level": "C2",
+      "label": "Nativo",
+      "percent": 100
+    },
+    {
+      "name": "Inglês",
+      "level": "A2",
+      "label": "Básico",
+      "percent": 25
+    }
+  ],
   "theme": {
     "textColor": "#c9d1d9",
     "textDim": "#d1d1d1",
-    "textBright": "#e6edf3"
+    "textBright": "#e6edf3",
+    "mode": "dark"
   },
+  "sections": {
+    "about": true,
+    "objective": true,
+    "experience": true,
+    "projects": true,
+    "skills": true,
+    "education": true,
+    "certifications": true,
+    "tech": true,
+    "languages": true,
+    "heroStats": true,
+    "tags": true
+  },
+  "i18n": {
+    "enabled": false,
+    "default": "pt",
+    "en": {
+      "objective": "",
+      "objetivo": "",
+      "experienceLabel": "Professional Experience",
+      "projectsLabel": "Featured Projects",
+      "skillsLabel": "Technical Skills",
+      "educationLabel": "Education",
+      "certificationsLabel": "Certifications & Courses",
+      "techLabel": "Tech Stack",
+      "languagesLabel": "Languages",
+      "aboutLabel": "About Me",
+      "objectiveLabel": "Objective"
+    }
+  },
+  "backups": [],
   "objetivo": "Busco oportunidades em <strong>desenvolvimento de software</strong> e <strong>análise de dados</strong>, onde possa aplicar minha experiência em CRM, automação de processos e ciência de dados para gerar resultados concretos. Tenho interesse especial em posições que combinem visão estratégica e execução técnica, preferencialmente em empresas com cultura de inovação."
 };

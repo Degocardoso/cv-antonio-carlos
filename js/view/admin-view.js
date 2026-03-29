@@ -21,11 +21,14 @@ export const TABS = [
   { id: 'herostats',      label: '📦 Cards' },
   { id: 'objective',      label: '📝 Sobre Mim' },
   { id: 'skills',         label: '⚡ Skills' },
+  { id: 'languages',      label: '🌐 Idiomas' },
   { id: 'experience',     label: '💼 Experiência' },
   { id: 'projects',       label: '◈ Projetos' },
   { id: 'education',      label: '🎓 Formação' },
   { id: 'certifications', label: '★ Certs' },
   { id: 'tech',           label: '◻ Stack' },
+  { id: 'sections',       label: '👁 Seções' },
+  { id: 'i18n',           label: '🌍 i18n' },
   { id: 'theme',          label: '🎨 Tema' },
   { id: 'settings',       label: '⚙ Config' },
 ];
@@ -63,7 +66,7 @@ export function tHS() {
 
 export function rHS() {
   return (getData().heroStats || []).map((s, i) => `
-  <div class="card"><div class="g3f">
+  <div class="card" data-draggable="heroStats" data-index="${i}"><div class="drag-handle" title="Arrastar">⠿</div><div class="g3f">
     <div><label class="lbl">Emoji</label><input class="inp" id="hs-ico-${i}" value="${esc(s.ico)}" style="font-size:18px;text-align:center;"></div>
     <div><label class="lbl">Label</label><input class="inp" id="hs-lbl-${i}" value="${esc(s.label)}"></div>
     <div><label class="lbl">Valor</label><input class="inp" id="hs-val-${i}" value="${esc(s.val)}"></div>
@@ -114,7 +117,7 @@ export function tSkills() {
 
 export function rSkills() {
   return (getData().skills || []).map((s, i) => `
-  <div class="card"><div class="g2f" style="align-items:end;">
+  <div class="card" data-draggable="skills" data-index="${i}"><div class="drag-handle" title="Arrastar">⠿</div><div class="g2f" style="align-items:end;">
     <div><label class="lbl">Nome</label><input class="inp" id="sk-n-${i}" value="${esc(s.name)}"></div>
     <div><label class="lbl">Categoria</label>
       <select class="inp" id="sk-c-${i}">
@@ -141,7 +144,8 @@ export function tExp() {
 
 export function rExp() {
   return (getData().experience || []).map((e, i) => `
-  <div class="card">
+  <div class="card" data-draggable="experience" data-index="${i}">
+    <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
     <div class="card-h"><span class="card-n">#${i + 1}</span><span class="card-t">${esc(e.title || 'Cargo')}</span></div>
     <div class="g2f">
       <div class="row"><label class="lbl">Período</label><input class="inp" id="ex-p-${i}" value="${esc(e.period)}"></div>
@@ -151,6 +155,7 @@ export function rExp() {
     </div>
     <div class="row" style="margin-top:8px;"><label class="lbl">Descrição</label><textarea class="inp" id="ex-d-${i}">${esc(e.description)}</textarea></div>
     <div class="row"><label class="lbl">Destaques (um por linha)</label><textarea class="inp" id="ex-h-${i}" style="min-height:56px;">${(e.highlights || []).join('\n')}</textarea></div>
+    <div class="row"><label class="lbl">Resultados Gerais (um por linha) — métricas/KPIs separados</label><textarea class="inp" id="ex-r-${i}" style="min-height:56px;">${(e.results || []).join('\n')}</textarea></div>
     <div style="text-align:right;"><button class="btn btn-r" onclick="window.__admin.rmExp(${i})">✕ Remover</button></div>
   </div>`).join('');
 }
@@ -171,7 +176,8 @@ export function tProjs() {
 
 export function rProjs() {
   return (getData().projects || []).map((pr, i) => `
-  <div class="card">
+  <div class="card" data-draggable="projects" data-index="${i}">
+    <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
     <div class="card-h"><span class="card-n">#${i + 1}</span><span class="card-t">${esc(pr.name || 'Projeto')}</span></div>
     <label class="feat-toggle ${pr.featured ? 'on' : ''}" id="ft-${i}" onclick="window.__admin.togFeat(${i})">
       <input type="checkbox" id="pr-f-${i}" ${pr.featured ? 'checked' : ''} onclick="event.stopPropagation()">
@@ -207,7 +213,8 @@ export function tEdu() {
 
 export function rEdu() {
   return (getData().education || []).map((e, i) => `
-  <div class="card">
+  <div class="card" data-draggable="education" data-index="${i}">
+    <div class="drag-handle" title="Arrastar">⠿</div>
     <div class="g2f">
       <div class="row"><label class="lbl">Ano / Período</label><input class="inp" id="ed-p-${i}" value="${esc(e.period)}"></div>
       <div class="row"><label class="lbl">Curso</label><input class="inp" id="ed-t-${i}" value="${esc(e.title)}"></div>
@@ -232,7 +239,8 @@ export function tCerts() {
 
 export function rCerts() {
   return (getData().certifications || []).map((c, i) => `
-  <div class="card">
+  <div class="card" data-draggable="certifications" data-index="${i}">
+    <div class="drag-handle" title="Arrastar">⠿</div>
     <div class="g4f">
       <div><label class="lbl">Emoji</label><input class="inp" id="ct-e-${i}" value="${esc(c.emoji)}" style="font-size:18px;text-align:center;"></div>
       <div><label class="lbl">Ano</label><input class="inp" id="ct-y-${i}" value="${esc(c.year)}"></div>
@@ -257,7 +265,7 @@ export function tTech() {
 
 export function rTech() {
   return (getData().tech || []).map((t, i) => `
-  <div class="card" style="padding:10px;">
+  <div class="card" style="padding:10px;" data-draggable="tech" data-index="${i}"><div class="drag-handle" title="Arrastar" style="margin-bottom:4px;">⠿</div>
     <div class="row"><label class="lbl">Emoji</label><input class="inp" id="tc-e-${i}" value="${esc(t.emoji)}" style="font-size:18px;text-align:center;"></div>
     <div class="row" style="margin-bottom:8px;"><label class="lbl">Label</label><input class="inp" id="tc-l-${i}" value="${esc(t.label)}"></div>
     <button class="btn btn-r" style="width:100%;font-size:10px;padding:5px;" onclick="window.__admin.rmTech(${i})">✕</button>
@@ -266,10 +274,24 @@ export function rTech() {
 
 export function tTheme() {
   const th = getData().theme || {};
+  const mode = th.mode || 'dark';
   const tc = th.textColor || '#c9d1d9', td = th.textDim || '#6e7f95', tb = th.textBright || '#e6edf3';
   return `
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Modo de Tema</h3>
+  <div class="card" style="margin-bottom:20px;padding:14px;">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">Tema padrão do CV</div>
+    <div class="g2f" style="gap:10px;">
+      <label class="theme-mode-opt ${mode === 'dark' ? 'active' : ''}" onclick="window.__admin.setThemeMode('dark')">
+        <input type="radio" name="themeMode" value="dark" ${mode === 'dark' ? 'checked' : ''}> 🌙 Escuro
+      </label>
+      <label class="theme-mode-opt ${mode === 'light' ? 'active' : ''}" onclick="window.__admin.setThemeMode('light')">
+        <input type="radio" name="themeMode" value="light" ${mode === 'light' ? 'checked' : ''}> ☀️ Claro
+      </label>
+    </div>
+    <div class="hint" style="margin-top:8px;">O visitante pode alternar no topbar. Aqui define o padrão.</div>
+  </div>
   <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Customização de Cor de Texto</h3>
-  <div class="hint" style="margin-bottom:20px;">Apenas cores de texto são ajustáveis.</div>
+  <div class="hint" style="margin-bottom:20px;">Apenas cores de texto são ajustáveis (modo escuro).</div>
   ${[['th-tc','th-th','th-prev','--t (texto principal)','#c9d1d9', tc],
      ['th-dc','th-dh','th-dprev','--td (texto suave)','#6e7f95', td],
      ['th-bc','th-bh','th-bprev','--tb (títulos)','#e6edf3', tb]].map(([cid, hid, pid, lbl, def, val]) => `
@@ -317,6 +339,36 @@ export function tSettings() {
   </div>
 
   <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">👁 Preview em Tempo Real</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;margin-bottom:12px;">
+      Abre o CV num iframe lateral com os dados atuais (sem salvar) para ver como ficaria.
+    </div>
+    <button class="btn btn-c" onclick="window.__admin.openPreview()">👁 Abrir Preview</button>
+  </div>
+
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">📊 Contador de Visitas</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div style="font-family:var(--mono);font-size:24px;color:var(--neon);font-weight:700;" id="visitCountDisplay">—</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--td);">visitas totais</div>
+      <button class="btn btn-c" style="margin-left:auto;font-size:10px;padding:6px 12px;" onclick="window.__admin.refreshVisits()">↺ Atualizar</button>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);" id="lastVisitDisplay"></div>
+  </div>
+
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">💾 Backup e Restauração</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;margin-bottom:12px;">
+      Ao salvar, um snapshot automático é criado. Restaure versões anteriores se necessário.
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn btn-g" onclick="window.__admin.createBackup()">💾 Criar Backup Agora</button>
+      <button class="btn btn-c" onclick="window.__admin.showBackups()">📋 Ver Backups</button>
+    </div>
+    <div id="backupsList"></div>
+  </div>
+
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
     <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">🔄 Sincronização</div>
     <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;">
       <button class="btn btn-c" onclick="window.__admin.reloadFromCloud()">↺ Recarregar do JSONBin</button>
@@ -342,17 +394,116 @@ export function tSettings() {
   </div>`;
 }
 
+/* ═══ LANGUAGES TAB ═══ */
+export function tLangs() {
+  return `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;">Idiomas</h3>
+    <button class="btn btn-g" onclick="window.__admin.addLang()">+ Adicionar</button>
+  </div>
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.7;">
+    Níveis CEFR: A1, A2, B1, B2, C1, C2. Porcentagem define a barra de progresso (0-100).
+  </div>
+  <div id="lang-list">${rLangs()}</div>
+  <div class="sbar"><span class="smsg" id="msg-lang"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('languages')">💾 Salvar</button></div>`;
+}
+
+export function rLangs() {
+  return (getData().languages || []).map((l, i) => `
+  <div class="card" data-draggable="languages" data-index="${i}">
+    <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
+    <div class="g4f">
+      <div><label class="lbl">Idioma</label><input class="inp" id="ln-n-${i}" value="${esc(l.name)}"></div>
+      <div><label class="lbl">Nível (CEFR)</label>
+        <select class="inp" id="ln-l-${i}">
+          ${['A1','A2','B1','B2','C1','C2'].map(lv => `<option value="${lv}" ${l.level === lv ? 'selected' : ''}>${lv}</option>`).join('')}
+        </select>
+      </div>
+      <div><label class="lbl">Label</label><input class="inp" id="ln-lb-${i}" value="${esc(l.label)}"></div>
+      <div><label class="lbl">% (0-100)</label><input type="number" class="inp" id="ln-p-${i}" value="${l.percent || 0}" min="0" max="100"></div>
+    </div>
+    <div style="text-align:right;margin-top:10px;"><button class="btn btn-r" onclick="window.__admin.rmLang(${i})">✕</button></div>
+  </div>`).join('');
+}
+
+/* ═══ SECTIONS VISIBILITY TAB ═══ */
+export function tSections() {
+  const sec = getData().sections || {};
+  const items = [
+    { key: 'about', label: '👤 Sobre Mim' },
+    { key: 'objective', label: '🎯 Objetivo' },
+    { key: 'heroStats', label: '📦 Cards do Hero' },
+    { key: 'tags', label: '🏷 Tags' },
+    { key: 'experience', label: '💼 Experiência' },
+    { key: 'projects', label: '◈ Projetos' },
+    { key: 'skills', label: '⚡ Skills' },
+    { key: 'languages', label: '🌐 Idiomas' },
+    { key: 'education', label: '🎓 Formação' },
+    { key: 'certifications', label: '★ Certificações' },
+    { key: 'tech', label: '◻ Tech Stack' },
+  ];
+  return `
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Visibilidade das Seções</h3>
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:18px;font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.7;">
+    Desmarque uma seção para ocultá-la do CV público. A seção continua editável no admin.
+  </div>
+  ${items.map(it => `
+  <div class="card" style="padding:12px;margin-bottom:8px;">
+    <div class="ck-row">
+      <input type="checkbox" id="sec-v-${it.key}" ${sec[it.key] !== false ? 'checked' : ''}>
+      <span>${it.label}</span>
+    </div>
+  </div>`).join('')}
+  <div class="sbar"><span class="smsg" id="msg-sec"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('sections')">💾 Salvar</button></div>`;
+}
+
+/* ═══ I18N TAB ═══ */
+export function tI18n() {
+  const D = getData();
+  const i18n = D.i18n || {};
+  const en = i18n.en || {};
+  return `
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Internacionalização (EN/PT)</h3>
+  <div class="card" style="margin-bottom:16px;padding:14px;">
+    <div class="ck-row">
+      <input type="checkbox" id="i18n-enabled" ${i18n.enabled ? 'checked' : ''}>
+      <span>Habilitar toggle EN/PT no CV público</span>
+    </div>
+  </div>
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:18px;font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.7;">
+    Preencha os textos em inglês abaixo. O português usa os campos padrão já existentes.
+  </div>
+  <div class="row"><label class="lbl">About Me (EN)</label><textarea class="inp" id="i18n-obj" style="min-height:120px;">${escRaw(en.objective || '')}</textarea></div>
+  <div class="row"><label class="lbl">Objective (EN)</label><textarea class="inp" id="i18n-objetivo" style="min-height:120px;">${escRaw(en.objetivo || '')}</textarea></div>
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin:20px 0 12px;">Labels das Seções (EN)</h3>
+  <div class="g2f">
+    <div class="row"><label class="lbl">Experience</label><input class="inp" id="i18n-lbl-exp" value="${esc(en.experienceLabel || 'Professional Experience')}"></div>
+    <div class="row"><label class="lbl">Projects</label><input class="inp" id="i18n-lbl-proj" value="${esc(en.projectsLabel || 'Featured Projects')}"></div>
+    <div class="row"><label class="lbl">Skills</label><input class="inp" id="i18n-lbl-sk" value="${esc(en.skillsLabel || 'Technical Skills')}"></div>
+    <div class="row"><label class="lbl">Education</label><input class="inp" id="i18n-lbl-edu" value="${esc(en.educationLabel || 'Education')}"></div>
+    <div class="row"><label class="lbl">Certifications</label><input class="inp" id="i18n-lbl-cert" value="${esc(en.certificationsLabel || 'Certifications & Courses')}"></div>
+    <div class="row"><label class="lbl">Tech Stack</label><input class="inp" id="i18n-lbl-tech" value="${esc(en.techLabel || 'Tech Stack')}"></div>
+    <div class="row"><label class="lbl">Languages</label><input class="inp" id="i18n-lbl-lang" value="${esc(en.languagesLabel || 'Languages')}"></div>
+    <div class="row"><label class="lbl">About Me</label><input class="inp" id="i18n-lbl-about" value="${esc(en.aboutLabel || 'About Me')}"></div>
+    <div class="row"><label class="lbl">Objective</label><input class="inp" id="i18n-lbl-objetivo" value="${esc(en.objectiveLabel || 'Objective')}"></div>
+  </div>
+  <div class="sbar"><span class="smsg" id="msg-i18n"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('i18n')">💾 Salvar</button></div>`;
+}
+
 /** Mapa de funções de render por tab */
 export const TAB_RENDERERS = {
   profile: tProfile,
   herostats: tHS,
   objective: tObj,
   skills: tSkills,
+  languages: tLangs,
   experience: tExp,
   projects: tProjs,
   education: tEdu,
   certifications: tCerts,
   tech: tTech,
+  sections: tSections,
+  i18n: tI18n,
   theme: tTheme,
   settings: tSettings,
 };

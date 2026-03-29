@@ -10,6 +10,7 @@ import { esc, cc, escAttr } from '../utils.js';
 export function render() {
   const D = getData();
   const p = D.profile;
+  const sec = D.sections || {};
   document.getElementById('hNick').textContent = p.nickname;
   document.getElementById('hFull').textContent = p.fullname;
   document.getElementById('hRole').textContent = p.role;
@@ -29,6 +30,8 @@ export function render() {
   renderEducation(D);
   renderCertifications(D);
   renderTech(D);
+  renderLanguages(D);
+  applySectionVisibility(sec);
 }
 
 function renderContact(p) {
@@ -80,7 +83,9 @@ function renderSkills(D) {
 function renderExperience(D) {
   document.getElementById('expEl').innerHTML = (D.experience || []).map((e, i, a) => {
     const c = cc(e.color);
-    return `<div class="ti"><div class="tl"><div class="td2 ${c}"></div>${i < a.length - 1 ? '<div class="tc"></div>' : ''}</div><div><div class="tp ${c}">${esc(e.period)}</div><div class="tt">${esc(e.title)}</div><div class="ts">${esc(e.company)}</div><div class="tdesc">${esc(e.description)}</div>${(e.highlights || []).map(h => `<div class="thl"><span>▸</span><span>${esc(h)}</span></div>`).join('')}</div></div>`;
+    const results = (e.results || []).filter(r => r.trim());
+    const resultsHtml = results.length ? `<div class="exp-results"><div class="exp-results-label">Resultados Gerais:</div>${results.map(r => `<div class="thl"><span>✦</span><span>${esc(r)}</span></div>`).join('')}</div>` : '';
+    return `<div class="ti"><div class="tl"><div class="td2 ${c}"></div>${i < a.length - 1 ? '<div class="tc"></div>' : ''}</div><div><div class="tp ${c}">${esc(e.period)}</div><div class="tt">${esc(e.title)}</div><div class="ts">${esc(e.company)}</div><div class="tdesc">${esc(e.description)}</div>${(e.highlights || []).map(h => `<div class="thl"><span>▸</span><span>${esc(h)}</span></div>`).join('')}${resultsHtml}</div></div>`;
   }).join('');
 }
 
@@ -112,6 +117,39 @@ function renderTech(D) {
   document.getElementById('techEl').innerHTML = (D.tech || []).map(t =>
     `<div class="tgitem"><span class="tg-e">${t.emoji}</span><div class="tg-l">${esc(t.label)}</div></div>`
   ).join('');
+}
+
+function renderLanguages(D) {
+  const el = document.getElementById('langEl');
+  if (!el) return;
+  const langs = D.languages || [];
+  if (!langs.length) { document.getElementById('langSection').style.display = 'none'; return; }
+  document.getElementById('langSection').style.display = '';
+  el.innerHTML = langs.map(l => {
+    const pct = l.percent || 0;
+    const cls = pct >= 70 ? 'high' : pct >= 40 ? 'mid' : 'low';
+    return `<div class="lang-item"><span class="lang-name">${esc(l.name)}</span><span class="lang-level">${esc(l.level)}</span><div class="lang-bar-wrap"><div class="lang-bar ${cls}" style="width:${pct}%"></div></div><span class="lang-label">${esc(l.label)}</span></div>`;
+  }).join('');
+}
+
+function applySectionVisibility(sec) {
+  const map = {
+    about: 'sec-about',
+    objective: 'sec-objective',
+    experience: 'sec-experience',
+    projects: 'sec-projects',
+    skills: 'sec-skills',
+    education: 'sec-education',
+    certifications: 'sec-certifications',
+    tech: 'sec-tech',
+    languages: 'langSection',
+    heroStats: 'hstats',
+    tags: 'htags'
+  };
+  for (const [key, id] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = sec[key] === false ? 'none' : '';
+  }
 }
 
 /** Renderiza overlay do portfólio */

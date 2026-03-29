@@ -9,7 +9,12 @@
   .copy-toast, .wa-btn, .view-all-wrap,
   .avail, .pulse, .cur2, .hero::before,
   .pdf-group, .topbar, .bottombar,
-  .proj-imgs, .po-imgs { display: none !important; }
+  .proj-imgs, .po-imgs,
+  .theme-toggle, .lang-toggle { display: none !important; }
+
+  /* QR Code in print */
+  .qr-print-section { display: block !important; text-align: center; margin-top: 14px; page-break-inside: avoid; }
+  .qr-print-section canvas, .qr-print-section img { width: 80px; height: 80px; }
 
   /* ═══ PDF DESIGN ═══ */
   body.pm-design { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -193,6 +198,23 @@
   body.pm-ats .cert-issuer::before { content: ' \2013 ' !important; }
   body.pm-ats .cert-year { font-size: 9.5pt !important; color: #000 !important; display: inline !important; margin-left: 0 !important; }
   body.pm-ats .cert-year::before { content: ', ' !important; }
+
+  /* ── Idiomas — lista com barras ── */
+  body.pm-ats .lang-item { display: block !important; padding: 1px 0 1px 16px !important; position: relative !important; }
+  body.pm-ats .lang-item::before { content: '\25CF' !important; position: absolute !important; left: 0 !important; top: 3px !important; font-size: 7pt !important; }
+  body.pm-ats .lang-name { font-size: 9.5pt !important; font-weight: 700 !important; display: inline !important; min-width: auto !important; }
+  body.pm-ats .lang-level { display: inline !important; font-size: 9.5pt !important; background: none !important; border: none !important; padding: 0 !important; }
+  body.pm-ats .lang-level::before { content: ' (' !important; }
+  body.pm-ats .lang-level::after { content: ')' !important; }
+  body.pm-ats .lang-bar-wrap, body.pm-ats .lang-label { display: none !important; }
+  body.pm-ats .exp-results-label { font-size: 9.5pt !important; font-weight: 700 !important; color: #000 !important; margin-top: 6px !important; }
+  body.pm-ats .exp-results .thl { display: block !important; font-size: 9.5pt !important; color: #000 !important; padding-left: 16px !important; text-indent: -16px !important; }
+  body.pm-ats .exp-results .thl span:first-child { display: none !important; }
+  body.pm-ats .exp-results .thl span:last-child::before { content: '\25CF  ' !important; font-size: 7pt !important; }
+
+  /* ── QR Code no PDF ── */
+  body.pm-design .qr-print-section { display: block !important; text-align: right; margin-top: 10px; }
+  body.pm-ats .qr-print-section { display: block !important; text-align: right; margin-top: 10px; }
 
   /* ── Links no rodapé ── */
   body.pm-ats a[href^="mailto"]:after { content: ""; }

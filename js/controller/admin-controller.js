@@ -4,10 +4,10 @@
  */
 import { getData, setData, setDataSource, getDataSource, resetToDefaults, applyTheme } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
-import { loadFromCloud, saveToCloud, uploadImage, validatePassword } from './api.js';
+import { loadFromCloud, saveToCloud, uploadImage, validatePassword, CV_READ_URL } from './api.js';
 import {
   TABS, TAB_RENDERERS, v,
-  rHS, rSkills, rExp, rProjs, rEdu, rCerts, rTech
+  rHS, rSkills, rExp, rProjs, rEdu, rCerts, rTech, rLangs
 } from '../view/admin-view.js';
 
 let SESSION_PWD = '';
@@ -25,9 +25,12 @@ function exposeGlobals() {
     saveTab, addHS, rmHS, addSkill, rmSkill,
     addExp, rmExp, addProj, rmProj, togFeat,
     addEdu, rmEdu, addCert, rmCert, addTech, rmTech,
+    addLang, rmLang,
     rmImg, handleImgs,
     syncH, syncC, prevTheme, rstTheme,
+    setThemeMode,
     reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults,
+    openPreview, refreshVisits, createBackup, showBackups, restoreBackup,
   };
 
   // Color dot handlers (up to 20 items)
@@ -153,6 +156,9 @@ function buildUI() {
 function renderTab(id) {
   const fn = TAB_RENDERERS[id] || TAB_RENDERERS.profile;
   document.getElementById('secEl').innerHTML = `<div class="sec on" id="sec-${id}">${fn()}</div>`;
+  initDragDrop();
+  // Load visit count when settings tab is shown
+  if (id === 'settings') refreshVisits();
 }
 
 /* ═══ SAVE ═══ */
@@ -175,12 +181,14 @@ window.saveAll = async function() {
 
 function saveTab(tabId) {
   collectCurrent();
+  // Auto-backup before saving
+  createBackupSilent();
   window.saveAll();
   const msgMap = {
     profile: 'msg-p', herostats: 'msg-hs', objective: 'msg-obj',
     skills: 'msg-sk', experience: 'msg-exp', projects: 'msg-proj',
     education: 'msg-edu', certifications: 'msg-cert', tech: 'msg-tech',
-    theme: 'msg-th'
+    theme: 'msg-th', languages: 'msg-lang', sections: 'msg-sec', i18n: 'msg-i18n'
   };
   if (msgMap[tabId]) showMsg(msgMap[tabId]);
 }
@@ -190,7 +198,8 @@ function collectCurrent() {
   const fns = {
     profile: cProfile, herostats: cHS, objective: cObj,
     skills: cSkills, experience: cExp, projects: cProjs,
-    education: cEdu, certifications: cCerts, tech: cTech, theme: cTheme
+    education: cEdu, certifications: cCerts, tech: cTech, theme: cTheme,
+    languages: cLangs, sections: cSections, i18n: cI18n
   };
   if (fns[curTab]) fns[curTab]();
 }
@@ -231,7 +240,8 @@ function cExp() {
   D.experience = D.experience.map((e, i) => ({
     period: v(`ex-p-${i}`), color: e.color, title: v(`ex-t-${i}`), company: v(`ex-c-${i}`),
     description: v(`ex-d-${i}`),
-    highlights: v(`ex-h-${i}`).split('\n').map(s => s.trim()).filter(Boolean)
+    highlights: v(`ex-h-${i}`).split('\n').map(s => s.trim()).filter(Boolean),
+    results: v(`ex-r-${i}`).split('\n').map(s => s.trim()).filter(Boolean)
   }));
 }
 
@@ -274,20 +284,58 @@ function cTheme() {
   D.theme.textColor = /^#[0-9a-fA-F]{6}$/.test(vals.tc) ? vals.tc : '';
   D.theme.textDim = /^#[0-9a-fA-F]{6}$/.test(vals.td) ? vals.td : '';
   D.theme.textBright = /^#[0-9a-fA-F]{6}$/.test(vals.tb) ? vals.tb : '';
+  // Preserve mode from radio buttons
+  const modeRadio = document.querySelector('input[name="themeMode"]:checked');
+  if (modeRadio) D.theme.mode = modeRadio.value;
+}
+
+function cLangs() {
+  const D = getData();
+  if (!D.languages) D.languages = [];
+  D.languages = D.languages.map((_, i) => ({
+    name: v(`ln-n-${i}`), level: document.getElementById(`ln-l-${i}`)?.value || 'A1',
+    label: v(`ln-lb-${i}`), percent: parseInt(v(`ln-p-${i}`)) || 0
+  }));
+}
+
+function cSections() {
+  const D = getData();
+  if (!D.sections) D.sections = {};
+  const keys = ['about','objective','heroStats','tags','experience','projects','skills','languages','education','certifications','tech'];
+  keys.forEach(k => { D.sections[k] = !!document.getElementById(`sec-v-${k}`)?.checked; });
+}
+
+function cI18n() {
+  const D = getData();
+  if (!D.i18n) D.i18n = { enabled: false, default: 'pt', en: {} };
+  D.i18n.enabled = !!document.getElementById('i18n-enabled')?.checked;
+  D.i18n.en = {
+    objective: document.getElementById('i18n-obj')?.value || '',
+    objetivo: document.getElementById('i18n-objetivo')?.value || '',
+    experienceLabel: v('i18n-lbl-exp'),
+    projectsLabel: v('i18n-lbl-proj'),
+    skillsLabel: v('i18n-lbl-sk'),
+    educationLabel: v('i18n-lbl-edu'),
+    certificationsLabel: v('i18n-lbl-cert'),
+    techLabel: v('i18n-lbl-tech'),
+    languagesLabel: v('i18n-lbl-lang'),
+    aboutLabel: v('i18n-lbl-about'),
+    objectiveLabel: v('i18n-lbl-objetivo'),
+  };
 }
 
 /* ═══ ADD / REMOVE ITEMS ═══ */
-function addHS() { cHS(); getData().heroStats.push({ ico: '⭐', label: 'Novo Item', val: 'Valor' }); document.getElementById('hs-list').innerHTML = rHS(); }
-function rmHS(i) { cHS(); getData().heroStats.splice(i, 1); document.getElementById('hs-list').innerHTML = rHS(); }
+function addHS() { cHS(); getData().heroStats.push({ ico: '⭐', label: 'Novo Item', val: 'Valor' }); document.getElementById('hs-list').innerHTML = rHS(); initDragDrop(); }
+function rmHS(i) { cHS(); getData().heroStats.splice(i, 1); document.getElementById('hs-list').innerHTML = rHS(); initDragDrop(); }
 
-function addSkill() { cSkills(); getData().skills.push({ name: 'Nova Skill', category: 'intermediate' }); document.getElementById('sk-list').innerHTML = rSkills(); }
-function rmSkill(i) { cSkills(); getData().skills.splice(i, 1); document.getElementById('sk-list').innerHTML = rSkills(); }
+function addSkill() { cSkills(); getData().skills.push({ name: 'Nova Skill', category: 'intermediate' }); document.getElementById('sk-list').innerHTML = rSkills(); initDragDrop(); }
+function rmSkill(i) { cSkills(); getData().skills.splice(i, 1); document.getElementById('sk-list').innerHTML = rSkills(); initDragDrop(); }
 
-function addExp() { cExp(); getData().experience.push({ period: '2024', color: 'c', title: 'Novo Cargo', company: 'Empresa', description: '', highlights: [] }); document.getElementById('exp-list').innerHTML = rExp(); }
-function rmExp(i) { cExp(); getData().experience.splice(i, 1); document.getElementById('exp-list').innerHTML = rExp(); }
+function addExp() { cExp(); getData().experience.push({ period: '2024', color: 'c', title: 'Novo Cargo', company: 'Empresa', description: '', highlights: [], results: [] }); document.getElementById('exp-list').innerHTML = rExp(); initDragDrop(); }
+function rmExp(i) { cExp(); getData().experience.splice(i, 1); document.getElementById('exp-list').innerHTML = rExp(); initDragDrop(); }
 
-function addProj() { cProjs(); getData().projects.push({ name: 'Novo Projeto', stack: 'Tech', color: 'c', featured: false, description: '', result: '', pills: [], images: [] }); document.getElementById('proj-list').innerHTML = rProjs(); }
-function rmProj(i) { cProjs(); getData().projects.splice(i, 1); document.getElementById('proj-list').innerHTML = rProjs(); }
+function addProj() { cProjs(); getData().projects.push({ name: 'Novo Projeto', stack: 'Tech', color: 'c', featured: false, description: '', result: '', pills: [], images: [] }); document.getElementById('proj-list').innerHTML = rProjs(); initDragDrop(); }
+function rmProj(i) { cProjs(); getData().projects.splice(i, 1); document.getElementById('proj-list').innerHTML = rProjs(); initDragDrop(); }
 
 function togFeat(i) {
   const D = getData();
@@ -302,14 +350,14 @@ function togFeat(i) {
   if (el) el.textContent = `✦ ${fc} em destaque na home`;
 }
 
-function addEdu() { cEdu(); getData().education.push({ period: '2025', color: 'p', title: 'Novo Curso', company: 'Instituição', description: '' }); document.getElementById('edu-list').innerHTML = rEdu(); }
-function rmEdu(i) { cEdu(); getData().education.splice(i, 1); document.getElementById('edu-list').innerHTML = rEdu(); }
+function addEdu() { cEdu(); getData().education.push({ period: '2025', color: 'p', title: 'Novo Curso', company: 'Instituição', description: '' }); document.getElementById('edu-list').innerHTML = rEdu(); initDragDrop(); }
+function rmEdu(i) { cEdu(); getData().education.splice(i, 1); document.getElementById('edu-list').innerHTML = rEdu(); initDragDrop(); }
 
-function addCert() { cCerts(); getData().certifications.push({ emoji: '📜', name: 'Certificação', issuer: 'Emissor', year: String(new Date().getFullYear()), certUrl: '' }); document.getElementById('cert-list').innerHTML = rCerts(); }
-function rmCert(i) { cCerts(); getData().certifications.splice(i, 1); document.getElementById('cert-list').innerHTML = rCerts(); }
+function addCert() { cCerts(); getData().certifications.push({ emoji: '📜', name: 'Certificação', issuer: 'Emissor', year: String(new Date().getFullYear()), certUrl: '' }); document.getElementById('cert-list').innerHTML = rCerts(); initDragDrop(); }
+function rmCert(i) { cCerts(); getData().certifications.splice(i, 1); document.getElementById('cert-list').innerHTML = rCerts(); initDragDrop(); }
 
-function addTech() { cTech(); getData().tech.push({ emoji: '🔧', label: 'Nova Tech' }); document.getElementById('tech-list').innerHTML = `<div class="g3f">${rTech()}</div>`; }
-function rmTech(i) { cTech(); getData().tech.splice(i, 1); document.getElementById('tech-list').innerHTML = `<div class="g3f">${rTech()}</div>`; }
+function addTech() { cTech(); getData().tech.push({ emoji: '🔧', label: 'Nova Tech' }); document.getElementById('tech-list').innerHTML = `<div class="g3f">${rTech()}</div>`; initDragDrop(); }
+function rmTech(i) { cTech(); getData().tech.splice(i, 1); document.getElementById('tech-list').innerHTML = `<div class="g3f">${rTech()}</div>`; initDragDrop(); }
 
 /* ═══ COLOR DOTS ═══ */
 function setItemColor(collection, i, c, el) {
@@ -458,6 +506,206 @@ async function resetAll() {
   await window.saveAll();
   buildUI();
   flash('✓ Resetado!');
+}
+
+/* ═══ LANGUAGE ADD/REMOVE ═══ */
+function addLang() { cLangs(); getData().languages.push({ name: 'Novo Idioma', level: 'A1', label: 'Básico', percent: 10 }); document.getElementById('lang-list').innerHTML = rLangs(); initDragDrop(); }
+function rmLang(i) { cLangs(); getData().languages.splice(i, 1); document.getElementById('lang-list').innerHTML = rLangs(); initDragDrop(); }
+
+/* ═══ THEME MODE ═══ */
+function setThemeMode(mode) {
+  const D = getData();
+  if (!D.theme) D.theme = {};
+  D.theme.mode = mode;
+  document.querySelectorAll('.theme-mode-opt').forEach(el => {
+    el.classList.toggle('active', el.querySelector('input')?.value === mode);
+  });
+}
+
+/* ═══ PREVIEW ═══ */
+function openPreview() {
+  collectCurrent();
+  const D = getData();
+  const modal = document.createElement('div');
+  modal.className = 'preview-modal';
+  modal.id = 'previewModal';
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'preview-close';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = () => modal.remove();
+  const iframe = document.createElement('iframe');
+  iframe.src = 'index.html';
+  modal.appendChild(closeBtn);
+  modal.appendChild(iframe);
+  document.body.appendChild(modal);
+
+  // Inject current data into iframe once loaded
+  iframe.onload = () => {
+    try {
+      const iframeWindow = iframe.contentWindow;
+      // Override the fetch to return current data
+      const script = iframeWindow.document.createElement('script');
+      script.textContent = `
+        window.__previewData = ${JSON.stringify(D)};
+      `;
+      iframeWindow.document.head.appendChild(script);
+    } catch (e) {
+      // Cross-origin may block, fallback to just showing current saved version
+    }
+  };
+}
+
+/* ═══ VISIT COUNTER ═══ */
+async function refreshVisits() {
+  const pingUrl = CV_READ_URL.replace('cv-read', 'cv-ping');
+  try {
+    const res = await fetch(pingUrl, { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      const el = document.getElementById('visitCountDisplay');
+      if (el) el.textContent = data.visitCount ?? '—';
+    }
+  } catch (e) {
+    flash('⚠ Erro ao carregar visitas', true);
+  }
+}
+
+/* ═══ BACKUP ═══ */
+function createBackupSilent() {
+  const D = getData();
+  if (!D.backups) D.backups = [];
+  const snapshot = JSON.parse(JSON.stringify(D));
+  delete snapshot.backups;
+  D.backups.unshift({ timestamp: new Date().toISOString(), data: snapshot });
+  // Keep max 10 backups
+  if (D.backups.length > 10) D.backups = D.backups.slice(0, 10);
+}
+
+function createBackup() {
+  collectCurrent();
+  createBackupSilent();
+  flash('💾 Backup criado!');
+  showBackups();
+}
+
+function showBackups() {
+  const D = getData();
+  const el = document.getElementById('backupsList');
+  if (!el) return;
+  const backups = D.backups || [];
+  if (!backups.length) { el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--td);">Nenhum backup disponível.</div>'; return; }
+  el.innerHTML = backups.map((b, i) => {
+    const d = new Date(b.timestamp);
+    return `<div class="backup-item"><span class="backup-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR')}</span><button class="btn btn-c" onclick="window.__admin.restoreBackup(${i})">↺ Restaurar</button></div>`;
+  }).join('');
+}
+
+function restoreBackup(i) {
+  const D = getData();
+  const backups = D.backups || [];
+  if (!backups[i]) return;
+  if (!confirm('Restaurar este backup? Os dados atuais serão substituídos.')) return;
+  const restored = JSON.parse(JSON.stringify(backups[i].data));
+  restored.backups = backups; // Keep backup history
+  setData(restored);
+  buildUI();
+  flash('✓ Backup restaurado! Clique em Salvar para persistir.');
+}
+
+/* ═══ DRAG AND DROP ═══ */
+function initDragDrop() {
+  document.querySelectorAll('[data-draggable]').forEach(card => {
+    const handle = card.querySelector('.drag-handle');
+    if (!handle) return;
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      startDrag(card);
+    });
+    handle.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startDrag(card);
+    }, { passive: false });
+  });
+}
+
+let dragSrc = null;
+function startDrag(card) {
+  dragSrc = card;
+  card.classList.add('dragging');
+  const collection = card.dataset.draggable;
+  const siblings = Array.from(card.parentElement.querySelectorAll(`[data-draggable="${collection}"]`));
+
+  function onMove(e) {
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    siblings.forEach(s => {
+      s.classList.remove('drag-over');
+      const rect = s.getBoundingClientRect();
+      if (s !== card && clientY > rect.top && clientY < rect.bottom) {
+        s.classList.add('drag-over');
+      }
+    });
+  }
+
+  function onEnd(e) {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+
+    const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    let target = null;
+    siblings.forEach(s => {
+      s.classList.remove('drag-over');
+      const rect = s.getBoundingClientRect();
+      if (s !== card && clientY > rect.top && clientY < rect.bottom) {
+        target = s;
+      }
+    });
+
+    card.classList.remove('dragging');
+    if (target && target !== card) {
+      const fromIdx = parseInt(card.dataset.index);
+      const toIdx = parseInt(target.dataset.index);
+      reorderCollection(collection, fromIdx, toIdx);
+    }
+    dragSrc = null;
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('touchend', onEnd);
+}
+
+function reorderCollection(collection, from, to) {
+  // First collect current form data
+  const collectMap = {
+    heroStats: cHS, skills: cSkills, experience: cExp,
+    projects: cProjs, education: cEdu, certifications: cCerts,
+    tech: cTech, languages: cLangs
+  };
+  if (collectMap[collection]) collectMap[collection]();
+
+  const D = getData();
+  const arr = D[collection];
+  if (!arr) return;
+  const [item] = arr.splice(from, 1);
+  arr.splice(to, 0, item);
+
+  // Re-render the list
+  const rerenderMap = {
+    heroStats: () => { document.getElementById('hs-list').innerHTML = rHS(); },
+    skills: () => { document.getElementById('sk-list').innerHTML = rSkills(); },
+    experience: () => { document.getElementById('exp-list').innerHTML = rExp(); },
+    projects: () => { document.getElementById('proj-list').innerHTML = rProjs(); },
+    education: () => { document.getElementById('edu-list').innerHTML = rEdu(); },
+    certifications: () => { document.getElementById('cert-list').innerHTML = rCerts(); },
+    tech: () => { document.getElementById('tech-list').innerHTML = `<div class="g3f">${rTech()}</div>`; },
+    languages: () => { document.getElementById('lang-list').innerHTML = rLangs(); },
+  };
+  if (rerenderMap[collection]) rerenderMap[collection]();
+  initDragDrop();
+  flash('✓ Reordenado!');
 }
 
 /* ═══ EXPORT DEFAULTS ═══ */
