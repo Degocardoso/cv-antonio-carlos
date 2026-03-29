@@ -6,14 +6,25 @@ import { getData } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
 import { esc, cc, escAttr } from '../utils.js';
 
+/** Get translated value (falls back to PT original) */
+function t(enVal, ptVal) { return (enVal && enVal.trim()) ? enVal : ptVal; }
+
+/** Get current language from controller */
+let _lang = 'pt';
+export function setLang(lang) { _lang = lang; }
+function isEN() { return _lang === 'en'; }
+
 /** Renderiza todo o CV */
 export function render() {
   const D = getData();
   const p = D.profile;
   const sec = D.sections || {};
+  const en = (D.i18n?.en) || {};
+  const labels = en.labels || {};
+
   document.getElementById('hNick').textContent = p.nickname;
   document.getElementById('hFull').textContent = p.fullname;
-  document.getElementById('hRole').textContent = p.role;
+  document.getElementById('hRole').textContent = isEN() ? t(en.role, p.role) : p.role;
   document.getElementById('topTitle').textContent = '~/' + p.nickname.toLowerCase().replace(/[\s']/g, '-') + '/portfolio';
   document.getElementById('bname').textContent = p.nickname;
   document.getElementById('yr').textContent = new Date().getFullYear();
@@ -32,6 +43,25 @@ export function render() {
   renderTech(D);
   renderLanguages(D);
   applySectionVisibility(sec);
+
+  // Apply i18n labels if EN
+  if (isEN()) {
+    const labelMap = {
+      'about': '#sec-about .pt',
+      'objective': '#sec-objective .pt',
+      'experience': '#sec-experience .pt',
+      'projects': '#sec-projects .pt',
+      'skills': '#sec-skills > .ph .pt',
+      'education': '#sec-education > .ph .pt',
+      'certifications': '#sec-certifications .pt',
+      'languages': '#langSection .pt',
+      'tech': '#sec-tech .pt'
+    };
+    for (const [key, sel] of Object.entries(labelMap)) {
+      const el = document.querySelector(sel);
+      if (el && labels[key]) el.textContent = labels[key];
+    }
+  }
 }
 
 function renderContact(p) {
@@ -65,8 +95,9 @@ function renderHeroStats(D) {
 }
 
 function renderAbout(D) {
-  document.getElementById('sobreEl').innerHTML = D.objective || '';
-  document.getElementById('objetivoEl').innerHTML = D.objetivo || '';
+  const en = D.i18n?.en || {};
+  document.getElementById('sobreEl').innerHTML = isEN() ? t(en.objective, D.objective) : (D.objective || '');
+  document.getElementById('objetivoEl').innerHTML = isEN() ? t(en.objetivo, D.objetivo) : (D.objetivo || '');
 }
 
 function renderSkills(D) {
@@ -81,28 +112,47 @@ function renderSkills(D) {
 }
 
 function renderExperience(D) {
+  const enExp = D.i18n?.en?.experience || [];
   document.getElementById('expEl').innerHTML = (D.experience || []).map((e, i, a) => {
     const c = cc(e.color);
+    const tr = isEN() ? (enExp[i] || {}) : {};
+    const title = isEN() ? t(tr.title, e.title) : e.title;
+    const company = isEN() ? t(tr.company, e.company) : e.company;
+    const desc = isEN() ? t(tr.description, e.description) : e.description;
+    const highlights = isEN() && tr.highlights?.length ? tr.highlights : (e.highlights || []);
     const results = (e.results || []).filter(r => r.trim());
-    const resultsHtml = results.length ? `<div class="exp-results"><div class="exp-results-label">Resultados Gerais:</div>${results.map(r => `<div class="thl"><span>✦</span><span>${esc(r)}</span></div>`).join('')}</div>` : '';
-    return `<div class="ti"><div class="tl"><div class="td2 ${c}"></div>${i < a.length - 1 ? '<div class="tc"></div>' : ''}</div><div><div class="tp ${c}">${esc(e.period)}</div><div class="tt">${esc(e.title)}</div><div class="ts">${esc(e.company)}</div><div class="tdesc">${esc(e.description)}</div>${(e.highlights || []).map(h => `<div class="thl"><span>▸</span><span>${esc(h)}</span></div>`).join('')}${resultsHtml}</div></div>`;
+    const resultsLabel = isEN() ? 'Key Results:' : 'Resultados Gerais:';
+    const resultsHtml = results.length ? `<div class="exp-results"><div class="exp-results-label">${resultsLabel}</div>${results.map(r => `<div class="thl"><span>✦</span><span>${esc(r)}</span></div>`).join('')}</div>` : '';
+    return `<div class="ti"><div class="tl"><div class="td2 ${c}"></div>${i < a.length - 1 ? '<div class="tc"></div>' : ''}</div><div><div class="tp ${c}">${esc(e.period)}</div><div class="tt">${esc(title)}</div><div class="ts">${esc(company)}</div><div class="tdesc">${esc(desc)}</div>${highlights.map(h => `<div class="thl"><span>▸</span><span>${esc(h)}</span></div>`).join('')}${resultsHtml}</div></div>`;
   }).join('');
 }
 
 function renderProjects(D) {
   const featured = (D.projects || []).filter(p => p.featured).slice(0, 3);
   const homeProjs = featured.length ? featured : (D.projects || []).slice(0, 3);
+  const enProj = D.i18n?.en?.projects || [];
+  const allProjs = D.projects || [];
   document.getElementById('projEl').innerHTML = homeProjs.map(pr => {
     const c = cc(pr.color);
     const imgs = pr.images || [];
-    return `<div class="proj ${c}"><div class="proj-top"><div class="proj-name">${esc(pr.name)}</div><div class="proj-stack">${esc(pr.stack)}</div></div>${pr.result ? `<div class="result">✦ ${esc(pr.result)}</div>` : ''}<div class="proj-desc">${esc(pr.description)}</div><div class="pills">${(pr.pills || []).map(pl => `<span class="pill ${c}">${esc(pl)}</span>`).join('')}</div>${imgs.length ? `<div class="proj-imgs">${imgs.map(src => `<img class="proj-img" src="${escAttr(src)}" alt="" data-lightbox="${escAttr(src)}">`).join('')}</div>` : ''}</div>`;
+    const origIdx = allProjs.indexOf(pr);
+    const tr = isEN() ? (enProj[origIdx] || {}) : {};
+    const name = isEN() ? t(tr.name, pr.name) : pr.name;
+    const stack = isEN() ? t(tr.stack, pr.stack) : pr.stack;
+    const desc = isEN() ? t(tr.description, pr.description) : pr.description;
+    const result = isEN() ? t(tr.result, pr.result) : pr.result;
+    return `<div class="proj ${c}"><div class="proj-top"><div class="proj-name">${esc(name)}</div><div class="proj-stack">${esc(stack)}</div></div>${result ? `<div class="result">✦ ${esc(result)}</div>` : ''}<div class="proj-desc">${esc(desc)}</div><div class="pills">${(pr.pills || []).map(pl => `<span class="pill ${c}">${esc(pl)}</span>`).join('')}</div>${imgs.length ? `<div class="proj-imgs">${imgs.map(src => `<img class="proj-img" src="${escAttr(src)}" alt="" data-lightbox="${escAttr(src)}">`).join('')}</div>` : ''}</div>`;
   }).join('');
 }
 
 function renderEducation(D) {
+  const enEdu = D.i18n?.en?.education || [];
   document.getElementById('eduEl').innerHTML = (D.education || []).map((e, i, a) => {
     const c = cc(e.color);
-    return `<div class="ti"><div class="tl"><div class="td2 ${c}"></div>${i < a.length - 1 ? '<div class="tc"></div>' : ''}</div><div><div class="tp ${c}">${esc(e.period)}</div><div class="tt">${esc(e.title)}</div><div class="ts">${esc(e.company)}</div><div class="tdesc">${esc(e.description)}</div></div></div>`;
+    const tr = isEN() ? (enEdu[i] || {}) : {};
+    const title = isEN() ? t(tr.title, e.title) : e.title;
+    const desc = isEN() ? t(tr.description, e.description) : e.description;
+    return `<div class="ti"><div class="tl"><div class="td2 ${c}"></div>${i < a.length - 1 ? '<div class="tc"></div>' : ''}</div><div><div class="tp ${c}">${esc(e.period)}</div><div class="tt">${esc(title)}</div><div class="ts">${esc(e.company)}</div><div class="tdesc">${esc(desc)}</div></div></div>`;
   }).join('');
 }
 
@@ -150,6 +200,26 @@ function applySectionVisibility(sec) {
     const el = document.getElementById(id);
     if (el) el.style.display = sec[key] === false ? 'none' : '';
   }
+
+  // Adjust grid layouts when panels are hidden to avoid gaps
+  document.querySelectorAll('.g2, .g3').forEach(grid => {
+    const visiblePanels = Array.from(grid.children).filter(
+      ch => ch.style.display !== 'none' && ch.classList.contains('panel')
+    );
+    const totalPanels = Array.from(grid.children).filter(ch => ch.classList.contains('panel'));
+    if (visiblePanels.length === 0) {
+      grid.style.display = 'none';
+    } else {
+      grid.style.display = '';
+      if (visiblePanels.length === 1) {
+        grid.style.gridTemplateColumns = '1fr';
+      } else if (visiblePanels.length === 2 && grid.classList.contains('g3')) {
+        grid.style.gridTemplateColumns = '1fr 1fr';
+      } else {
+        grid.style.gridTemplateColumns = '';
+      }
+    }
+  });
 }
 
 /** Renderiza overlay do portfólio */
