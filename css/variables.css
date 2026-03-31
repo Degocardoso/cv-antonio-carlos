@@ -17,6 +17,16 @@
   --mono: 'JetBrains Mono', monospace;
   --sans: 'Space Grotesk', sans-serif;
   --r: 6px;
+
+  /* ═══ Typography Scale ═══ */
+  --fs-hero: clamp(32px,4.5vw,58px);
+  --fs-section-title: 10px;
+  --fs-body: 14px;
+  --fs-description: 12px;
+  --fs-label: 11px;
+  --fs-small: 10px;
+  --fs-tiny: 9px;
+  --fs-item-title: 13px;
 }
 
 /* ═══ Light Mode ═══ */

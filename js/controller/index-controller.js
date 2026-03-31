@@ -2,7 +2,7 @@
  * Controller — Index (CV público)
  * Lógica de inicialização, lightbox, PDF, typewriter, etc.
  */
-import { getData, setData, applyTheme, mergeFromCloud } from '../model/state.js';
+import { getData, setData, applyTheme, applyTypography, mergeFromCloud } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
 import { CV_READ_URL } from './api.js';
 import { render, renderPortfolio, setLang } from '../view/index-view.js';
@@ -16,8 +16,6 @@ let galleryIdx = 0;  // índice atual
 export async function init() {
   // Expõe funções necessárias para onclick inline
   window.__copyEmail = copyEmail;
-  window.__printDesign = printDesign;
-  window.__printATS = printATS;
   window.__toggleTheme = toggleTheme;
   window.__toggleLang = toggleLang;
   window.closeLB = closeLB;
@@ -131,6 +129,7 @@ async function loadData() {
   }
 
   applyTheme();
+  applyTypography();
   render();
   generateQR();
   trackVisit();
@@ -188,19 +187,6 @@ function openPO() {
 function closePO() {
   document.getElementById('po').classList.remove('open');
   document.body.style.overflow = '';
-}
-
-/* ═══ PDF ═══ */
-function printDesign() {
-  document.body.classList.add('pm-design');
-  window.print();
-  setTimeout(() => document.body.classList.remove('pm-design'), 800);
-}
-
-function printATS() {
-  document.body.classList.add('pm-ats');
-  window.print();
-  setTimeout(() => document.body.classList.remove('pm-ats'), 800);
 }
 
 /* ═══ TYPEWRITER ═══ */

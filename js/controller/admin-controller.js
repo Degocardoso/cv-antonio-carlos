@@ -2,7 +2,7 @@
  * Controller — Admin Panel
  * Lógica de autenticação, coleta de dados, tabs, upload, etc.
  */
-import { getData, setData, setDataSource, getDataSource, resetToDefaults, applyTheme } from '../model/state.js';
+import { getData, setData, setDataSource, getDataSource, resetToDefaults, applyTheme, applyTypography } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
 import { loadFromCloud, saveToCloud, uploadImage, validatePassword, CV_READ_URL } from './api.js';
 import {
@@ -211,6 +211,7 @@ function cProfile() {
   D.profile.email = v('f-email'); D.profile.phone = v('f-phone');
   D.profile.linkedin = v('f-li'); D.profile.github = v('f-gh');
   D.profile.whatsapp = v('f-wa'); D.profile.portfolio = v('f-port');
+  D.profile.pdfUrl = v('f-pdfUrl');
   D.profile.available = !!document.getElementById('f-avail')?.checked;
   D.tags = v('f-tags').split(',').map(s => s.trim()).filter(Boolean);
 }
@@ -302,6 +303,11 @@ function cTheme() {
     textDim: /^#[0-9a-fA-F]{6}$/.test(ltTd) ? ltTd : '#656d76',
     textBright: /^#[0-9a-fA-F]{6}$/.test(ltTb) ? ltTb : '#1f2328',
   };
+
+  // Collect typography
+  const typoKeys = ['fontFamily','fsHero','fsSectionTitle','fsBody','fsDescription','fsLabel','fsSmall','fsTiny','fsItemTitle'];
+  D.theme.typography = {};
+  typoKeys.forEach(k => { D.theme.typography[k] = v(`typo-${k}`).trim(); });
 }
 
 function cLangs() {
@@ -493,6 +499,7 @@ function syncC(hid, cid, pid) {
 function prevTheme() {
   cTheme();
   applyTheme();
+  applyTypography();
   showMsg('msg-th', '✓ Preview aplicado!');
 }
 
@@ -501,9 +508,11 @@ function rstTheme() {
   D.theme = {
     mode: D.theme?.mode || 'dark',
     dark: { textColor: '#c9d1d9', textDim: '#6e7f95', textBright: '#e6edf3' },
-    light: { textColor: '#1f2328', textDim: '#656d76', textBright: '#1f2328' }
+    light: { textColor: '#1f2328', textDim: '#656d76', textBright: '#1f2328' },
+    typography: {}
   };
   applyTheme();
+  applyTypography();
   renderTab('theme');
   showMsg('msg-th', '✓ Resetado.');
 }
