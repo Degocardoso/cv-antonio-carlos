@@ -160,7 +160,7 @@ body.cv-page { overflow-x: hidden; }
 .tp.g { color: var(--neon); } .tp.c { color: var(--neon2); } .tp.o { color: var(--neon3); } .tp.p { color: var(--neon4); }
 .tt { font-size: var(--fs-item-title); font-weight: 600; color: var(--tb); margin-bottom: 1px; }
 .ts { font-size: var(--fs-label); color: var(--td); margin-bottom: 5px; }
-.tdesc { font-size: var(--fs-label); color: var(--td); line-height: 1.65; margin-bottom: 4px; }
+.tdesc { font-size: var(--fs-description); color: var(--td); line-height: 1.65; margin-bottom: 4px; }
 .thl { display: flex; align-items: flex-start; gap: 5px; font-family: var(--mono); font-size: var(--fs-small); color: var(--neon); margin-top: 3px; }
 
 /* EXPERIENCE RESULTS */
