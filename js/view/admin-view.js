@@ -51,6 +51,8 @@ export function tProfile() {
   </div>
   <div class="row"><label class="lbl">WhatsApp (DDI+DDD+número)</label><input class="inp" id="f-wa" value="${esc(p.whatsapp)}"></div>
   <div class="row"><label class="lbl">Portfólio URL</label><input class="inp" id="f-port" value="${esc(p.portfolio)}"></div>
+  <div class="row"><label class="lbl">PDF do Currículo (URL Cloudinary ou externa)</label><input class="inp" id="f-pdfUrl" value="${esc(p.pdfUrl || '')}" placeholder="https://res.cloudinary.com/.../cv.pdf"></div>
+  <div style="background:rgba(0,207,255,.06);border:1px solid rgba(0,207,255,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-family:var(--mono);font-size:10px;color:var(--neon2);line-height:1.7;">📄 Faça upload do PDF no Cloudinary (ou qualquer host) e cole a URL aqui. O botão "Download CV" aparecerá no hero.</div>
   <div class="row"><label class="lbl">Tags (separadas por vírgula)</label><input class="inp" id="f-tags" value="${getData().tags.join(', ')}"></div>
   <div class="row"><div class="ck-row"><input type="checkbox" id="f-avail" ${p.available ? 'checked' : ''}><span>Badge "Disponível para oportunidades"</span></div></div>
   <div class="sbar"><span class="smsg" id="msg-p"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('profile')">💾 Salvar Perfil</button></div>`;
@@ -272,11 +274,34 @@ export function rTech() {
   </div>`).join('');
 }
 
+function typoBlock(typo) {
+  const fields = [
+    ['fontFamily', 'Fonte Principal', "ex: 'JetBrains Mono', monospace"],
+    ['fsHero', 'Nome (Hero)', 'padrão: clamp(32px,4.5vw,58px)'],
+    ['fsSectionTitle', 'Títulos de Seção', 'padrão: 10px'],
+    ['fsBody', 'Corpo / Sobre Mim', 'padrão: 14px'],
+    ['fsItemTitle', 'Títulos de Itens', 'padrão: 13px'],
+    ['fsDescription', 'Descrições', 'padrão: 12px'],
+    ['fsLabel', 'Labels / Contato', 'padrão: 11px'],
+    ['fsSmall', 'Pequeno (pills, tech)', 'padrão: 10px'],
+    ['fsTiny', 'Mínimo (badges)', 'padrão: 9px'],
+  ];
+  return `<div class="card" style="padding:14px;">
+    <div class="g2f" style="gap:10px;">
+      ${fields.map(([key, label, hint]) => `
+        <div class="row"><label class="lbl">${label} <span style="color:var(--td);font-weight:400;">(${hint})</span></label>
+        <input class="inp" id="typo-${key}" value="${esc(typo[key] || '')}" placeholder="${hint}"></div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
 export function tTheme() {
   const th = getData().theme || {};
   const mode = th.mode || 'dark';
   const dk = th.dark || {};
   const lt = th.light || {};
+  const typo = th.typography || {};
   const dkTc = dk.textColor || '#c9d1d9', dkTd = dk.textDim || '#6e7f95', dkTb = dk.textBright || '#e6edf3';
   const ltTc = lt.textColor || '#1f2328', ltTd = lt.textDim || '#656d76', ltTb = lt.textBright || '#1f2328';
 
@@ -318,11 +343,15 @@ export function tTheme() {
   <div class="hint" style="margin-bottom:12px;">Cores de texto para o modo claro.</div>
   ${colorBlock('lt', 'Claro', '#1f2328', '#656d76', '#1f2328', ltTc, ltTd, ltTb)}
 
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin:20px 0 8px;">🔤 Tipografia</h3>
+  <div class="hint" style="margin-bottom:12px;">Configure tamanhos de fonte por elemento. Deixe vazio para usar o padrão. Use px, rem, clamp(), etc.</div>
+  ${typoBlock(typo)}
+
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;">
     <button class="btn btn-c" onclick="window.__admin.prevTheme()">👁 Preview</button>
     <button class="btn btn-r" onclick="window.__admin.rstTheme()">↺ Resetar</button>
   </div>
-  <div class="sbar"><span class="smsg" id="msg-th"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('theme')">💾 Salvar Cores</button></div>`;
+  <div class="sbar"><span class="smsg" id="msg-th"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('theme')">💾 Salvar Tema</button></div>`;
 }
 
 export function tSettings() {

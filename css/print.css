@@ -8,7 +8,7 @@
   body::before, body::after,
   .copy-toast, .wa-btn, .view-all-wrap,
   .avail, .pulse, .cur2, .hero::before,
-  .pdf-group, .topbar, .bottombar,
+  .pdf-btn, .topbar, .bottombar,
   .proj-imgs, .po-imgs,
   .theme-toggle, .lang-toggle { display: none !important; }
 

@@ -80,12 +80,10 @@ function renderTags(D) {
 
 function renderHeroActions(p) {
   const waH = p.whatsapp ? `<a class="wa-btn" href="https://wa.me/${escAttr(p.whatsapp)}?text=${encodeURIComponent('Olá, vi seu CV e gostaria de conversar!')}" target="_blank" rel="noopener">💬 WhatsApp</a>` : '';
+  const pdfH = p.pdfUrl ? `<a class="pdf-btn" href="${escAttr(p.pdfUrl)}" target="_blank" rel="noopener" download title="Baixar currículo em PDF">⬇ Download CV</a>` : '';
   document.getElementById('heroActions').innerHTML =
     (p.available ? '<div class="avail"><span class="pulse"></span>Disponível para oportunidades</div>' : '') +
-    `<div class="pdf-group">
-      <button class="pdf-btn" onclick="window.__printDesign()" title="Fundo branco, emojis, layout visual">⬇ PDF Design</button>
-      <button class="pdf-btn" onclick="window.__printATS()" title="Formato profissional tradicional, sem emojis">⬇ PDF ATS</button>
-    </div>` + waH;
+    pdfH + waH;
 }
 
 function renderHeroStats(D) {

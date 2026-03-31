@@ -57,6 +57,32 @@ export function mergeFromCloud(record) {
   return result;
 }
 
+/** Aplica tipografia customizada */
+export function applyTypography() {
+  const typo = D.theme?.typography || {};
+  const r = document.documentElement;
+  const map = {
+    fsHero: '--fs-hero',
+    fsSectionTitle: '--fs-section-title',
+    fsBody: '--fs-body',
+    fsDescription: '--fs-description',
+    fsLabel: '--fs-label',
+    fsSmall: '--fs-small',
+    fsTiny: '--fs-tiny',
+    fsItemTitle: '--fs-item-title'
+  };
+  for (const [key, cssVar] of Object.entries(map)) {
+    const val = typo[key];
+    if (val && val.trim()) r.style.setProperty(cssVar, val.trim());
+    else r.style.removeProperty(cssVar);
+  }
+  if (typo.fontFamily && typo.fontFamily.trim()) {
+    r.style.setProperty('--mono', typo.fontFamily.trim());
+  } else {
+    r.style.removeProperty('--mono');
+  }
+}
+
 /** Aplica o tema customizado */
 export function applyTheme() {
   const th = D.theme || {};

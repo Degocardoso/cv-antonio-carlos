@@ -15,23 +15,24 @@ export const DEFAULTS = {
     "github": "github.com/Degocardoso",
     "whatsapp": "5511992978652",
     "portfolio": "",
+    "pdfUrl": "",
     "available": true
   },
   "heroStats": [
     {
       "ico": "💼",
       "label": "Experiência",
-      "val": "3+ anos - CRM & Dev"
+      "val": "3+ anos — CRM & Dev"
     },
     {
       "ico": "🎓",
       "label": "Graduações",
-      "val": "Data Sciente - FIAP | ADS - FECAP"
+      "val": "Data Science — FIAP | ADS — FECAP"
     },
     {
       "ico": "🎓",
       "label": "Pós-Grad.",
-      "val": "Data Science - FECAP"
+      "val": "Data Science — FECAP"
     },
     {
       "ico": "📍",
@@ -319,6 +320,17 @@ export const DEFAULTS = {
       "textColor": "#1f2328",
       "textDim": "#656d76",
       "textBright": "#1f2328"
+    },
+    "typography": {
+      "fontFamily": "",
+      "fsHero": "",
+      "fsSectionTitle": "",
+      "fsBody": "",
+      "fsDescription": "",
+      "fsLabel": "",
+      "fsSmall": "",
+      "fsTiny": "",
+      "fsItemTitle": ""
     }
   },
   "sections": {
