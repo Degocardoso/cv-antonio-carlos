@@ -39,3 +39,41 @@ export function copyEmail(email) {
     if (t) { t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
   });
 }
+
+/**
+ * Comprime/redimensiona uma imagem no navegador antes do upload.
+ * Evita estourar o limite de corpo das serverless functions (erro 413)
+ * e acelera o envio. Retorna um Data URL (base64) em JPEG.
+ * @param {File} file
+ * @param {number} maxDim  maior dimensão permitida (px)
+ * @param {number} quality qualidade JPEG (0–1)
+ * @returns {Promise<string>}
+ */
+export function compressImage(file, maxDim = 1600, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Falha ao ler o arquivo.'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Arquivo de imagem inválido.'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width >= height) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        // Fundo branco para imagens com transparência (PNG → JPEG)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}

@@ -9,6 +9,7 @@ import {
   TABS, TAB_RENDERERS, v,
   rHS, rSkills, rExp, rProjs, rEdu, rCerts, rTech, rLangs
 } from '../view/admin-view.js';
+import { compressImage } from '../utils.js';
 
 let SESSION_PWD = '';
 let curTab = 'profile';
@@ -431,14 +432,14 @@ async function handleImgs(idx, inp) {
   if (statusEl) statusEl.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--neon2);padding:6px 0;">⏳ Enviando 0/${total}...</div>`;
 
   for (const file of files) {
-    if (file.size > 5 * 1024 * 1024) { failed++; flash(`⚠ "${file.name}" > 5MB, ignorado.`, true); continue; }
+    if (file.size > 15 * 1024 * 1024) { failed++; flash(`⚠ "${file.name}" > 15MB, ignorado.`, true); continue; }
 
-    const base64 = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = e => res(e.target.result);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
+    let base64;
+    try {
+      base64 = await compressImage(file, 1600, 0.82);
+    } catch (e) {
+      failed++; flash(`⚠ "${file.name}": ${e.message}`, true); continue;
+    }
 
     const result = await uploadImage(base64, idx, SESSION_PWD);
     if (result.ok) {
@@ -478,19 +479,21 @@ async function handlePhoto(inp) {
   const file = inp.files[0];
   inp.value = '';
 
-  if (file.size > 5 * 1024 * 1024) {
-    flash('⚠ Foto maior que 5MB.', true);
+  if (file.size > 15 * 1024 * 1024) {
+    flash('⚠ Foto maior que 15MB.', true);
     return;
   }
 
-  if (statusEl) statusEl.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--neon2);padding:6px 0;">⏳ Enviando foto...</div>';
+  if (statusEl) statusEl.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--neon2);padding:6px 0;">⏳ Otimizando e enviando foto...</div>';
 
-  const base64 = await new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = e => res(e.target.result);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
+  let base64;
+  try {
+    base64 = await compressImage(file, 1000, 0.85);
+  } catch (e) {
+    flash(`⚠ ${e.message}`, true);
+    if (statusEl) statusEl.innerHTML = '';
+    return;
+  }
 
   const result = await uploadImage(base64, 'profile', SESSION_PWD);
   if (result.ok) {

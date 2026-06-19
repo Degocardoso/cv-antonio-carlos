@@ -59,7 +59,7 @@ export function tProfile() {
     <label class="lbl">📷 Foto de Perfil (hospedada no Cloudinary)</label>
     <div class="ithumb-wrap" id="photo-thumb">${p.photo ? `<div class="ithumb"><img src="${escAttr(p.photo)}" alt=""><button class="ithumb-del" onclick="window.__admin.rmPhoto()">✕</button></div>` : ''}</div>
     <div id="photo-upload-status"></div>
-    <div class="izone"><label for="photo-file">📁 Clique para enviar sua foto (JPG, PNG — máx. 5MB)</label><input type="file" id="photo-file" accept="image/*" style="display:none;" onchange="window.__admin.handlePhoto(this)"></div>
+    <div class="izone"><label for="photo-file">📁 Clique para enviar sua foto (JPG, PNG — otimizada automaticamente)</label><input type="file" id="photo-file" accept="image/*" style="display:none;" onchange="window.__admin.handlePhoto(this)"></div>
   </div>
   <div class="sbar"><span class="smsg" id="msg-p"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('profile')">💾 Salvar Perfil</button></div>`;
 }
@@ -203,7 +203,7 @@ export function rProjs() {
       <label class="lbl">📷 Fotos do Projeto (hospedadas no Cloudinary)</label>
       <div class="ithumb-wrap" id="ith-${i}">${(pr.images || []).map((url, j) => `<div class="ithumb"><img src="${escAttr(url)}" alt=""><button class="ithumb-del" onclick="window.__admin.rmImg(${i},${j})">✕</button></div>`).join('')}</div>
       <div id="upload-status-${i}"></div>
-      <div class="izone"><label for="if-${i}">📁 Clique para enviar imagens (JPG, PNG — máx. 5MB cada)</label><input type="file" id="if-${i}" accept="image/*" multiple style="display:none;" onchange="window.__admin.handleImgs(${i},this)"></div>
+      <div class="izone"><label for="if-${i}">📁 Clique para enviar imagens (JPG, PNG — otimizadas automaticamente)</label><input type="file" id="if-${i}" accept="image/*" multiple style="display:none;" onchange="window.__admin.handleImgs(${i},this)"></div>
     </div>
     <div style="text-align:right;margin-top:10px;"><button class="btn btn-r" onclick="window.__admin.rmProj(${i})">✕ Remover</button></div>
   </div>`).join('');
