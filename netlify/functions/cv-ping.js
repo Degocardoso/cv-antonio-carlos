@@ -42,7 +42,7 @@ async function incrementVisit() {
     // Write back
     await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': KEY },
+      headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Master-Key': KEY },
       body: JSON.stringify(record)
     });
   } catch (e) { /* silent */ }
@@ -56,7 +56,7 @@ exports.handler = async (event) => {
     await incrementVisit();
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password' },
+      headers: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password' },
       body: JSON.stringify({ ok: true, visits: visitCount })
     };
   }

@@ -27,7 +27,7 @@ function httpsRequest(url, options = {}) {
 }
 
 const corsHeaders = {
-  'Content-Type': 'application/json',
+  'Content-Type': 'application/json; charset=utf-8',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

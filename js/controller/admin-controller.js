@@ -173,8 +173,11 @@ window.saveAll = async function() {
     flash('❌ Sessão expirada.', true);
     setBadge('err', '☁ Não autorizado');
     window.logout();
+  } else if (result.status === 403) {
+    flash('⚠ JSONBin recusou (403). ' + (result.hint || 'Verifique a JSONBIN_MASTER_KEY no servidor.'), true);
+    setBadge('err', '☁ 403 Forbidden');
   } else {
-    flash('⚠ Erro ao salvar: ' + result.status, true);
+    flash('⚠ Erro ao salvar: ' + (result.status || 'sem conexão') + (result.error ? ' — ' + result.error : ''), true);
     setBadge('err', '☁ Erro');
   }
 };
