@@ -131,9 +131,26 @@ async function loadData() {
   applyTheme();
   applyTypography();
   render();
+  initPhotoFx();
   generateQR();
   trackVisit();
   hideLoading();
+}
+
+/* ═══ EFEITO DA FOTO DE PERFIL ═══ */
+let _photoObserver = null;
+function initPhotoFx() {
+  const frame = document.querySelector('.hp-frame');
+  if (!frame) return;
+  if (_photoObserver) { _photoObserver.disconnect(); _photoObserver = null; }
+  // Desktop usa :hover (CSS). Em touch/sem hover, ativa a moldura ao entrar em foco.
+  const noHover = window.matchMedia('(hover: none)').matches;
+  if (noHover && 'IntersectionObserver' in window) {
+    _photoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => frame.classList.toggle('in-view', e.isIntersecting));
+    }, { threshold: 0.6 });
+    _photoObserver.observe(frame);
+  }
 }
 
 function hideLoading() {
@@ -239,6 +256,7 @@ function toggleLang() {
   const btn = document.getElementById('langToggle');
   if (btn) btn.textContent = currentLang.toUpperCase();
   render();
+  initPhotoFx();
 }
 
 /* ═══ QR CODE ═══ */

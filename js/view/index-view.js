@@ -30,6 +30,7 @@ export function render() {
   document.getElementById('yr').textContent = new Date().getFullYear();
   document.title = p.nickname + ' — CRM & Data Science';
 
+  renderPhoto(p);
   renderContact(p);
   renderTags(D);
   renderHeroActions(p);
@@ -61,6 +62,20 @@ export function render() {
       const el = document.querySelector(sel);
       if (el && labels[key]) el.textContent = labels[key];
     }
+  }
+}
+
+function renderPhoto(p) {
+  const el = document.getElementById('heroPhoto');
+  if (!el) return;
+  const src = (p.photo || '').trim();
+  if (src) {
+    const alt = escAttr(p.fullname || p.nickname || 'Foto de perfil');
+    el.innerHTML = `<div class="hp-frame"><img src="${escAttr(src)}" alt="${alt}" loading="lazy"></div>`;
+    el.style.display = '';
+  } else {
+    el.innerHTML = '';
+    el.style.display = 'none';
   }
 }
 
