@@ -95,7 +95,17 @@ export async function uploadImage(base64, projectIndex, password) {
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({ file: base64, projectIndex, password })
     });
-    const result = await res.json();
+    // A resposta pode não ser JSON (ex.: proxy retorna "Request Entity Too Large")
+    const raw = await res.text();
+    let result;
+    try {
+      result = raw ? JSON.parse(raw) : {};
+    } catch (_) {
+      const msg = res.status === 413
+        ? 'Imagem grande demais para o servidor. Tente uma foto menor.'
+        : `Resposta inválida do servidor (HTTP ${res.status}).`;
+      return { ok: false, status: res.status, error: msg };
+    }
     if (res.ok && result.url) {
       return { ok: true, url: result.url };
     }
