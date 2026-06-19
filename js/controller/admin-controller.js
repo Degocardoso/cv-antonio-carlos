@@ -26,7 +26,7 @@ function exposeGlobals() {
     addExp, rmExp, addProj, rmProj, togFeat,
     addEdu, rmEdu, addCert, rmCert, addTech, rmTech,
     addLang, rmLang,
-    rmImg, handleImgs,
+    rmImg, handleImgs, handlePhoto, rmPhoto,
     syncH, syncC, prevTheme, rstTheme,
     setThemeMode,
     reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults,
@@ -461,6 +461,63 @@ async function handleImgs(idx, inp) {
       ? `<div style="font-family:var(--mono);font-size:10px;color:var(--neon);padding:6px 0;">✓ ${done} foto${done > 1 ? 's' : ''} enviada${done > 1 ? 's' : ''}! Clique em 💾 Salvar.</div>`
       : `<div style="font-family:var(--mono);font-size:10px;color:var(--neon3);padding:6px 0;">⚠ ${done} ok, ${failed} com erro.</div>`;
   }
+}
+
+/* ═══ FOTO DE PERFIL ═══ */
+async function handlePhoto(inp) {
+  if (!inp.files.length) return;
+  const statusEl = document.getElementById('photo-upload-status');
+
+  if (!SESSION_PWD) {
+    if (statusEl) statusEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:#ff6b6b;padding:8px;">❌ Sessão expirada. Faça login novamente.</div>';
+    flash('❌ Sessão expirada.', true);
+    inp.value = '';
+    return;
+  }
+
+  const file = inp.files[0];
+  inp.value = '';
+
+  if (file.size > 5 * 1024 * 1024) {
+    flash('⚠ Foto maior que 5MB.', true);
+    return;
+  }
+
+  if (statusEl) statusEl.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--neon2);padding:6px 0;">⏳ Enviando foto...</div>';
+
+  const base64 = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+
+  const result = await uploadImage(base64, 'profile', SESSION_PWD);
+  if (result.ok) {
+    getData().profile.photo = result.url;
+    renderPhotoThumb();
+    if (statusEl) statusEl.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--neon);padding:6px 0;">✓ Foto enviada! Clique em 💾 Salvar Perfil.</div>';
+  } else if (result.status === 401) {
+    flash('❌ Não autorizado (401)', true);
+    if (statusEl) statusEl.innerHTML = '';
+  } else {
+    flash(`⚠ Erro: ${result.error || result.status}`, true);
+    if (statusEl) statusEl.innerHTML = '';
+  }
+}
+
+function renderPhotoThumb() {
+  const el = document.getElementById('photo-thumb');
+  if (!el) return;
+  const photo = getData().profile.photo || '';
+  el.innerHTML = photo
+    ? `<div class="ithumb"><img src="${photo}" alt=""><button class="ithumb-del" onclick="window.__admin.rmPhoto()">✕</button></div>`
+    : '';
+}
+
+function rmPhoto() {
+  getData().profile.photo = '';
+  renderPhotoThumb();
 }
 
 function rmImg(idx, j) {

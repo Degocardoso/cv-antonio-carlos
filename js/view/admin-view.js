@@ -55,6 +55,12 @@ export function tProfile() {
   <div style="background:rgba(0,207,255,.06);border:1px solid rgba(0,207,255,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-family:var(--mono);font-size:10px;color:var(--neon2);line-height:1.7;">📄 Faça upload do PDF no Cloudinary (ou qualquer host) e cole a URL aqui. O botão "Download CV" aparecerá no hero.</div>
   <div class="row"><label class="lbl">Tags (separadas por vírgula)</label><input class="inp" id="f-tags" value="${getData().tags.join(', ')}"></div>
   <div class="row"><div class="ck-row"><input type="checkbox" id="f-avail" ${p.available ? 'checked' : ''}><span>Badge "Disponível para oportunidades"</span></div></div>
+  <div class="row" style="margin-top:6px;">
+    <label class="lbl">📷 Foto de Perfil (hospedada no Cloudinary)</label>
+    <div class="ithumb-wrap" id="photo-thumb">${p.photo ? `<div class="ithumb"><img src="${escAttr(p.photo)}" alt=""><button class="ithumb-del" onclick="window.__admin.rmPhoto()">✕</button></div>` : ''}</div>
+    <div id="photo-upload-status"></div>
+    <div class="izone"><label for="photo-file">📁 Clique para enviar sua foto (JPG, PNG — máx. 5MB)</label><input type="file" id="photo-file" accept="image/*" style="display:none;" onchange="window.__admin.handlePhoto(this)"></div>
+  </div>
   <div class="sbar"><span class="smsg" id="msg-p"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('profile')">💾 Salvar Perfil</button></div>`;
 }
 

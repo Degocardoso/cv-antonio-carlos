@@ -16,6 +16,7 @@ export const DEFAULTS = {
     "whatsapp": "5511992978652",
     "portfolio": "",
     "pdfUrl": "",
+    "photo": "",
     "available": true
   },
   "heroStats": [
