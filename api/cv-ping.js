@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
       record.lastVisit = new Date().toISOString();
       await httpsRequest(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Master-Key': KEY },
+        headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Master-Key': KEY },
         body: JSON.stringify(record)
       });
       return res.status(200).json({ ok: true, visits: record.visitCount });

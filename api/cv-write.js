@@ -59,14 +59,20 @@ module.exports = async (req, res) => {
       const result = await httpsRequest(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(body),
+          'Content-Type': 'application/json; charset=utf-8',
+          'Content-Length': Buffer.byteLength(body, 'utf8'),
           'X-Master-Key': KEY,
         },
         body,
       });
       if (result.status !== 200) {
-        return res.status(result.status).json({ error: `JSONBin retornou ${result.status}` });
+        return res.status(result.status).json({
+          error: `JSONBin retornou ${result.status}`,
+          detail: result.body,
+          hint: result.status === 403
+            ? 'Verifique a variável JSONBIN_MASTER_KEY no servidor — a chave é inválida ou o bin pertence a outra conta.'
+            : undefined,
+        });
       }
       return res.status(200).json({ ok: true });
     } catch (err) {

@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
       { headers: { 'X-Master-Key': KEY } }
     );
     if (result.status !== 200) {
-      return res.status(result.status).json({ error: `JSONBin retornou ${result.status}` });
+      return res.status(result.status).json({ error: `JSONBin retornou ${result.status}`, detail: result.body });
     }
     const json = JSON.parse(result.body);
     return res.status(200).json(json.record || {});

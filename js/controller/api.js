@@ -51,10 +51,14 @@ export async function saveToCloud(password) {
   try {
     const res = await fetch(CV_WRITE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': password },
+      headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Admin-Password': password },
       body: JSON.stringify(D)
     });
-    return { ok: res.ok, status: res.status };
+    let error, hint;
+    if (!res.ok) {
+      try { const j = await res.json(); error = j.error; hint = j.hint; } catch (_) { /* sem corpo JSON */ }
+    }
+    return { ok: res.ok, status: res.status, error, hint };
   } catch (e) {
     return { ok: false, status: 0, error: e.message };
   }
@@ -88,7 +92,7 @@ export async function uploadImage(base64, projectIndex, password) {
   try {
     const res = await fetch(CV_UPLOAD_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({ file: base64, projectIndex, password })
     });
     const result = await res.json();
