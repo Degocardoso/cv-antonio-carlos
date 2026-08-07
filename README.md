@@ -18,12 +18,16 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
 | Capítulo | Seção | Efeito |
 | -------- | ----- | ------ |
 | Prólogo    | Apresentação, tags, contato | Entrada escalonada + parallax |
-| 01 Origem  | "Sobre mim" + números da carreira | Revelação no scroll + contadores |
-| 02 Trajetória | Experiência **e** formação fundidas em uma linha do tempo única, ordenada por ano | **Scroll horizontal fixado** |
-| 03 Impacto | Projetos em destaque com métricas e galeria | **Scroll horizontal fixado** |
-| 04 Arsenal | Habilidades, idiomas e stack | Barras animadas + esteira infinita |
-| 05 Credenciais | Certificações e cursos | Revelação escalonada |
+| 01 Impacto | Projetos em destaque com métricas e galeria | **Scroll horizontal fixado** |
+| 02 Credenciais | Certificações e cursos | Revelação escalonada |
+| 03 Origem  | "Sobre mim" + números da carreira | Revelação no scroll + contadores |
+| 04 Trajetória | Experiência **e** formação fundidas em uma linha do tempo única, ordenada por ano | **Scroll horizontal fixado** |
+| 05 Arsenal | Habilidades, idiomas e stack | Barras animadas + esteira infinita |
 | Epílogo    | Objetivo profissional e contato | Encerramento com CTA |
+
+> A ordem é definida pela posição dos `<section>` no `index.html`. A numeração
+> e o kicker ("Capítulo dois") são calculados em tempo de execução, pulando
+> seções desligadas no admin — para reordenar, basta mover as seções.
 
 ---
 
@@ -42,7 +46,10 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
 - 🔀 **Reordenação por drag-and-drop** dos itens
 - 💾 **Backups automáticos** (até 10) e restauração
 - 👁️ **Preview** das alterações antes de salvar
-- 📄 **Exportação para PDF/impressão** otimizada (ATS) + **QR Code**
+- 🎨 **Ícones SVG inline** no lugar de emoji — mesma forma em todo sistema,
+  sem depender de fonte de emoji (o admin continua cadastrando emoji: eles são
+  convertidos automaticamente)
+- 📄 **Exportação para PDF/impressão** otimizada (ATS)
 - 📊 **Contador de visitas**
 - ☁️ **Dados na nuvem** (JSONBin) — edição reflete no CV ao salvar
 
@@ -76,8 +83,12 @@ scroll = 1 px de deslocamento lateral.
 - Sem JS, o conteúdo continua visível e legível
 
 **Quando o pin é desativado** (e vira swipe horizontal nativo com *scroll snap*):
-telas com menos de 900 px de largura ou 520 px de altura, movimento reduzido, ou
+telas com menos de 900 px de largura ou 640 px de altura, movimento reduzido, ou
 quando o trilho é curto demais para justificar o efeito.
+
+Dentro do palco fixado o trilho absorve a altura que sobra (`flex: 1`), então o
+conteúdo nunca estoura a viewport nem é cortado — em telas baixas a capa dos
+projetos encolhe em vez de empurrar o cabeçalho para fora da tela.
 
 ---
 
@@ -223,6 +234,11 @@ significa: `JSONBIN_MASTER_KEY` inválida **ou** o bin pertence a outra conta.
 - Atualize a variável no host e faça um novo deploy.
 
 **Acentos/caracteres aparecem corrompidos**
+As serverless functions leem a resposta do JSONBin com `res.setEncoding('utf8')`.
+Sem isso, um caractere multibyte partido entre dois chunks do stream vira `�`
+(ex.: `Graduação` → `Gradua��ão`) — de forma intermitente, dependendo do
+tamanho do payload.
+
 As respostas das funções e as gravações no JSONBin enviam `charset=utf-8`. Se
 ainda houver texto antigo corrompido salvo na nuvem, basta **reeditar e salvar**
 pelo painel para regravar o conteúdo já corrigido.

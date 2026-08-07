@@ -31,7 +31,7 @@
   .fx, .progress, .hud, .chapnav, #loading, .copy-toast,
   .skip-link, .scroll-cue, .rail-hud, .overlay, .lightbox,
   .hero-photo, .hero-actions, .cta, .wcard-media, .wcard-cta,
-  .po-imgs, .marquee, .chap-num, .foot-live, .copy-hint,
+  .po-imgs, .marquee, .chap-num, .foot-live, .copy-hint, .hud-cta,
   .rail-line, .hero-cmd .caret {
     display: none !important;
   }
@@ -174,16 +174,6 @@
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 7pt; color: #555 !important; }
   a[href^="tel"]::after, a[href^="#"]::after, .cert-item::after { content: "" !important; }
 
-  /* ── QR Code (só na impressão) ── */
-  /* Estático no fim do documento: `fixed` repetiria em toda página
-     e cairia por cima do conteúdo. */
-  .qr-print-section {
-    display: block !important;
-    margin-top: 10pt;
-    text-align: center;
-    page-break-inside: avoid;
-  }
-  .qr-label { font-family: Arial, sans-serif; font-size: 7pt; color: #555 !important; margin-top: 2pt; }
 
   h1, h2, h3 { page-break-after: avoid; }
 }

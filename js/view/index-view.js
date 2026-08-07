@@ -2,14 +2,19 @@
  * View — Index (CV público)
  *
  * Transforma os dados do CV em uma narrativa em capítulos:
- *   Prólogo → Origem → Trajetória → Impacto → Arsenal → Credenciais → Epílogo
+ *   Prólogo → Impacto → Credenciais → Origem → Trajetória → Arsenal → Epílogo
+ *
+ * A ordem vem da posição das seções no HTML: numeração e kicker
+ * ("Capítulo dois") são calculados em `applyChapters`. Para reordenar,
+ * basta mover os <section> — nada aqui precisa acompanhar.
  *
  * A "Trajetória" funde experiência e formação em uma única linha do tempo
- * ordenada por ano — é ela que rola horizontalmente durante o scroll.
+ * ordenada por ano — ela e "Impacto" rolam horizontalmente durante o scroll.
  */
 import { getData } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
 import { esc, cc, escAttr } from '../utils.js';
+import { icon, iconFromEmoji } from './icons.js';
 
 /* ═══ IDIOMA ═══ */
 let _lang = 'pt';
@@ -24,18 +29,24 @@ const UI = {
     hello: 'Olá, eu sou',
     online: 'ONLINE · São Paulo, BR',
     scrollCue: 'role para começar a história',
-    k1: 'Capítulo um', t1: 'Onde a história começa',
-    s1: 'O ponto de partida, o que me move e o tipo de problema que gosto de resolver.',
-    k2: 'Capítulo dois', t2: 'A trajetória, ano a ano',
-    s2: 'Formação e carreira avançando lado a lado — continue rolando para percorrer a linha do tempo.',
-    k3: 'Capítulo três', t3: 'O que eu construí',
-    s3: 'Projetos reais, em produção, com números por trás de cada um.',
-    k4: 'Capítulo quatro', t4: 'As ferramentas do ofício',
-    s4: 'O que uso para tirar uma ideia do papel e colocá-la em produção.',
-    k5: 'Capítulo cinco', t5: 'Estudo que não para',
-    s5: 'Certificações e cursos que sustentam a prática do dia a dia.',
-    k6: 'Epílogo', t6: 'O próximo capítulo',
-    s6: 'Para onde eu quero levar essa história — e como falar comigo.',
+    /* Numeração e kicker são calculados pela ordem no DOM — reordenar as
+       seções no HTML basta, nada aqui precisa mudar junto. */
+    chapterWord: 'Capítulo',
+    ordinals: ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito'],
+    chapters: {
+      work:    { nav: 'Impacto',     title: 'O que eu construí',
+                 sub: 'Projetos reais, em produção, com números por trás de cada um.' },
+      proof:   { nav: 'Credenciais', title: 'Estudo que não para',
+                 sub: 'Certificações e cursos que sustentam a prática do dia a dia.' },
+      about:   { nav: 'Origem',      title: 'Quem está por trás',
+                 sub: 'O que me move e o tipo de problema que gosto de resolver.' },
+      journey: { nav: 'Trajetória',  title: 'A trajetória, ano a ano',
+                 sub: 'Formação e carreira avançando lado a lado — continue rolando para percorrer a linha do tempo.' },
+      craft:   { nav: 'Arsenal',     title: 'As ferramentas do ofício',
+                 sub: 'O que uso para tirar uma ideia do papel e colocá-la em produção.' },
+      contact: { nav: 'Contato',     title: 'O próximo capítulo', kicker: 'Epílogo',
+                 sub: 'Para onde eu quero levar essa história — e como falar comigo.' }
+    },
     skills: 'Habilidades técnicas',
     languages: 'Idiomas',
     allProjects: 'Portfólio completo',
@@ -54,6 +65,7 @@ const UI = {
     featured: 'Destaque',
     projects: 'projetos',
     talk: 'Vamos conversar',
+    seeWork: 'Ver os projetos',
     facts: { projects: 'Projetos', education: 'Formações', certs: 'Certificações', tech: 'Tecnologias', where: 'Base' },
     contact: { email: 'E-mail', linkedin: 'LinkedIn', github: 'GitHub', phone: 'Telefone', location: 'Localização', portfolio: 'Portfólio' },
     copyHint: 'clique para copiar',
@@ -64,18 +76,22 @@ const UI = {
     hello: "Hi, I'm",
     online: 'ONLINE · São Paulo, BR',
     scrollCue: 'scroll to begin the story',
-    k1: 'Chapter one', t1: 'Where the story begins',
-    s1: 'The starting point, what drives me and the kind of problem I like to solve.',
-    k2: 'Chapter two', t2: 'The journey, year by year',
-    s2: 'Education and career moving side by side — keep scrolling to walk the timeline.',
-    k3: 'Chapter three', t3: 'What I have built',
-    s3: 'Real projects, in production, with numbers behind each one.',
-    k4: 'Chapter four', t4: 'Tools of the trade',
-    s4: 'What I use to take an idea from paper to production.',
-    k5: 'Chapter five', t5: 'Always learning',
-    s5: 'Certifications and courses that back the day-to-day practice.',
-    k6: 'Epilogue', t6: 'The next chapter',
-    s6: 'Where I want to take this story — and how to reach me.',
+    chapterWord: 'Chapter',
+    ordinals: ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'],
+    chapters: {
+      work:    { nav: 'Impact',      title: 'What I have built',
+                 sub: 'Real projects, in production, with numbers behind each one.' },
+      proof:   { nav: 'Credentials', title: 'Always learning',
+                 sub: 'Certifications and courses that back the day-to-day practice.' },
+      about:   { nav: 'Origin',      title: 'Who is behind this',
+                 sub: 'What drives me and the kind of problem I like to solve.' },
+      journey: { nav: 'Journey',     title: 'The journey, year by year',
+                 sub: 'Education and career moving side by side — keep scrolling to walk the timeline.' },
+      craft:   { nav: 'Toolkit',     title: 'Tools of the trade',
+                 sub: 'What I use to take an idea from paper to production.' },
+      contact: { nav: 'Contact',     title: 'The next chapter', kicker: 'Epilogue',
+                 sub: 'Where I want to take this story — and how to reach me.' }
+    },
     skills: 'Technical skills',
     languages: 'Languages',
     allProjects: 'Full portfolio',
@@ -94,6 +110,7 @@ const UI = {
     featured: 'Featured',
     projects: 'projects',
     talk: "Let's talk",
+    seeWork: 'See the projects',
     facts: { projects: 'Projects', education: 'Degrees', certs: 'Certifications', tech: 'Technologies', where: 'Based in' },
     contact: { email: 'Email', linkedin: 'LinkedIn', github: 'GitHub', phone: 'Phone', location: 'Location', portfolio: 'Portfolio' },
     copyHint: 'click to copy',
@@ -162,6 +179,7 @@ export function render() {
   renderEpilogue(D);
 
   applySectionVisibility(sec);
+  applyChapters(); // depois da visibilidade: capítulo oculto não consome número
 }
 
 /** Aplica os textos da narrativa (e as traduções do painel admin). */
@@ -175,6 +193,28 @@ function applyUIStrings(D) {
     if (typeof val === 'string') el.textContent = val;
   });
   document.documentElement.lang = isEN() ? 'en' : 'pt-BR';
+}
+
+/**
+ * Numera e rotula os capítulos pela ordem em que aparecem no DOM,
+ * pulando os que estiverem desligados no admin. Reordenar as seções no
+ * HTML é suficiente: a numeração se ajusta sozinha.
+ */
+function applyChapters() {
+  const dict = ui();
+  const secs = [...document.querySelectorAll('#story .chap[data-key]')]
+    .filter(s => s.style.display !== 'none');
+
+  secs.forEach((sec, i) => {
+    const c = dict.chapters[sec.dataset.key];
+    if (!c) return;
+    const set = (sel, txt) => { const el = sec.querySelector(sel); if (el) el.textContent = txt; };
+    set('.chap-num', String(i + 1).padStart(2, '0'));
+    set('.chap-kicker', c.kicker || `${dict.chapterWord} ${dict.ordinals[i] || i + 1}`);
+    set('.chap-title', c.title);
+    set('.chap-sub', c.sub);
+    sec.dataset.nav = c.nav;
+  });
 }
 
 function pick(obj, keys) {
@@ -208,9 +248,9 @@ function renderHeroActions(p) {
   if (p.available) {
     parts.push(`<span class="avail"><span class="pulse"></span>${isEN() ? 'Open to opportunities' : 'Disponível para oportunidades'}</span>`);
   }
-  parts.push(`<a class="btn-solid" href="#ch-contact">${u.talk} →</a>`);
+  parts.push(`<a class="btn-solid" href="#ch-work">${esc(u.seeWork)} ${icon('arrowRight')}</a>`);
   if (p.pdfUrl) {
-    parts.push(`<a class="btn-ghost" href="${escAttr(p.pdfUrl)}" target="_blank" rel="noopener" download>⬇ ${u.downloadCV}</a>`);
+    parts.push(`<a class="btn-ghost" href="${escAttr(p.pdfUrl)}" target="_blank" rel="noopener" download>${icon('download')} ${esc(u.downloadCV)}</a>`);
   }
   document.getElementById('heroActions').innerHTML = parts.join('');
 }
@@ -223,7 +263,7 @@ function renderHeroStats(D) {
          <div class="slabel">${esc(s.label)}</div>
          <div class="sval">${esc(s.val)}</div>
        </div>
-       <span class="sico" aria-hidden="true">${esc(s.ico)}</span>
+       <span class="sico">${iconFromEmoji(s.ico)}</span>
      </li>`
   ).join('');
 }
@@ -232,13 +272,13 @@ function renderContactStrip(p) {
   const u = ui();
   const items = [];
   if (p.email) {
-    items.push(`<button class="copy-btn" type="button" data-copy="${escAttr(p.email)}" title="${escAttr(u.copyHint)}">✉ ${esc(p.email)} <span class="copy-hint">⧉</span></button>`);
+    items.push(`<button class="copy-btn" type="button" data-copy="${escAttr(p.email)}" title="${escAttr(u.copyHint)}">${icon('mail')} ${esc(p.email)} ${icon('copy', 'copy-hint')}</button>`);
   }
-  if (p.linkedin) items.push(link(url(p.linkedin), '💼 LinkedIn'));
-  if (p.github) items.push(link(url(p.github), '🐙 GitHub'));
-  if (p.portfolio) items.push(link(url(p.portfolio), '🌐 ' + u.contact.portfolio));
-  if (p.phone) items.push(`<a class="ci" href="tel:${escAttr(p.phone.replace(/\D/g, ''))}">📱 ${esc(p.phone)}</a>`);
-  if (p.location) items.push(`<span class="ci">📍 ${esc(p.location)}</span>`);
+  if (p.linkedin) items.push(link(url(p.linkedin), icon('linkedin') + ' LinkedIn'));
+  if (p.github) items.push(link(url(p.github), icon('github') + ' GitHub'));
+  if (p.portfolio) items.push(link(url(p.portfolio), icon('globe') + ' ' + esc(u.contact.portfolio)));
+  if (p.phone) items.push(`<a class="ci" href="tel:${escAttr(p.phone.replace(/\D/g, ''))}">${icon('phone')} ${esc(p.phone)}</a>`);
+  if (p.location) items.push(`<span class="ci">${icon('pin')} ${esc(p.location)}</span>`);
   document.getElementById('cstrip').innerHTML = items.join('');
 }
 
@@ -360,7 +400,7 @@ function renderJourney(D) {
       </div>
       <h3 class="jcard-title">${esc(u.journeyEndTitle)}</h3>
       <p class="jcard-desc">${esc(u.journeyEndDesc)}</p>
-      <a class="jcard-link" href="#ch-contact">${esc(u.journeyEndLink)} →</a>
+      <a class="jcard-link" href="#ch-contact">${esc(u.journeyEndLink)} ${icon('arrowRight')}</a>
     </li>` : '';
 
   track.innerHTML = `<div class="rail-line" aria-hidden="true"></div>` + cards + closer;
@@ -392,7 +432,7 @@ function renderWork(D) {
       ? `<button class="wcard-media" type="button" data-gallery="${idx}" data-gallery-start="0"
                  aria-label="${escAttr(u.openGallery + ': ' + name)}">
            <img src="${escAttr(imgs[0])}" alt="" loading="lazy" decoding="async">
-           <span class="wcard-gal">⧉ ${esc(u.gallery)}${imgs.length > 1 ? ` · ${imgs.length}` : ''}</span>
+           <span class="wcard-gal">${icon('image')} ${esc(u.gallery)}${imgs.length > 1 ? ` · ${imgs.length}` : ''}</span>
          </button>`
       : `<div class="wcard-media is-empty" aria-hidden="true">
            <span class="wcard-glyph">${esc(String(name || '?').charAt(0))}</span>
@@ -404,7 +444,7 @@ function renderWork(D) {
         <span class="wcard-idx">${String(i + 1).padStart(2, '0')} / ${String(shown.length).padStart(2, '0')}</span>
         <h3 class="wcard-title">${esc(name)}</h3>
         <p class="wcard-stack">${esc(stack)}</p>
-        ${result ? `<p class="wcard-result">✦ ${withCounter(result)}</p>` : ''}
+        ${result ? `<p class="wcard-result">${icon('sparkle')} ${withCounter(result)}</p>` : ''}
         <p class="wcard-desc">${esc(desc)}</p>
         <ul class="pills">${(pr.pills || []).map(pl => `<li class="pill ${cc(pr.color)}">${esc(pl)}</li>`).join('')}</ul>
       </div>
@@ -416,7 +456,7 @@ function renderWork(D) {
          <button class="wcard-cta" type="button" id="openPortfolio">
            <b>${esc(u.seeAllTitle)}</b>
            <span>${esc(u.seeAllDesc)}</span>
-           <em>◈ ${esc(u.seeAll)} · ${all.length} ${esc(u.projects)} →</em>
+           <em>${icon('grid')} ${esc(u.seeAll)} · ${all.length} ${esc(u.projects)} ${icon('arrowRight')}</em>
          </button>
        </li>`
     : '';
@@ -468,7 +508,7 @@ function renderTech(D) {
   if (!el) return;
   const items = D.tech || [];
   const one = items.map(item =>
-    `<span class="tgitem"><span class="tg-e" aria-hidden="true">${esc(item.emoji)}</span>${esc(item.label)}</span>`
+    `<span class="tgitem">${iconFromEmoji(item.emoji, 'tg-e')}${esc(item.label)}</span>`
   ).join('');
   // Duplicado para a esteira poder repetir sem emenda (a cópia é decorativa).
   el.innerHTML = one + `<span aria-hidden="true" style="display:contents">${one}</span>`;
@@ -484,12 +524,12 @@ function renderCertifications(D) {
   el.innerHTML = (D.certifications || []).map(cert => {
     const href = (cert.certUrl || '').trim();
     const inner =
-      `<span class="cert-badge" aria-hidden="true">${esc(cert.emoji)}</span>
+      `<span class="cert-badge">${iconFromEmoji(cert.emoji)}</span>
        <span class="cert-body">
          <span class="cert-name">${esc(cert.name)}</span>
          <span class="cert-issuer">${esc(cert.issuer)}</span>
        </span>
-       <span class="cert-year">${esc(cert.year)}${href ? '<span class="cert-hint"> ↗</span>' : ''}</span>`;
+       <span class="cert-year">${esc(cert.year)}${href ? icon('arrowRight', 'cert-hint') : ''}</span>`;
     return href
       ? `<a class="cert-item clickable" href="${escAttr(href)}" target="_blank" rel="noopener">${inner}</a>`
       : `<div class="cert-item">${inner}</div>`;
@@ -508,10 +548,10 @@ function renderEpilogue(D) {
   const cta = [];
   if (p.whatsapp) {
     const msg = encodeURIComponent(isEN() ? 'Hi! I saw your CV and would like to talk.' : 'Olá, vi seu CV e gostaria de conversar!');
-    cta.push(`<a class="btn-solid" href="https://wa.me/${escAttr(p.whatsapp)}?text=${msg}" target="_blank" rel="noopener">💬 WhatsApp</a>`);
+    cta.push(`<a class="btn-solid" href="https://wa.me/${escAttr(p.whatsapp)}?text=${msg}" target="_blank" rel="noopener">${icon('chat')} WhatsApp</a>`);
   }
-  if (p.email) cta.push(`<button class="btn-ghost" type="button" data-copy="${escAttr(p.email)}">✉ ${esc(p.email)}</button>`);
-  if (p.pdfUrl) cta.push(`<a class="btn-ghost" href="${escAttr(p.pdfUrl)}" target="_blank" rel="noopener" download>⬇ ${esc(u.downloadCV)}</a>`);
+  if (p.email) cta.push(`<button class="btn-ghost" type="button" data-copy="${escAttr(p.email)}">${icon('mail')} ${esc(p.email)}</button>`);
+  if (p.pdfUrl) cta.push(`<a class="btn-ghost" href="${escAttr(p.pdfUrl)}" target="_blank" rel="noopener" download>${icon('download')} ${esc(u.downloadCV)}</a>`);
   document.getElementById('ctaEl').innerHTML = cta.join('');
 
   const c = u.contact;
@@ -574,10 +614,10 @@ export function renderPortfolio() {
     const result = isEN() ? t(tr.result, pr.result) : pr.result;
     const imgs = pr.images || [];
     return `<article class="po-card" style="--c:${c}">
-      ${pr.featured ? `<span class="po-feat">✦ ${esc(u.featured)}</span>` : ''}
+      ${pr.featured ? `<span class="po-feat">${icon('sparkle')} ${esc(u.featured)}</span>` : ''}
       <h3 class="po-name">${esc(name)}</h3>
       <p class="po-stack">${esc(stack)}</p>
-      ${result ? `<p class="po-result">✦ ${esc(result)}</p>` : ''}
+      ${result ? `<p class="po-result">${icon('sparkle')} ${esc(result)}</p>` : ''}
       <p class="po-desc">${esc(desc)}</p>
       <ul class="pills">${(pr.pills || []).map(pl => `<li class="pill ${cc(pr.color)}">${esc(pl)}</li>`).join('')}</ul>
       ${imgs.length ? `<div class="po-imgs">${imgs.map((src, i) =>

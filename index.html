@@ -54,7 +54,8 @@
   <div class="hud-right">
     <span class="hud-status"><span class="pulse"></span><span data-ui="online">ONLINE · São Paulo, BR</span></span>
     <button class="icon-btn" id="langToggle" type="button" hidden aria-label="Alternar idioma">PT</button>
-    <button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar tema claro/escuro">🌙</button>
+    <button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar tema claro/escuro"></button>
+    <a class="hud-cta" href="#ch-contact" data-ui="talk">Vamos conversar</a>
   </div>
 </header>
 
@@ -83,66 +84,22 @@
         <ul class="hero-stats" id="hstats" data-reveal></ul>
       </aside>
     </div>
-    <a class="scroll-cue" href="#ch-about" id="scrollCue">
+    <a class="scroll-cue" href="#ch-work" id="scrollCue">
       <span data-ui="scrollCue">role para começar a história</span>
       <span class="scroll-cue-line"><i></i></span>
     </a>
   </section>
 
-  <!-- ─────────── CAPÍTULO 01 · ORIGEM ─────────── -->
-  <section class="chap" id="ch-about" data-nav="Origem" aria-labelledby="ttl-about">
-    <div class="wrap">
-      <header class="chap-head" data-reveal>
-        <span class="chap-num" data-parallax="0.08">01</span>
-        <div>
-          <p class="chap-kicker" data-ui="k1">Capítulo um</p>
-          <h2 class="chap-title" id="ttl-about" data-ui="t1">Onde a história começa</h2>
-          <p class="chap-sub" data-ui="s1">O ponto de partida, o que me move e o tipo de problema que gosto de resolver.</p>
-        </div>
-      </header>
-      <div class="about-grid">
-        <div class="about-text" id="sec-about" data-reveal>
-          <p class="lead" id="sobreEl"></p>
-        </div>
-        <ul class="about-facts" id="aboutFacts" data-reveal></ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─────────── CAPÍTULO 02 · TRAJETÓRIA (scroll horizontal) ─────────── -->
-  <section class="chap chap-pin" id="ch-journey" data-nav="Trajetória" aria-labelledby="ttl-journey">
-    <div class="pin-shell">
-      <div class="pin-stage">
-        <header class="chap-head chap-head-pin" data-reveal>
-          <span class="chap-num" data-parallax="0.08">02</span>
-          <div>
-            <p class="chap-kicker" data-ui="k2">Capítulo dois</p>
-            <h2 class="chap-title" id="ttl-journey" data-ui="t2">A trajetória, ano a ano</h2>
-            <p class="chap-sub" data-ui="s2">Formação e carreira avançando lado a lado — continue rolando para percorrer a linha do tempo.</p>
-          </div>
-        </header>
-        <div class="rail" id="journeyRail" tabindex="0" aria-labelledby="ttl-journey">
-          <ol class="rail-track" id="journeyTrack"></ol>
-        </div>
-        <div class="rail-hud">
-          <button class="rail-btn" type="button" data-rail-prev aria-label="Etapa anterior">‹</button>
-          <div class="rail-bar"><span></span></div>
-          <button class="rail-btn" type="button" data-rail-next aria-label="Próxima etapa">›</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ─────────── CAPÍTULO 03 · IMPACTO (scroll horizontal) ─────────── -->
-  <section class="chap chap-pin" id="ch-work" data-nav="Impacto" aria-labelledby="ttl-work">
+  <section class="chap chap-pin" id="ch-work" data-key="work" data-nav="Impacto" aria-labelledby="ttl-work">
     <div class="pin-shell">
       <div class="pin-stage">
         <header class="chap-head chap-head-pin" data-reveal>
-          <span class="chap-num" data-parallax="0.08">03</span>
+          <span class="chap-num" data-parallax="0.08">01</span>
           <div>
-            <p class="chap-kicker" data-ui="k3">Capítulo três</p>
-            <h2 class="chap-title" id="ttl-work" data-ui="t3">O que eu construí</h2>
-            <p class="chap-sub" data-ui="s3">Projetos reais, em produção, com números por trás de cada um.</p>
+            <p class="chap-kicker">Capítulo um</p>
+            <h2 class="chap-title" id="ttl-work">O que eu construí</h2>
+            <p class="chap-sub">Projetos reais, em produção, com números por trás de cada um.</p>
           </div>
         </header>
         <div class="rail rail-work" id="workRail" tabindex="0" aria-labelledby="ttl-work">
@@ -157,15 +114,74 @@
     </div>
   </section>
 
-  <!-- ─────────── CAPÍTULO 04 · ARSENAL ─────────── -->
-  <section class="chap" id="ch-craft" data-nav="Arsenal" aria-labelledby="ttl-craft">
+  <!-- ─────────── CAPÍTULO 05 · CREDENCIAIS ─────────── -->
+  <section class="chap" id="ch-proof" data-key="proof" data-nav="Credenciais" aria-labelledby="ttl-proof">
     <div class="wrap">
       <header class="chap-head" data-reveal>
-        <span class="chap-num" data-parallax="0.08">04</span>
+        <span class="chap-num" data-parallax="0.08">02</span>
         <div>
-          <p class="chap-kicker" data-ui="k4">Capítulo quatro</p>
-          <h2 class="chap-title" id="ttl-craft" data-ui="t4">As ferramentas do ofício</h2>
-          <p class="chap-sub" data-ui="s4">O que uso para tirar uma ideia do papel e colocá-la em produção.</p>
+          <p class="chap-kicker">Capítulo dois</p>
+          <h2 class="chap-title" id="ttl-proof">Estudo que não para</h2>
+          <p class="chap-sub">Certificações e cursos que sustentam a prática do dia a dia.</p>
+        </div>
+      </header>
+      <div class="cert-grid" id="certEl"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── CAPÍTULO 01 · ORIGEM ─────────── -->
+  <section class="chap" id="ch-about" data-key="about" data-nav="Origem" aria-labelledby="ttl-about">
+    <div class="wrap">
+      <header class="chap-head" data-reveal>
+        <span class="chap-num" data-parallax="0.08">03</span>
+        <div>
+          <p class="chap-kicker">Capítulo três</p>
+          <h2 class="chap-title" id="ttl-about">Quem está por trás</h2>
+          <p class="chap-sub">O que me move e o tipo de problema que gosto de resolver.</p>
+        </div>
+      </header>
+      <div class="about-grid">
+        <div class="about-text" id="sec-about" data-reveal>
+          <p class="lead" id="sobreEl"></p>
+        </div>
+        <ul class="about-facts" id="aboutFacts" data-reveal></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── CAPÍTULO 02 · TRAJETÓRIA (scroll horizontal) ─────────── -->
+  <section class="chap chap-pin" id="ch-journey" data-key="journey" data-nav="Trajetória" aria-labelledby="ttl-journey">
+    <div class="pin-shell">
+      <div class="pin-stage">
+        <header class="chap-head chap-head-pin" data-reveal>
+          <span class="chap-num" data-parallax="0.08">04</span>
+          <div>
+            <p class="chap-kicker">Capítulo quatro</p>
+            <h2 class="chap-title" id="ttl-journey">A trajetória, ano a ano</h2>
+            <p class="chap-sub">Formação e carreira avançando lado a lado — continue rolando para percorrer a linha do tempo.</p>
+          </div>
+        </header>
+        <div class="rail" id="journeyRail" tabindex="0" aria-labelledby="ttl-journey">
+          <ol class="rail-track" id="journeyTrack"></ol>
+        </div>
+        <div class="rail-hud">
+          <button class="rail-btn" type="button" data-rail-prev aria-label="Etapa anterior">‹</button>
+          <div class="rail-bar"><span></span></div>
+          <button class="rail-btn" type="button" data-rail-next aria-label="Próxima etapa">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── CAPÍTULO 04 · ARSENAL ─────────── -->
+  <section class="chap" id="ch-craft" data-key="craft" data-nav="Arsenal" aria-labelledby="ttl-craft">
+    <div class="wrap">
+      <header class="chap-head" data-reveal>
+        <span class="chap-num" data-parallax="0.08">05</span>
+        <div>
+          <p class="chap-kicker">Capítulo cinco</p>
+          <h2 class="chap-title" id="ttl-craft">As ferramentas do ofício</h2>
+          <p class="chap-sub">O que uso para tirar uma ideia do papel e colocá-la em produção.</p>
         </div>
       </header>
       <div class="craft-grid">
@@ -184,30 +200,15 @@
     </div>
   </section>
 
-  <!-- ─────────── CAPÍTULO 05 · CREDENCIAIS ─────────── -->
-  <section class="chap" id="ch-proof" data-nav="Credenciais" aria-labelledby="ttl-proof">
-    <div class="wrap">
-      <header class="chap-head" data-reveal>
-        <span class="chap-num" data-parallax="0.08">05</span>
-        <div>
-          <p class="chap-kicker" data-ui="k5">Capítulo cinco</p>
-          <h2 class="chap-title" id="ttl-proof" data-ui="t5">Estudo que não para</h2>
-          <p class="chap-sub" data-ui="s5">Certificações e cursos que sustentam a prática do dia a dia.</p>
-        </div>
-      </header>
-      <div class="cert-grid" id="certEl"></div>
-    </div>
-  </section>
-
   <!-- ─────────── EPÍLOGO · DESTINO + CONTATO ─────────── -->
-  <section class="chap chap-end" id="ch-contact" data-nav="Contato" aria-labelledby="ttl-contact">
+  <section class="chap chap-end" id="ch-contact" data-key="contact" data-nav="Contato" aria-labelledby="ttl-contact">
     <div class="wrap">
       <header class="chap-head" data-reveal>
         <span class="chap-num" data-parallax="0.08">06</span>
         <div>
-          <p class="chap-kicker" data-ui="k6">Epílogo</p>
-          <h2 class="chap-title" id="ttl-contact" data-ui="t6">O próximo capítulo</h2>
-          <p class="chap-sub" data-ui="s6">Para onde eu quero levar essa história — e como falar comigo.</p>
+          <p class="chap-kicker">Epílogo</p>
+          <h2 class="chap-title" id="ttl-contact">O próximo capítulo</h2>
+          <p class="chap-sub">Para onde eu quero levar essa história — e como falar comigo.</p>
         </div>
       </header>
       <blockquote class="goal" id="sec-objective" data-reveal>
@@ -246,11 +247,6 @@
   </div>
 </div>
 
-<!-- QR Code (somente impressão) -->
-<div id="qrSection" class="qr-print-section" aria-hidden="true">
-  <div id="qrCode"></div>
-  <div class="qr-label">Escaneie para ver online</div>
-</div>
 
 <script type="module">
 import { init } from './js/controller/index-controller.js';
