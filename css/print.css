@@ -1,224 +1,189 @@
-/* ═══ Print Styles ═══ */
+/* ═══════════════════════════════════════════════════════════════
+   Impressão / PDF
+   Converte a narrativa em scroll em um currículo linear de 1–2
+   páginas, legível por humanos e por ATS: tudo preto sobre branco,
+   sem colunas fixadas, sem animação e sem elementos de interface.
+   ═══════════════════════════════════════════════════════════════ */
 @media print {
-  @page { size: A4 portrait; margin: 14mm 18mm; }
+  @page { size: A4 portrait; margin: 14mm 16mm; }
 
-  * { animation: none !important; transition: none !important; }
-
-  #pb, #loading, #po, #lb,
-  body::before, body::after,
-  .copy-toast, .wa-btn, .view-all-wrap,
-  .avail, .pulse, .cur2, .hero::before,
-  .pdf-btn, .topbar, .bottombar,
-  .proj-imgs, .po-imgs,
-  .hero-photo,
-  .theme-toggle, .lang-toggle { display: none !important; }
-
-  /* QR Code — hidden by default in print, shown only in ATS */
-  .qr-print-section { display: none !important; }
-
-  /* ═══ PDF DESIGN ═══ */
-  body.pm-design { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body.pm-design * { box-shadow: none !important; text-shadow: none !important; }
-  body.pm-design .w { max-width: 100% !important; padding: 0 !important; }
-  body.pm-design .gap2 { margin-top: 8px !important; }
-  body.pm-design .hero, body.pm-design .panel, body.pm-design .full,
-  body.pm-design .proj, body.pm-design .stag, body.pm-design .sbox,
-  body.pm-design .cstrip, body.pm-design .cert-item, body.pm-design .tgitem { background: white !important; }
-  body.pm-design .hp, body.pm-design .hero-stats { display: none !important; }
-  body.pm-design .hero { border: none !important; border-bottom: 1px solid #ddd !important; padding: 0 0 10px !important; border-radius: 0 !important; }
-  body.pm-design .hero-layout { flex-direction: row !important; gap: 0 !important; }
-  body.pm-design .hero-name { font-size: 22pt !important; letter-spacing: -1px !important; color: #111 !important; font-family: 'JetBrains Mono', monospace !important; }
-  body.pm-design .hero-name span { color: #222 !important; }
-  body.pm-design .hero-full { font-size: 9pt !important; color: #555 !important; }
-  body.pm-design .hero-role { font-size: 10pt !important; color: #333 !important; margin-bottom: 7px !important; }
-  body.pm-design .cstrip { border: none !important; border-bottom: 1px solid #eee !important; border-radius: 0 !important; padding: 4px 0 7px !important; }
-  body.pm-design .ci, body.pm-design .copy-btn { color: #444 !important; font-size: 8pt !important; padding-right: 12px !important; }
-  body.pm-design .hero-tags { gap: 3px !important; margin-bottom: 0 !important; }
-  body.pm-design .tag { border-color: #ccc !important; color: #555 !important; font-size: 7.5pt !important; padding: 1px 5px !important; }
-  body.pm-design .g2, body.pm-design .g3 { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
-  body.pm-design .panel { border: 1px solid #eee !important; padding: 8px !important; page-break-inside: avoid; }
-  body.pm-design .full { border: none !important; border-bottom: 1px solid #eee !important; padding: 7px 0 !important; }
-  body.pm-design .ph { border-bottom-color: #ddd !important; padding-bottom: 3px !important; margin-bottom: 8px !important; }
-  body.pm-design .pi { background: #f5f5f5 !important; border: 1px solid #ddd !important; color: #333 !important; }
-  body.pm-design .pt { color: #333 !important; font-size: 7.5pt !important; font-weight: bold !important; }
-  body.pm-design .pb { display: none !important; }
-  body.pm-design .sobre { font-size: 8.5pt !important; line-height: 1.55 !important; color: #333 !important; }
-  body.pm-design .sobre strong { color: #111 !important; }
-  body.pm-design .sobre .metric { color: #333 !important; font-weight: bold !important; }
-  body.pm-design .sg { margin-bottom: 7px !important; }
-  body.pm-design .sg-label { color: #333 !important; font-size: 7.5pt !important; font-weight: bold !important; }
-  body.pm-design .sg-label::after { background: #ddd !important; }
-  body.pm-design .stag { border-color: #ddd !important; color: #333 !important; font-size: 8pt !important; padding: 2px 6px !important; background: #f9f9f9 !important; }
-  body.pm-design .td2 { border-color: #666 !important; box-shadow: none !important; }
-  body.pm-design .tc { background: #ddd !important; }
-  body.pm-design .tp { color: #666 !important; font-size: 7.5pt !important; font-weight: bold !important; }
-  body.pm-design .tt { color: #111 !important; font-size: 10pt !important; }
-  body.pm-design .ts { color: #555 !important; font-size: 8pt !important; }
-  body.pm-design .tdesc { color: #444 !important; font-size: 8pt !important; }
-  body.pm-design .thl { color: #333 !important; font-size: 7.5pt !important; font-weight: bold !important; }
-  body.pm-design .proj { border: 1px solid #eee !important; page-break-inside: avoid; padding: 8px !important; }
-  body.pm-design .proj::before { background: #bbb !important; width: 2px !important; }
-  body.pm-design .proj-name { color: #111 !important; font-size: 9.5pt !important; }
-  body.pm-design .proj-stack { color: #666 !important; font-size: 8pt !important; }
-  body.pm-design .result { background: #f7f7f7 !important; border: 1px solid #ddd !important; color: #333 !important; font-weight: bold !important; font-size: 7.5pt !important; }
-  body.pm-design .proj-desc { color: #444 !important; font-size: 8pt !important; }
-  body.pm-design .pill { border: 1px solid #ddd !important; color: #555 !important; font-size: 7pt !important; background: #f5f5f5 !important; }
-  body.pm-design .cert-item { border: 1px solid #eee !important; padding: 5px 7px !important; }
-  body.pm-design .cert-badge { background: #f5f5f5 !important; border: 1px solid #eee !important; }
-  body.pm-design .cert-name { color: #111 !important; font-size: 8.5pt !important; }
-  body.pm-design .cert-issuer, body.pm-design .cert-year { color: #555 !important; font-size: 8pt !important; }
-  body.pm-design .slabel { color: #666 !important; }
-  body.pm-design .sval { color: #333 !important; }
-  body.pm-design a[href^="mailto"]:after { content: " <" attr(href) ">"; font-size: 7pt; color: #777 !important; }
-  body.pm-design a[href^="https"]:after { content: " (" attr(href) ")"; font-size: 7pt; color: #777 !important; }
-  body.pm-design a[href^="tel"]:after { content: ""; }
-
-  /* ═══ PDF ATS — Modelo profissional limpo ═══ */
-  body.pm-ats {
-    background: white !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  body.pm-ats, body.pm-ats *, body.pm-ats *::before, body.pm-ats *::after {
-    background: white !important; color: #000 !important; box-shadow: none !important;
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
     text-shadow: none !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    border: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    background-image: none !important;
+    color: #000 !important;
+    background-color: transparent !important;
+    border-color: #d0d0d0 !important;
   }
 
-  /* ── Esconder elementos visuais ── */
-  body.pm-ats .hp, body.pm-ats .hero-stats, body.pm-ats .hero-tags,
-  body.pm-ats .hero-actions,
-  body.pm-ats .pi, body.pm-ats .pb,
-  body.pm-ats .cert-badge, body.pm-ats .cert-hint,
-  body.pm-ats .tl,
-  body.pm-ats .result, body.pm-ats .proj-stack,
-  body.pm-ats .pills, body.pm-ats .proj-imgs,
-  body.pm-ats .copy-hint, body.pm-ats .sg-label::after,
-  body.pm-ats .proj-top .proj-stack { display: none !important; }
+  html, body {
+    background: #fff !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10pt;
+    line-height: 1.45;
+  }
 
-  /* ── Layout geral + reordenação: Sobre → Formação → Experiência → rest ── */
-  body.pm-ats .w { max-width: 100% !important; padding: 0 !important; display: flex !important; flex-direction: column !important; }
-  body.pm-ats .gap2 { margin-top: 0 !important; }
-  body.pm-ats .g2, body.pm-ats .g3 { display: contents !important; }
-  body.pm-ats .panel, body.pm-ats .full { padding: 0 !important; page-break-inside: avoid; }
-  body.pm-ats .hero { order: 1 !important; }
-  body.pm-ats #sobre-row > .panel:first-child { order: 2 !important; }
-  body.pm-ats .g3 > .panel:nth-child(2) { order: 3 !important; }
-  body.pm-ats .g2:not(#sobre-row) > .panel:first-child { order: 4 !important; }
-  body.pm-ats .g3 > .panel:nth-child(3) { order: 5 !important; }
-  body.pm-ats .g3 > .panel:first-child { order: 6 !important; }
-  body.pm-ats .g2:not(#sobre-row) > .panel:nth-child(2) { order: 7 !important; }
-  body.pm-ats .bottombar { order: 99 !important; }
-  body.pm-ats a { text-decoration: none !important; color: #000 !important; }
+  /* ── Interface que não vai para o papel ── */
+  .fx, .progress, .hud, .chapnav, #loading, .copy-toast,
+  .skip-link, .scroll-cue, .rail-hud, .overlay, .lightbox,
+  .hero-photo, .hero-actions, .cta, .wcard-media, .wcard-cta,
+  .po-imgs, .marquee, .chap-num, .foot-live, .copy-hint,
+  .rail-line, .hero-cmd .caret {
+    display: none !important;
+  }
 
-  /* ── HEADER: nome centralizado ── */
-  body.pm-ats .hero { padding: 0 0 6px !important; text-align: center !important; border-bottom: none !important; }
-  body.pm-ats .hero-layout { display: block !important; }
-  body.pm-ats .hero-name { font-size: 18pt !important; font-weight: 700 !important; letter-spacing: 0 !important; color: #000 !important; line-height: 1.3 !important; text-align: center !important; }
-  body.pm-ats .hero-name span { color: #000 !important; }
-  body.pm-ats .hero-full { display: none !important; }
-  body.pm-ats .hero-role { font-size: 9.5pt !important; color: #333 !important; text-align: center !important; margin-bottom: 4px !important; display: none !important; }
-  body.pm-ats .cstrip { padding: 0 !important; display: flex !important; flex-wrap: wrap !important; justify-content: center !important; gap: 0 !important; border: none !important; background: none !important; margin-bottom: 0 !important; }
-  body.pm-ats .ci, body.pm-ats .copy-btn { font-size: 9pt !important; color: #000 !important; padding: 2px 8px !important; }
-  body.pm-ats .copy-btn .copy-hint { display: none !important; }
+  /* ── Neutraliza o motor de scroll ── */
+  [data-reveal], [data-stagger] > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .chap-pin, .chap-pin.is-pinned {
+    height: auto !important;
+    padding-block: 0 !important;
+  }
+  .chap-pin .pin-shell, .chap-pin.is-pinned .pin-shell {
+    position: static !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+    padding: 0 !important;
+  }
+  .pin-stage { display: block !important; gap: 0 !important; }
+  .rail { overflow: visible !important; }
+  .rail-track {
+    transform: none !important;
+    width: auto !important;
+    display: block !important;
+    padding: 0 !important;
+  }
+  /* A altura mínima dos cartões só faz sentido no palco fixado */
+  .chap-pin.is-pinned .rail-item { min-height: 0 !important; }
 
-  /* ── Seções: título com underline ── */
-  body.pm-ats .ph { display: flex !important; align-items: center !important; border-bottom: 1.5px solid #000 !important; padding-bottom: 3px !important; margin-bottom: 8px !important; margin-top: 14px !important; }
-  body.pm-ats .pt { font-size: 11pt !important; font-weight: 700 !important; text-transform: none !important; letter-spacing: 0 !important; color: #000 !important; }
+  /* ── Ritmo geral ── */
+  .wrap, .chap-head-pin, .foot { max-width: none !important; padding-inline: 0 !important; }
+  .chap { padding: 0 0 8pt !important; }
+  .chap-head { display: block !important; margin-bottom: 6pt !important; }
+  .chap-kicker, .chap-sub { display: none !important; }
+  .chap-title {
+    font-size: 12pt !important; font-weight: 700 !important;
+    letter-spacing: 0 !important; max-width: none !important;
+    border-bottom: 1.2pt solid #000 !important;
+    padding-bottom: 2pt; margin-bottom: 8pt;
+  }
 
-  /* ── Sobre/Objetivo ── */
-  body.pm-ats .sobre { font-size: 10pt !important; line-height: 1.6 !important; color: #000 !important; text-align: justify !important; }
-  body.pm-ats .sobre strong { color: #000 !important; font-weight: 700 !important; }
-  body.pm-ats .sobre .metric { color: #000 !important; font-weight: 700 !important; }
+  /* ── Cabeçalho do currículo ── */
+  .chap-hero { min-height: 0 !important; padding: 0 0 8pt !important; display: block !important; }
+  .hero-grid { display: block !important; padding-inline: 0 !important; }
+  .hero-cmd { display: none !important; }
+  .hero-headline { display: block !important; }
+  .hero-hello { display: none !important; }
+  .hero-name {
+    font-size: 20pt !important; font-weight: 700 !important;
+    letter-spacing: 0 !important; -webkit-text-fill-color: #000 !important;
+    background: none !important; display: block;
+  }
+  .hero-full { font-size: 9pt !important; margin-top: 2pt !important; }
+  .hero-role { font-size: 10.5pt !important; margin-top: 2pt !important; max-width: none !important; }
+  .hero-tags { gap: 3pt !important; margin-top: 6pt !important; }
+  .tag { border: 1px solid #ccc !important; border-radius: 3pt !important; font-size: 7.5pt !important; padding: 1pt 5pt !important; }
 
-  /* ── Segundo painel "Objetivo" escondido (conteúdo já está no Sobre) ── */
-  body.pm-ats #sobre-row > .panel:last-child { display: none !important; }
+  .cstrip {
+    margin-top: 8pt !important; padding-top: 6pt !important;
+    gap: 2pt 14pt !important; border-top: 1px solid #ccc !important;
+  }
+  .ci, .copy-btn { font-size: 9pt !important; padding: 1pt 0 !important; }
 
-  /* ── Formação — lista com bullet ── */
-  body.pm-ats .timeline { display: block !important; }
-  body.pm-ats .ti { display: block !important; padding-bottom: 4px !important; padding-left: 16px !important; position: relative !important; }
-  body.pm-ats .ti::before { content: '\25CF' !important; position: absolute !important; left: 0 !important; top: 1px !important; font-size: 7pt !important; color: #000 !important; }
-  body.pm-ats .tp { font-size: 9pt !important; color: #333 !important; font-weight: 400 !important; display: inline !important; }
-  body.pm-ats .tt { font-size: 10pt !important; font-weight: 700 !important; color: #000 !important; display: inline !important; }
-  body.pm-ats .ts { font-size: 9.5pt !important; color: #000 !important; font-style: normal !important; display: inline !important; }
-  body.pm-ats .ts::before { content: ' \2013 ' !important; }
-  body.pm-ats .tdesc { display: none !important; }
+  .hero-aside { display: block !important; width: auto !important; }
+  .hero-stats { display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; gap: 4pt !important; margin-top: 8pt; }
+  .sbox { border: 1px solid #ddd !important; border-radius: 3pt !important; padding: 4pt 7pt !important; }
+  .slabel { font-size: 6.5pt !important; }
+  .sval { font-size: 8.5pt !important; }
+  .sico { display: none !important; }
 
-  /* ── Experiência — empresa + período na mesma linha ── */
-  body.pm-ats .g2 > .panel:first-child .ti { padding-left: 0 !important; }
-  body.pm-ats .g2 > .panel:first-child .ti::before { display: none !important; }
-  body.pm-ats .g2 > .panel:first-child .ts { display: block !important; font-weight: 700 !important; font-size: 10.5pt !important; margin-bottom: 0 !important; }
-  body.pm-ats .g2 > .panel:first-child .ts::before { display: none !important; }
-  body.pm-ats .g2 > .panel:first-child .tt { display: block !important; font-size: 9.5pt !important; font-weight: 400 !important; font-style: italic !important; margin-bottom: 4px !important; }
-  body.pm-ats .g2 > .panel:first-child .tp { display: inline !important; float: right !important; font-weight: 600 !important; font-size: 9.5pt !important; color: #000 !important; }
-  body.pm-ats .g2 > .panel:first-child .tdesc { display: block !important; font-size: 9.5pt !important; color: #000 !important; line-height: 1.6 !important; padding-left: 16px !important; text-indent: -16px !important; margin-bottom: 3px !important; }
-  body.pm-ats .g2 > .panel:first-child .tdesc::before { content: '\25CF  ' !important; font-size: 7pt !important; }
-  body.pm-ats .g2 > .panel:first-child .ti { padding-bottom: 12px !important; }
-  body.pm-ats .thl { display: block !important; font-size: 9.5pt !important; color: #000 !important; padding-left: 16px !important; text-indent: -16px !important; margin-top: 2px !important; }
-  body.pm-ats .thl span:first-child { display: none !important; }
-  body.pm-ats .thl span:last-child::before { content: '\25CF  ' !important; font-size: 7pt !important; }
+  /* ── Blocos de conteúdo ── */
+  .about-grid, .craft-grid, .cert-grid, .contact-grid {
+    display: block !important;
+  }
+  .lead { font-size: 10pt !important; line-height: 1.5 !important; text-align: justify; }
+  .about-facts { display: none !important; }
 
-  /* ── Skills — "Nome: Nível" em bullet list ── */
-  body.pm-ats .sg { display: block !important; margin-bottom: 0 !important; }
-  body.pm-ats .sg-label { display: none !important; }
-  body.pm-ats .stags { display: block !important; }
-  body.pm-ats .stag { display: block !important; font-size: 9.5pt !important; color: #000 !important; padding: 1px 0 1px 16px !important; border: none !important; background: none !important; position: relative !important; }
-  body.pm-ats .stag::before { content: '\25CF' !important; position: absolute !important; left: 0 !important; top: 3px !important; font-size: 7pt !important; }
-  body.pm-ats .stag::after { content: '' !important; }
-  body.pm-ats .stag.adv::after { content: ': Avançado' !important; font-weight: 400 !important; }
-  body.pm-ats .stag.int::after { content: ': Intermediário' !important; font-weight: 400 !important; }
-  body.pm-ats .stag.bsc::after { content: ': Básico' !important; font-weight: 400 !important; }
-  body.pm-ats .stag.lng::after { content: '' !important; }
-  body.pm-ats .stag { font-weight: 700 !important; }
-  /* Idiomas como seção separada */
-  body.pm-ats .sg:last-child .sg-label.lng { display: block !important; font-size: 11pt !important; font-weight: 700 !important; border-bottom: 1.5px solid #000 !important; padding-bottom: 3px !important; margin-top: 14px !important; margin-bottom: 8px !important; }
+  .card { border: none !important; padding: 0 !important; }
+  .card-title { font-size: 10pt !important; font-weight: 700 !important; letter-spacing: 0 !important; border-bottom: 1px solid #ccc !important; margin: 8pt 0 5pt !important; padding-bottom: 2pt !important; }
 
-  /* ── Tech Stack — lista inline ── */
-  body.pm-ats .tgrid { display: block !important; }
-  body.pm-ats .tgitem { display: inline !important; font-size: 9.5pt !important; color: #000 !important; padding: 0 !important; border: none !important; background: none !important; }
-  body.pm-ats .tgitem .tg-e { display: none !important; }
-  body.pm-ats .tgitem .tg-l { display: inline !important; font-size: 9.5pt !important; font-weight: 700 !important; }
-  body.pm-ats .tgitem::after { content: ' · ' !important; }
-  body.pm-ats .tgitem:last-child::after { content: '' !important; }
+  /* Trajetória e projetos viram listas verticais compactas */
+  .jcard, .wcard {
+    width: auto !important; display: block !important;
+    border: none !important; border-left: 2pt solid #999 !important;
+    border-radius: 0 !important; padding: 0 0 7pt 9pt !important;
+    margin-bottom: 8pt; page-break-inside: avoid;
+    transform: none !important;
+  }
+  .jcard::after { display: none !important; }
+  .jcard-head { height: auto !important; display: block !important; }
+  .jcard-kind { border: none !important; padding: 0 !important; font-size: 7.5pt !important; font-weight: 700 !important; letter-spacing: 1pt !important; }
+  .jcard-year, .wcard-idx { font-size: 8pt !important; }
+  .jcard-title, .wcard-title { font-size: 10.5pt !important; font-weight: 700 !important; margin-top: 2pt !important; }
+  .jcard-org, .wcard-stack { font-size: 9pt !important; margin-top: 1pt !important; }
+  .jcard-desc, .wcard-desc { font-size: 9pt !important; margin-top: 3pt !important; line-height: 1.4 !important; }
+  .jcard-hl { margin-top: 3pt !important; gap: 1pt !important; }
+  .jcard-hl li { font-size: 8.5pt !important; }
+  .wcard-body { padding: 0 !important; }
+  .wcard-result {
+    border: none !important; padding: 0 !important; margin-top: 3pt !important;
+    font-size: 8.5pt !important; font-weight: 700 !important;
+  }
+  .pills { gap: 3pt !important; padding-top: 4pt !important; }
+  .pill { border: 1px solid #ddd !important; font-size: 7.5pt !important; padding: 1pt 4pt !important; }
 
-  /* ── Projetos — título bold + parágrafo descritivo ── */
-  body.pm-ats .proj { padding: 0 0 10px !important; margin-bottom: 4px !important; border-bottom: none !important; }
-  body.pm-ats .proj::before { display: none !important; }
-  body.pm-ats .proj-top { margin-bottom: 3px !important; }
-  body.pm-ats .proj-name { font-size: 10.5pt !important; font-weight: 700 !important; color: #000 !important; display: block !important; }
-  body.pm-ats .proj-desc { font-size: 9.5pt !important; color: #000 !important; line-height: 1.6 !important; text-align: justify !important; }
+  .stag { border: 1px solid #ddd !important; border-radius: 3pt !important; font-size: 8.5pt !important; padding: 2pt 6pt !important; }
+  .sg-label { font-size: 8pt !important; font-weight: 700 !important; }
+  .sg-label::after { background: #ddd !important; }
 
-  /* ── Certificações ── */
-  body.pm-ats .cert-list { display: block !important; }
-  body.pm-ats .cert-item { display: block !important; padding: 1px 0 1px 16px !important; position: relative !important; }
-  body.pm-ats .cert-item::before { content: '\25CF' !important; position: absolute !important; left: 0 !important; top: 3px !important; font-size: 7pt !important; color: #000 !important; }
-  body.pm-ats .cert-name { font-size: 9.5pt !important; font-weight: 700 !important; color: #000 !important; display: inline !important; }
-  body.pm-ats .cert-issuer { font-size: 9.5pt !important; color: #000 !important; font-style: normal !important; display: inline !important; }
-  body.pm-ats .cert-issuer::before { content: ' \2013 ' !important; }
-  body.pm-ats .cert-year { font-size: 9.5pt !important; color: #000 !important; display: inline !important; margin-left: 0 !important; }
-  body.pm-ats .cert-year::before { content: ', ' !important; }
+  .lang-item { margin-bottom: 5pt !important; }
+  .lang-bar-wrap { display: none !important; }
+  .lang-level { border: none !important; padding: 0 !important; }
 
-  /* ── Idiomas — lista com barras ── */
-  body.pm-ats .lang-item { display: block !important; padding: 1px 0 1px 16px !important; position: relative !important; }
-  body.pm-ats .lang-item::before { content: '\25CF' !important; position: absolute !important; left: 0 !important; top: 3px !important; font-size: 7pt !important; }
-  body.pm-ats .lang-name { font-size: 9.5pt !important; font-weight: 700 !important; display: inline !important; min-width: auto !important; }
-  body.pm-ats .lang-level { display: inline !important; font-size: 9.5pt !important; background: none !important; border: none !important; padding: 0 !important; }
-  body.pm-ats .lang-level::before { content: ' (' !important; }
-  body.pm-ats .lang-level::after { content: ')' !important; }
-  body.pm-ats .lang-bar-wrap, body.pm-ats .lang-label { display: none !important; }
-  body.pm-ats .exp-results-label { font-size: 9.5pt !important; font-weight: 700 !important; color: #000 !important; margin-top: 6px !important; }
-  body.pm-ats .exp-results .thl { display: block !important; font-size: 9.5pt !important; color: #000 !important; padding-left: 16px !important; text-indent: -16px !important; }
-  body.pm-ats .exp-results .thl span:first-child { display: none !important; }
-  body.pm-ats .exp-results .thl span:last-child::before { content: '\25CF  ' !important; font-size: 7pt !important; }
+  .cert-item {
+    border: none !important; border-bottom: 1px solid #eee !important;
+    border-radius: 0 !important; padding: 4pt 0 !important;
+    page-break-inside: avoid;
+  }
+  .cert-badge { display: none !important; }
+  .cert-name { font-size: 9.5pt !important; }
+  .cert-issuer, .cert-year { font-size: 8.5pt !important; }
 
-  /* ── QR Code — only in ATS at the end ── */
-  body.pm-ats .qr-print-section { display: block !important; text-align: center; margin-top: 16px; order: 98 !important; page-break-inside: avoid; }
-  body.pm-ats .qr-print-section img { width: 70px; height: 70px; }
-  body.pm-ats .qr-label { font-size: 8pt !important; color: #555 !important; }
+  .goal {
+    font-size: 10pt !important; font-weight: 400 !important;
+    max-width: none !important; border-left: 2pt solid #999 !important;
+    padding-left: 8pt !important; margin-bottom: 8pt !important;
+  }
+  .goal p { max-width: none !important; }
+  .contact-card { border: none !important; padding: 2pt 0 !important; display: inline-block !important; margin-right: 16pt; vertical-align: top; }
+  .contact-k { font-size: 7.5pt !important; display: block !important; }
+  .contact-v { font-size: 9pt !important; display: block !important; }
+  /* O valor do cartão já é o próprio endereço — não repetir a URL */
+  .contact-card[href]::after { content: "" !important; }
 
-  /* ── Links no rodapé ── */
-  body.pm-ats a[href^="mailto"]:after { content: ""; }
-  body.pm-ats a[href^="https"]:after { content: ""; }
-  body.pm-ats a[href^="tel"]:after { content: ""; }
+  .foot { border-top: 1px solid #ccc !important; padding: 6pt 0 0 !important; font-size: 8pt !important; }
+
+  /* URLs explícitas (útil no papel, exigido por muitos ATS) */
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 7pt; color: #555 !important; }
+  a[href^="tel"]::after, a[href^="#"]::after, .cert-item::after { content: "" !important; }
+
+  /* ── QR Code (só na impressão) ── */
+  /* Estático no fim do documento: `fixed` repetiria em toda página
+     e cairia por cima do conteúdo. */
+  .qr-print-section {
+    display: block !important;
+    margin-top: 10pt;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  .qr-label { font-family: Arial, sans-serif; font-size: 7pt; color: #555 !important; margin-top: 2pt; }
+
+  h1, h2, h3 { page-break-after: avoid; }
 }

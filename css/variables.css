@@ -1,6 +1,6 @@
 /* ═══ CSS Custom Properties — Shared ═══ */
 :root {
-  --bg: #080c10;
+  --bg: #070a0e;
   --bg2: #0d1117;
   --bg3: #111820;
   --panel: #0e1520;
@@ -19,7 +19,7 @@
   --r: 6px;
 
   /* ═══ Typography Scale ═══ */
-  --fs-hero: clamp(32px,4.5vw,58px);
+  --fs-hero: clamp(38px,7vw,92px);
   --fs-section-title: 10px;
   --fs-body: 14px;
   --fs-description: 12px;
@@ -27,6 +27,38 @@
   --fs-small: 10px;
   --fs-tiny: 9px;
   --fs-item-title: 13px;
+
+  /* ═══ Escala editorial (storytelling) ═══ */
+  --fs-chapter: clamp(28px,4.2vw,54px);
+  --fs-lead: clamp(16px,1.5vw,21px);
+  --fs-quote: clamp(18px,1.9vw,26px);
+  --fs-num: clamp(56px,9vw,150px);
+
+  /* ═══ Superfícies (glass) ═══ */
+  --surface: rgba(255,255,255,.026);
+  --surface-2: rgba(255,255,255,.05);
+  --stroke: rgba(255,255,255,.08);
+  --stroke-2: rgba(255,255,255,.16);
+  --shadow-lg: 0 24px 60px -28px rgba(0,0,0,.85);
+  --shadow-sm: 0 6px 20px -12px rgba(0,0,0,.7);
+  --blur: 14px;
+
+  /* ═══ Ritmo e movimento ═══ */
+  --gutter: clamp(20px,5vw,72px);
+  --maxw: 1220px;
+  --ease: cubic-bezier(.22,1,.36,1);
+  --ease-io: cubic-bezier(.65,0,.35,1);
+  --dur: .7s;
+
+  /* Halos coloridos reutilizáveis */
+  --halo-g: rgba(0,255,136,.16);
+  --halo-c: rgba(0,207,255,.16);
+  --halo-o: rgba(255,107,53,.16);
+  --halo-p: rgba(168,85,247,.16);
+
+  /* Cor de acento do capítulo ativo (animada pelo scroll) */
+  --accent: var(--neon);
+  --accent-halo: var(--halo-g);
 }
 
 /* ═══ Light Mode ═══ */
@@ -45,49 +77,16 @@ html.light {
   --t: #1f2328;
   --td: #656d76;
   --tb: #1f2328;
+
+  --surface: rgba(9,17,28,.026);
+  --surface-2: rgba(9,17,28,.05);
+  --stroke: rgba(9,17,28,.10);
+  --stroke-2: rgba(9,17,28,.20);
+  --shadow-lg: 0 24px 60px -34px rgba(15,25,40,.35);
+  --shadow-sm: 0 4px 16px -10px rgba(15,25,40,.30);
+
+  --halo-g: rgba(26,127,55,.14);
+  --halo-c: rgba(9,105,218,.14);
+  --halo-o: rgba(207,34,46,.12);
+  --halo-p: rgba(130,80,223,.14);
 }
-html.light body::after {
-  background-image: none !important;
-}
-html.light body.cv-page::before {
-  background: none !important;
-}
-html.light .topbar,
-html.light .bottombar {
-  background: #f8f9fb;
-  border-color: #d8dee4;
-}
-html.light .hero {
-  background: #f8f9fb;
-  border-color: #d8dee4;
-}
-html.light .hero::before {
-  display: none;
-}
-html.light .sbox {
-  background: #f8f9fb;
-  border-color: #d8dee4;
-}
-html.light .proj,
-html.light .cert-item,
-html.light .tgitem {
-  background: #f8f9fb;
-}
-html.light .cstrip {
-  background: #f0f2f5;
-  border-color: #d8dee4;
-}
-html.light .tag {
-  background: #f0f2f5;
-  border-color: #d8dee4;
-  color: #656d76;
-}
-html.light .cur2,
-html.light .ld-cur {
-  background: #1a7f37;
-}
-html.light .panel {
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-}
-html.light ::-webkit-scrollbar-track { background: #f0f2f5; }
-html.light ::-webkit-scrollbar-thumb { background: #b0b8c4; }

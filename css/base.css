@@ -1,13 +1,39 @@
 /* ═══ Base / Reset — Shared ═══ */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 body {
   background: var(--bg);
   color: var(--t);
   font-family: var(--sans);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
-body::after {
+
+img, svg { max-width: 100%; }
+/* `hidden` precisa vencer os `display` dos componentes */
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: none; cursor: pointer; }
+a { color: inherit; }
+
+/* Foco visível e consistente em toda a aplicação */
+:focus-visible {
+  outline: 2px solid var(--neon2);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Grade de fundo do painel admin (o CV público usa a camada .fx) */
+body:not(.story)::after {
   content: '';
   position: fixed;
   inset: 0;
@@ -18,9 +44,10 @@ body::after {
   pointer-events: none;
   z-index: 0;
 }
+html.light body:not(.story)::after { background-image: none; }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--bb); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--bb); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--neon); }

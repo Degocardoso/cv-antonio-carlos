@@ -631,16 +631,11 @@ function openPreview() {
   modal.appendChild(iframe);
   document.body.appendChild(modal);
 
-  // Inject current data into iframe once loaded
+  // Injeta os dados atuais no iframe assim que o CV terminar de carregar
   iframe.onload = () => {
     try {
-      const iframeWindow = iframe.contentWindow;
-      // Override the fetch to return current data
-      const script = iframeWindow.document.createElement('script');
-      script.textContent = `
-        window.__previewData = ${JSON.stringify(D)};
-      `;
-      iframeWindow.document.head.appendChild(script);
+      const apply = iframe.contentWindow?.__applyPreview;
+      if (typeof apply === 'function') apply(JSON.parse(JSON.stringify(D)));
     } catch (e) {
       // Cross-origin may block, fallback to just showing current saved version
     }
