@@ -44,7 +44,8 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
   formação, certificações, stack, idiomas e seções
 - 🖼️ **Upload de imagens** dos projetos (Cloudinary) com galeria/lightbox
 - 🔀 **Reordenação por drag-and-drop** dos itens
-- 💾 **Backups automáticos** (até 10) e restauração
+- 💾 **Backups automáticos** (até 3) e restauração — limitados de propósito:
+  cada um é uma cópia completa do CV dentro do mesmo registro do JSONBin
 - 👁️ **Preview** das alterações antes de salvar
 - 🎨 **Ícones SVG inline** no lugar de emoji — mesma forma em todo sistema,
   sem depender de fonte de emoji (o admin continua cadastrando emoji: eles são
