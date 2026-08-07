@@ -1,8 +1,8 @@
 # CV — Antônio Carlos Cardoso
 
 Portfólio web em formato de **história**: em vez de listar informações, o CV
-conduz o visitante por capítulos conforme ele rola a página — com trechos que
-se movem lateralmente durante o scroll vertical. Inclui painel administrativo
+conduz o visitante por capítulos conforme ele rola a página, com trilhos
+horizontais para a linha do tempo e os projetos. Inclui painel administrativo
 para editar o conteúdo sem mexer no código e armazenamento na nuvem.
 
 🔗 **Páginas**
@@ -18,10 +18,10 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
 | Capítulo | Seção | Efeito |
 | -------- | ----- | ------ |
 | Prólogo    | Apresentação, tags, contato | Entrada escalonada + parallax |
-| 01 Impacto | Projetos em destaque com métricas e galeria | **Scroll horizontal fixado** |
+| 01 Impacto | Projetos em destaque com métricas e galeria | **Trilho horizontal** |
 | 02 Credenciais | Certificações e cursos | Revelação escalonada |
 | 03 Origem  | "Sobre mim" + números da carreira | Revelação no scroll + contadores |
-| 04 Trajetória | Experiência **e** formação fundidas em uma linha do tempo única, ordenada por ano | **Scroll horizontal fixado** |
+| 04 Trajetória | Experiência **e** formação fundidas em uma linha do tempo única, ordenada por ano | **Trilho horizontal** |
 | 05 Arsenal | Habilidades, idiomas e stack | Barras animadas + esteira infinita |
 | Epílogo    | Objetivo profissional e contato | Encerramento com CTA |
 
@@ -34,8 +34,8 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
 ## ✨ Funcionalidades
 
 - 🎬 **Storytelling em scroll** com capítulos, progresso de leitura e navegação lateral
-- ↔️ **Seções horizontais fixadas** ("pin"): a página prende na tela e o conteúdo
-  desliza lateralmente conforme o scroll vertical
+- ↔️ **Trilhos horizontais** para a linha do tempo e os projetos: arraste com o
+  mouse, deslize no touch ou use as setas e os botões — a página nunca prende
 - ✦ **Animações de entrada**, parallax sutil e contadores animados nas métricas
 - 🖥️ **Estética de terminal** modernizada, responsiva (desktop e mobile)
 - 🌙 **Tema claro/escuro** com cores personalizáveis (preferência salva no navegador)
@@ -68,27 +68,32 @@ nenhuma dependência para manter.
 - Só `transform` e `opacity` são animados
 - Medido em ~60 fps na página inteira (mediana de 16,7 ms por frame)
 
-**Fixação horizontal (pin)**
-A seção recebe uma altura extra igual à distância horizontal do trilho. Enquanto
-ela ocupa a tela, o progresso vertical vira `translateX` no trilho — 1 px de
-scroll = 1 px de deslocamento lateral.
+**Trilhos horizontais**
+O trilho é um contêiner de scroll nativo (`overflow-x`) com *scroll snap*. O
+scroll vertical da página **não** é convertido em movimento lateral: rolar para
+baixo continua rolando para baixo. O deslocamento lateral vem sempre de uma
+ação do visitante — arrastar com o mouse, deslizar no touch, girar o trackpad,
+usar as setas ou os botões do trilho.
+
+Isso é deliberado. Uma versão anterior prendia a seção na tela e convertia
+scroll vertical em horizontal; com conteúdo real (descrições longas, muitos
+resultados por cargo) o cartão passou a ter altura fixa, o conteúdo vazava pela
+borda e o cabeçalho encolhia, jogando o marcador da linha do tempo por cima do
+título. Sem a fixação, cada cartão simplesmente cresce com o conteúdo.
 
 **Acessibilidade**
-- `prefers-reduced-motion`: desliga fixação, parallax e transições; o conteúdo
-  vira uma lista vertical normal
+- `prefers-reduced-motion`: desliga parallax, transições e o scroll suave dos
+  trilhos; o conteúdo continua todo visível
 - O scroll nativo **nunca** é sequestrado (sem *smooth scroll* customizado)
-- Trilhos horizontais navegáveis por teclado (Tab, ← →, botões) — dar Tab em um
-  cartão fora da tela traz o cartão para a viewport
+- Trilhos navegáveis por teclado (Tab, ← →, botões); dar Tab em um cartão fora
+  da tela o traz para a viewport pelo comportamento nativo do navegador
+- Barra de rolagem visível no trilho, além do cursor de arrasto: o conteúdo
+  lateral não fica escondido
 - Diálogos (galeria e portfólio) com foco preso, `Esc` e devolução do foco
 - Sem JS, o conteúdo continua visível e legível
 
-**Quando o pin é desativado** (e vira swipe horizontal nativo com *scroll snap*):
-telas com menos de 900 px de largura ou 640 px de altura, movimento reduzido, ou
-quando o trilho é curto demais para justificar o efeito.
-
-Dentro do palco fixado o trilho absorve a altura que sobra (`flex: 1`), então o
-conteúdo nunca estoura a viewport nem é cortado — em telas baixas a capa dos
-projetos encolhe em vez de empurrar o cabeçalho para fora da tela.
+O mesmo comportamento vale em qualquer tela: não há modo alternativo por
+largura ou altura, então nada muda de lugar ao redimensionar a janela.
 
 ---
 
@@ -138,7 +143,7 @@ js/
 │   │   └── admin-view.js
 │   └── controller/
 │       ├── api.js              # Chamadas às serverless functions
-│       ├── story.js            # Motor de scroll (pin, revelação, parallax)
+│       ├── story.js            # Motor de scroll (revelação, trilhos, parallax)
 │       ├── index-controller.js
 │       └── admin-controller.js
 │

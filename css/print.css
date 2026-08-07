@@ -41,18 +41,8 @@
     opacity: 1 !important;
     transform: none !important;
   }
-  .chap-pin, .chap-pin.is-pinned {
-    height: auto !important;
-    padding-block: 0 !important;
-  }
-  .chap-pin .pin-shell, .chap-pin.is-pinned .pin-shell {
-    position: static !important;
-    height: auto !important;
-    overflow: visible !important;
-    display: block !important;
-    padding: 0 !important;
-  }
-  .pin-stage { display: block !important; gap: 0 !important; }
+  .rail-shell { display: block !important; }
+  .rail-stage { display: block !important; gap: 0 !important; }
   .rail { overflow: visible !important; }
   .rail-track {
     transform: none !important;
@@ -60,11 +50,9 @@
     display: block !important;
     padding: 0 !important;
   }
-  /* A altura mínima dos cartões só faz sentido no palco fixado */
-  .chap-pin.is-pinned .rail-item { min-height: 0 !important; }
 
   /* ── Ritmo geral ── */
-  .wrap, .chap-head-pin, .foot { max-width: none !important; padding-inline: 0 !important; }
+  .wrap, .chap-head-rail, .foot { max-width: none !important; padding-inline: 0 !important; }
   .chap { padding: 0 0 8pt !important; }
   .chap-head { display: block !important; margin-bottom: 6pt !important; }
   .chap-kicker, .chap-sub { display: none !important; }
