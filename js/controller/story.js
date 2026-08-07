@@ -4,7 +4,7 @@
  * Motor de scroll narrativo do CV público, sem dependências externas.
  * Responsabilidades:
  *   · revelação progressiva de elementos ao entrar na viewport
- *   · seções "fixadas" que rolam horizontalmente durante o scroll vertical
+ *   · trilhos horizontais independentes (botões, arrasto, teclado e swipe)
  *   · parallax sutil de camadas de fundo e números de capítulo
  *   · barra de progresso, navegação por capítulos e cor de acento por capítulo
  *   · contadores animados e barras de proficiência
@@ -18,7 +18,12 @@
  * Acessibilidade:
  *   · `prefers-reduced-motion` desliga fixação, parallax e transições
  *   · trilhos horizontais continuam navegáveis por teclado (Tab, setas, botões)
- *   · sem sequestro do scroll nativo — a rolagem do navegador é preservada
+ *   · sem sequestro do scroll nativo — a rolagem da página é sempre livre
+ *
+ * Os trilhos horizontais NÃO prendem a página: rolar para baixo continua
+ * rolando para baixo. O deslocamento lateral é sempre uma ação do
+ * visitante (arrastar, swipe, setas ou botões), então cada cartão pode
+ * ter a altura que o conteúdo pedir, sem corte.
  */
 
 const mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -32,20 +37,11 @@ const ACCENTS = [
   ['--neon5', '--halo-g']
 ];
 
-/* Largura/altura mínimas para fixar seções horizontais */
-const PIN_MIN_W = 900;
-/* Abaixo disso o palco fixado não tem altura para o cabeçalho + trilho +
-   controles sem apertar o conteúdo: melhor cair no swipe horizontal nativo. */
-const PIN_MIN_H = 640;
-/* Deslocamento horizontal mínimo que justifica fixar a seção */
-const MIN_TRAVEL = 200;
-
 const root = document.documentElement;
 
 let reduced = mqReduced.matches;
-let pinEnabled = false;
 
-let pins = [];
+let rails = [];
 let parallaxEls = [];
 let chapters = [];
 
@@ -91,7 +87,7 @@ export function mountStory() {
  */
 export function refreshStory() {
   computeMode();
-  collectPins();
+  collectRails();
   collectParallax();
   buildChapterNav();
   observeReveals();
@@ -106,9 +102,6 @@ export function refreshStory() {
 
 function computeMode() {
   reduced = mqReduced.matches;
-  pinEnabled = !reduced
-    && window.innerWidth >= PIN_MIN_W
-    && window.innerHeight >= PIN_MIN_H;
 }
 
 function onResize() {
@@ -119,61 +112,39 @@ function onResize() {
 }
 
 function measureAll() {
-  const vh = window.innerHeight;
-  for (const pin of pins) {
-    measurePin(pin, vh);
-    // Estado inicial do trilho (barra + cartão ativo) sem esperar o primeiro scroll.
-    if (!pin.distance) {
-      const max = pin.rail.scrollWidth - pin.rail.clientWidth;
-      paintRail(pin, max > 0 ? pin.rail.scrollLeft / max : 0);
-    }
-  }
+  for (const r of rails) syncRail(r);
   scrollMax = Math.max(1, root.scrollHeight - root.clientHeight);
 }
 
-function measurePin(pin, vh) {
-  // Limpa o estado antes de medir para não medir em cima de si mesmo.
-  pin.section.classList.remove('is-pinned');
-  pin.section.style.height = '';
-  pin.track.style.transform = '';
-  pin.stageH = vh;
-
-  if (!pinEnabled) { pin.distance = 0; return; }
-
-  // Mede a distância horizontal real do trilho (track usa width:max-content).
-  // Abaixo de MIN_TRAVEL o efeito seria só um solavanco: melhor não fixar.
-  const distance = Math.max(0, pin.track.offsetWidth - pin.rail.clientWidth);
-  if (distance < MIN_TRAVEL) { pin.distance = 0; return; }
-
-  pin.section.classList.add('is-pinned');
-  // Altura do palco fica em cache: o loop de scroll nunca lê layout depois de escrever.
-  pin.stageH = pin.shell.offsetHeight || vh;
-  pin.distance = distance;
-  pin.section.style.height = (pin.stageH + distance) + 'px';
+/** Lê a posição atual do trilho e reflete na barra e no cartão ativo. */
+function syncRail(r) {
+  const max = r.rail.scrollWidth - r.rail.clientWidth;
+  r.scrollable = max > 1;
+  r.rail.classList.toggle('is-scrollable', r.scrollable);
+  paintRail(r, max > 0 ? r.rail.scrollLeft / max : 0);
 }
 
 /* ═══════════════════════════ COLETA DE ELEMENTOS ═══════════════════════════ */
 
-function collectPins() {
-  pins = Array.from(document.querySelectorAll('.chap-pin')).map(section => {
+function collectRails() {
+  rails = Array.from(document.querySelectorAll('.chap-rail')).map(section => {
     const rail = section.querySelector('.rail');
     const track = section.querySelector('.rail-track');
-    const pin = {
-      section,
-      shell: section.querySelector('.pin-shell'),
-      rail,
-      track,
+    const r = {
+      section, rail, track,
       bar: section.querySelector('.rail-bar span'),
       prev: section.querySelector('[data-rail-prev]'),
       next: section.querySelector('[data-rail-next]'),
       items: Array.from(track ? track.children : []).filter(el => el.classList.contains('rail-item')),
-      distance: 0,
-      travel: 0,
+      scrollable: false,
       active: -1
     };
-    if (rail && track) bindRail(pin);
-    return pin;
-  }).filter(p => p.rail && p.track && p.items.length);
+    if (rail && track && r.items.length && !rail.dataset.bound) {
+      rail.dataset.bound = '1';
+      bindRail(r);
+    }
+    return r;
+  }).filter(r => r.rail && r.track && r.items.length);
 }
 
 function collectParallax() {
@@ -313,61 +284,93 @@ function setActiveChapter(idx) {
 
 /* ═══════════════════════════ TRILHOS HORIZONTAIS ═══════════════════════════ */
 
-function bindRail(pin) {
-  pin.prev?.addEventListener('click', () => goToIndex(pin, pin.active - 1));
-  pin.next?.addEventListener('click', () => goToIndex(pin, pin.active + 1));
+function bindRail(r) {
+  r.prev?.addEventListener('click', () => goToIndex(r, r.active - 1));
+  r.next?.addEventListener('click', () => goToIndex(r, r.active + 1));
 
   // Setas do teclado quando o trilho tem foco
-  pin.rail.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') { e.preventDefault(); goToIndex(pin, pin.active + 1); }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); goToIndex(pin, pin.active - 1); }
+  r.rail.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); goToIndex(r, r.active + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goToIndex(r, r.active - 1); }
   });
 
-  // Tab para dentro de um cartão fora da tela: traz o cartão para a viewport.
-  pin.rail.addEventListener('focusin', (e) => {
-    if (!pin.distance) return;
-    const item = e.target.closest('.rail-item');
-    if (!item) return;
-    // 'instant': com `scroll-behavior: smooth` no html, 'auto' animaria
-    // e brigaria com o scroll que o navegador já faz ao focar.
-    const idx = pin.items.indexOf(item);
-    if (idx >= 0 && idx !== pin.active) goToIndex(pin, idx, 'instant');
-  });
-
-  // No modo não-fixado o trilho rola nativamente: acompanha a barra.
-  pin.rail.addEventListener('scroll', () => {
-    if (pin.distance) return;
-    const max = pin.rail.scrollWidth - pin.rail.clientWidth;
-    const p = max > 0 ? pin.rail.scrollLeft / max : 0;
-    paintRail(pin, p);
+  // O trilho rola nativamente (swipe, trackpad, arrasto): acompanha a barra.
+  r.rail.addEventListener('scroll', () => {
+    const max = r.rail.scrollWidth - r.rail.clientWidth;
+    paintRail(r, max > 0 ? r.rail.scrollLeft / max : 0);
   }, { passive: true });
+
+  bindDrag(r);
 }
 
-/** Move o trilho para o índice pedido (via scroll da página ou do container). */
-function goToIndex(pin, idx, behavior) {
-  const max = pin.items.length - 1;
-  const target = Math.max(0, Math.min(max, idx));
-  const smooth = behavior || (reduced ? 'auto' : 'smooth');
+/**
+ * Arrastar com o mouse para percorrer o trilho.
+ * Sem isso, quem usa mouse comum (sem trackpad) só teria os botões —
+ * o swipe do touch e o scroll horizontal do trackpad já são nativos.
+ */
+function bindDrag(r) {
+  let dragging = false;
+  let startX = 0;
+  let startLeft = 0;
+  let moved = 0;
 
-  if (pin.distance) {
-    const top = pin.section.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: top + (target / max) * pin.distance, behavior: smooth });
-  } else {
-    pin.items[target]?.scrollIntoView({ behavior: smooth, inline: 'start', block: 'nearest' });
-  }
+  r.rail.addEventListener('pointerdown', (e) => {
+    // Só mouse: no touch o scroll nativo é melhor do que qualquer emulação.
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    if (e.target.closest('a, button')) return;
+    dragging = true;
+    moved = 0;
+    startX = e.clientX;
+    startLeft = r.rail.scrollLeft;
+    r.rail.classList.add('is-dragging');
+  });
+
+  r.rail.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    moved = Math.max(moved, Math.abs(dx));
+    if (moved > 3 && !r.rail.hasPointerCapture(e.pointerId)) {
+      r.rail.setPointerCapture(e.pointerId);
+    }
+    r.rail.scrollLeft = startLeft - dx;
+  });
+
+  const end = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    r.rail.classList.remove('is-dragging');
+    if (r.rail.hasPointerCapture?.(e.pointerId)) r.rail.releasePointerCapture(e.pointerId);
+    // Um arrasto não deve virar clique no cartão que estava sob o cursor.
+    if (moved > 4) {
+      r.rail.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); },
+        { capture: true, once: true });
+    }
+  };
+  r.rail.addEventListener('pointerup', end);
+  r.rail.addEventListener('pointercancel', end);
+}
+
+/** Leva o trilho até o cartão pedido, sem mexer no scroll da página. */
+function goToIndex(r, idx) {
+  const target = Math.max(0, Math.min(r.items.length - 1, idx));
+  const item = r.items[target];
+  if (!item) return;
+  const left = r.rail.scrollLeft + (item.getBoundingClientRect().left - r.rail.getBoundingClientRect().left);
+  const gutter = parseFloat(getComputedStyle(r.track).paddingLeft) || 0;
+  r.rail.scrollTo({ left: left - gutter, behavior: reduced ? 'auto' : 'smooth' });
 }
 
 /** Aplica o estado visual do trilho para um progresso 0–1. */
-function paintRail(pin, p) {
-  if (pin.bar) pin.bar.style.width = (p * 100).toFixed(2) + '%';
+function paintRail(r, p) {
+  if (r.bar) r.bar.style.width = (p * 100).toFixed(2) + '%';
 
-  const idx = Math.round(p * (pin.items.length - 1));
-  if (idx !== pin.active) {
-    pin.items[pin.active]?.classList.remove('is-active');
-    pin.items[idx]?.classList.add('is-active');
-    pin.active = idx;
-    if (pin.prev) pin.prev.disabled = idx <= 0;
-    if (pin.next) pin.next.disabled = idx >= pin.items.length - 1;
+  const idx = Math.round(p * (r.items.length - 1));
+  if (idx !== r.active) {
+    r.items[r.active]?.classList.remove('is-active');
+    r.items[idx]?.classList.add('is-active');
+    r.active = idx;
+    if (r.prev) r.prev.disabled = idx <= 0;
+    if (r.next) r.next.disabled = idx >= r.items.length - 1;
   }
 }
 
@@ -389,7 +392,6 @@ function frame() {
   const vh = window.innerHeight;
 
   /* ── FASE DE LEITURA (nenhuma escrita de estilo antes daqui) ── */
-  const pinRects = pins.map(p => (p.distance ? p.section.getBoundingClientRect() : null));
   const pxRects = parallaxEls.map(p => p.el.getBoundingClientRect());
   scrollMax = Math.max(1, root.scrollHeight - root.clientHeight);
 
@@ -398,18 +400,6 @@ function frame() {
   if (els.aurora) els.aurora.style.transform = `translate3d(0, ${(-y * 0.05).toFixed(1)}px, 0)`;
   els.hud?.classList.toggle('is-stuck', y > 16);
   els.cue?.classList.toggle('is-hidden', y > 120);
-
-  for (let i = 0; i < pins.length; i++) {
-    const pin = pins[i];
-    const rect = pinRects[i];
-    if (!rect) continue;
-
-    const travel = pin.distance; // altura extra da seção == distância horizontal
-    const p = travel > 0 ? clamp(-rect.top / travel, 0, 1) : 0;
-
-    pin.track.style.transform = `translate3d(${(-p * pin.distance).toFixed(2)}px, 0, 0)`;
-    paintRail(pin, p);
-  }
 
   for (let i = 0; i < parallaxEls.length; i++) {
     const item = parallaxEls[i];
@@ -421,4 +411,3 @@ function frame() {
   }
 }
 
-function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
