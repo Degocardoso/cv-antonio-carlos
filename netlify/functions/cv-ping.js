@@ -48,6 +48,40 @@ async function incrementVisit() {
   } catch (e) { /* silent */ }
 }
 
+/**
+ * Testa a conexão real com o JSONBin.
+ * Só checar se a variável existe não diagnostica nada: a chave pode
+ * existir e mesmo assim ser inválida, ser Access Key (só leitura) ou
+ * apontar para um bin de outra conta.
+ */
+async function testJsonbin() {
+  const BIN_ID = process.env.JSONBIN_BIN_ID;
+  const KEY = process.env.JSONBIN_MASTER_KEY;
+  if (!BIN_ID || !KEY) return { ok: false, causa: 'JSONBIN_BIN_ID ou JSONBIN_MASTER_KEY ausente' };
+
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': KEY }
+    });
+    const texto = await res.text();
+    const causas = {
+      401: 'Chave rejeitada — confira a JSONBIN_MASTER_KEY.',
+      403: 'Acesso negado — a chave é uma Access Key (só leitura), o bin pertence a outra conta, ou a cota do plano estourou.',
+      404: 'Bin não encontrado — confira o JSONBIN_BIN_ID.',
+      429: 'Limite de requisições atingido no JSONBin.'
+    };
+    return {
+      ok: res.ok,
+      leitura_status: res.status,
+      causa: res.ok ? undefined : (causas[res.status] || 'Resposta inesperada do JSONBin.'),
+      resposta_jsonbin: res.ok ? undefined : texto.slice(0, 300),
+      tamanho_registro: res.ok ? texto.length + ' bytes' : undefined
+    };
+  } catch (e) {
+    return { ok: false, causa: 'Falha de rede ao falar com o JSONBin.', detalhe: e.message };
+  }
+}
+
 exports.handler = async (event) => {
   const PASSWORD = process.env.CV_ADMIN_PASSWORD || '';
 
@@ -98,17 +132,21 @@ exports.handler = async (event) => {
   }
 
   const count = await getVisitCount();
+  const jsonbin = await testJsonbin();
 
   return {
-    statusCode: allOk ? 200 : 500,
+    statusCode: (allOk && jsonbin.ok) ? 200 : 500,
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
     },
     body: JSON.stringify({
-      status: allOk ? 'OK' : 'ERRO — variáveis faltando',
+      status: !allOk ? 'ERRO — variáveis faltando'
+            : jsonbin.ok ? 'OK'
+            : 'ERRO — variáveis presentes, mas o JSONBin recusou',
       variables: vars,
+      jsonbin,
       visitCount: count,
       password_test: pwdTest || 'Envie o header X-Admin-Password para testar',
     }, null, 2),

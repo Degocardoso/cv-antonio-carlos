@@ -231,12 +231,32 @@ Acesse `http://localhost:8000`.
 
 ## 🩺 Solução de problemas
 
+**Diagnóstico rápido**
+Abra `/.netlify/functions/cv-ping` (ou `/api/cv-ping`) no navegador. Além de
+listar quais variáveis estão configuradas, ele **testa a conexão real com o
+JSONBin** e mostra o status e a mensagem literal da resposta — é isso que
+diferencia "a variável existe" de "a variável está correta".
+
+Ao falhar um salvamento, o painel também imprime no console do navegador o
+HTTP, o erro e a resposta do JSONBin.
+
+**Erro 401 (Unauthorized) ao salvar**
+A senha enviada não bate com `CV_ADMIN_PASSWORD`. Nesse caso a requisição nem
+chega ao JSONBin. Confira a variável no host e refaça o login.
+
 **Erro 403 (Forbidden) ao salvar**
 A senha do admin está correta (senão seria 401). O 403 vem do **JSONBin** e
 significa: `JSONBIN_MASTER_KEY` inválida **ou** o bin pertence a outra conta.
 - Confirme que está usando a **Master Key** (em jsonbin.io → *API Keys*), não a Access Key.
 - Confirme que o `JSONBIN_BIN_ID` é de um bin **dessa mesma conta**.
+- Verifique se a cota mensal de requisições do plano não estourou.
 - Atualize a variável no host e faça um novo deploy.
+
+> ⚠️ O contador de visitas grava no mesmo bin a cada acesso (lê e regrava o
+> registro inteiro). Isso consome cota do JSONBin proporcionalmente ao tráfego
+> e, em teoria, pode competir com um salvamento feito no admin no mesmo
+> instante. Se a cota for um problema, desligar o `trackVisit` no
+> `index-controller.js` corta duas requisições por visita.
 
 **Acentos/caracteres aparecem corrompidos**
 As serverless functions leem a resposta do JSONBin com `res.setEncoding('utf8')`.

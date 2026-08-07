@@ -177,11 +177,24 @@ window.saveAll = async function() {
   } else if (result.status === 403) {
     flash('⚠ JSONBin recusou (403). ' + (result.hint || 'Verifique a JSONBIN_MASTER_KEY no servidor.'), true);
     setBadge('err', '☁ 403 Forbidden');
+    logSaveFailure(result);
   } else {
     flash('⚠ Erro ao salvar: ' + (result.status || 'sem conexão') + (result.error ? ' — ' + result.error : ''), true);
     setBadge('err', '☁ Erro');
+    logSaveFailure(result);
   }
 };
+
+/** A mensagem literal do JSONBin diz o motivo — sem ela só resta adivinhar. */
+function logSaveFailure(result) {
+  console.error(
+    '[CV] Falha ao salvar\n' +
+    'HTTP: ' + (result.status || 'sem conexão') + '\n' +
+    'Erro: ' + (result.error || '—') + '\n' +
+    'Resposta do JSONBin: ' + (result.detail || '—') + '\n' +
+    'Diagnóstico completo: abra /.netlify/functions/cv-ping (ou /api/cv-ping)'
+  );
+}
 
 function saveTab(tabId) {
   collectCurrent();
