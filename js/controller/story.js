@@ -34,7 +34,9 @@ const ACCENTS = [
 
 /* Largura/altura mínimas para fixar seções horizontais */
 const PIN_MIN_W = 900;
-const PIN_MIN_H = 520;
+/* Abaixo disso o palco fixado não tem altura para o cabeçalho + trilho +
+   controles sem apertar o conteúdo: melhor cair no swipe horizontal nativo. */
+const PIN_MIN_H = 640;
 /* Deslocamento horizontal mínimo que justifica fixar a seção */
 const MIN_TRAVEL = 200;
 

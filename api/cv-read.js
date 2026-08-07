@@ -11,6 +11,9 @@ function httpsRequest(url, options = {}) {
       method: options.method || 'GET',
       headers: options.headers || {},
     }, (res) => {
+      // setEncoding usa StringDecoder: sem ele, um caractere UTF-8 multibyte
+      // partido entre dois chunks vira � (ex.: "Graduação" -> "Gradua��ão").
+      res.setEncoding('utf8');
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => resolve({ status: res.statusCode, body: data }));

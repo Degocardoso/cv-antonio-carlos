@@ -9,6 +9,7 @@ import { CV_READ_URL } from './api.js';
 import { render, renderPortfolio, setLang, getGallery } from '../view/index-view.js';
 import { mountStory, refreshStory } from './story.js';
 import { copyEmail } from '../utils.js';
+import { icon } from '../view/icons.js';
 
 const THEME_KEY = 'cv-theme';
 
@@ -69,7 +70,6 @@ async function loadData() {
   render();
   afterRender();
 
-  generateQR();
   trackVisit();
   hideLoading();
 }
@@ -251,7 +251,7 @@ function updateThemeButton() {
   const btn = document.getElementById('themeToggle');
   if (!btn) return;
   const isLight = document.documentElement.classList.contains('light');
-  btn.textContent = isLight ? '☀️' : '🌙';
+  btn.innerHTML = icon(isLight ? 'sun' : 'moon');
   btn.setAttribute('aria-label', isLight ? 'Mudar para tema escuro' : 'Mudar para tema claro');
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isLight ? '#ffffff' : '#070a0e');
 }
@@ -333,15 +333,6 @@ function startClock() {
   setInterval(tick, 1000);
 }
 
-/** QR usado apenas na versão impressa. */
-function generateQR() {
-  const container = document.getElementById('qrCode');
-  if (!container) return;
-  const url = window.location.href.split('?')[0].split('#')[0];
-  container.innerHTML =
-    `<img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(url)}"
-          alt="QR Code" width="80" height="80" loading="lazy">`;
-}
 
 async function trackVisit() {
   try {

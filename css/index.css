@@ -106,6 +106,37 @@ html.light .fx-grid { background-image: linear-gradient(rgba(40,70,110,.06) 1px,
 }
 .icon-btn:hover { border-color: var(--neon2); color: var(--neon2); transform: translateY(-1px); }
 
+/* CTA de contato — permanente no HUD, em qualquer ponto da página */
+.hud-cta {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 16px; border-radius: 999px; white-space: nowrap;
+  background: color-mix(in srgb, var(--neon) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--neon) 38%, transparent);
+  color: var(--neon); text-decoration: none;
+  font-family: var(--mono); font-size: var(--fs-label); font-weight: 600;
+  transition: background .25s, transform .25s var(--ease), box-shadow .3s var(--ease);
+}
+.hud-cta:hover {
+  background: color-mix(in srgb, var(--neon) 26%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px -12px var(--neon);
+}
+
+/* ═══ ÍCONES ═══
+   SVG inline em vez de emoji: mesma forma em todo sistema, herda a cor
+   do texto e não depende de fonte de emoji instalada. */
+.ico {
+  width: 1em; height: 1em; flex-shrink: 0;
+  display: inline-block; vertical-align: -.14em;
+  fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.ico-emoji { display: inline-block; line-height: 1; font-style: normal; }
+.ci .ico, .copy-btn .ico { width: 14px; height: 14px; }
+.btn-solid .ico, .btn-ghost .ico, .hud-cta .ico, .wcard-gal .ico { width: 15px; height: 15px; }
+.jcard-link .ico, .wcard-cta em .ico { width: 14px; height: 14px; }
+.wcard-result .ico, .po-result .ico, .po-feat .ico { width: 13px; height: 13px; }
+
 /* Navegação lateral por capítulos */
 .chapnav {
   position: fixed; right: 18px; top: 50%; transform: translateY(-50%);
@@ -258,7 +289,7 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
 .ci:hover { color: var(--neon2); }
 .copy-btn { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: var(--fs-label); color: var(--td); padding: 4px 0; transition: color .22s; }
 .copy-btn:hover { color: var(--neon); }
-.copy-hint { font-size: 9px; opacity: .5; }
+.copy-hint { width: 12px !important; height: 12px !important; opacity: .45; }
 
 .copy-toast {
   position: fixed; bottom: 26px; left: 50%; transform: translate(-50%, 14px);
@@ -309,7 +340,7 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
 .sbox:hover { border-color: var(--stroke-2); background: var(--surface-2); transform: translateX(-3px); }
 .slabel { font-family: var(--mono); font-size: var(--fs-tiny); color: var(--td); text-transform: uppercase; letter-spacing: 1.4px; }
 .sval { font-family: var(--mono); font-size: var(--fs-description); color: var(--neon2); margin-top: 3px; }
-.sbox .sico { font-size: 17px; line-height: 1; }
+.sbox .sico { display: flex; align-items: center; font-size: 19px; color: var(--td); }
 
 /* Convite ao scroll */
 .scroll-cue {
@@ -376,11 +407,25 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
   height: 100svh; overflow: hidden;
   /* Espaço superior para o conteúdo não passar por baixo do HUD fixo. */
   padding: 58px 0 18px;
-  display: flex; align-items: center;
+  /* `stretch` (e não `center`): centralizar faria o conteúdo mais alto que
+     a tela transbordar para os dois lados e ser cortado pelo overflow. */
+  display: flex; align-items: stretch;
 }
 .pin-stage { width: 100%; display: flex; flex-direction: column; gap: clamp(18px, 3vh, 34px); }
-.chap-head-pin { max-width: var(--maxw); width: 100%; margin: 0 auto; padding-inline: var(--gutter); margin-bottom: 0; }
+
+/* O trilho absorve a altura que sobra — o palco nunca estoura a viewport,
+   por mais baixa que ela seja (ex.: 1366x768 com a barra do navegador). */
+.chap-pin.is-pinned .pin-stage { height: 100%; min-height: 0; }
+.chap-pin.is-pinned .rail { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; }
+.chap-pin.is-pinned .rail-track { flex-shrink: 0; height: 100%; max-height: 480px; }
+.chap-pin.is-pinned .rail-hud { flex-shrink: 0; }
+.chap-head-pin {
+  max-width: var(--maxw); width: 100%; margin: 0 auto;
+  padding-inline: var(--gutter); margin-bottom: 0; flex-shrink: 0;
+}
 .chap-head-pin .chap-sub { max-width: 46ch; }
+/* Dentro do palco fixado o número compete por altura com os cartões */
+.chap-head-pin .chap-num { font-size: clamp(44px, 5.2vw, 92px); }
 
 .rail {
   overflow-x: auto; overflow-y: hidden;
@@ -405,9 +450,9 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
   will-change: transform;
 }
 .rail-item { scroll-snap-align: start; display: flex; }
-/* Fixado, os cartões ocupam a altura disponível do palco — o capítulo
-   preenche a tela em vez de flutuar no meio dela. */
-.chap-pin.is-pinned .rail-item { min-height: min(56vh, 480px); }
+/* Fixado, os cartões acompanham a altura do trilho (que já se ajustou ao
+   espaço livre), então preenchem a tela sem nunca serem cortados. */
+.chap-pin.is-pinned .rail-item { min-height: 0; }
 
 /* Linha do tempo por trás dos cartões */
 .rail-line {
@@ -479,6 +524,10 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
   transition: border-color .4s var(--ease), transform .5s var(--ease), box-shadow .5s var(--ease);
 }
 .wcard.is-active { border-color: color-mix(in srgb, var(--c) 40%, transparent); transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+/* Fixado, a capa cede altura para o texto: encolhe até o mínimo em vez de
+   empurrar o cartão para fora da tela. */
+.chap-pin.is-pinned .wcard-media { aspect-ratio: auto; flex: 1 1 0; min-height: 110px; }
+.chap-pin.is-pinned .wcard-body { flex: 0 0 auto; }
 .wcard-media {
   position: relative; aspect-ratio: 16/9; overflow: hidden;
   background: linear-gradient(135deg, color-mix(in srgb, var(--c) 16%, transparent), transparent 65%), var(--bg3);
@@ -625,7 +674,7 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
   transition: border-color .25s, color .25s;
 }
 .tgitem:hover { border-color: var(--neon2); color: var(--tb); }
-.tg-e { font-size: 17px; line-height: 1; }
+.tg-e { font-size: 17px; line-height: 1; color: var(--neon2); }
 
 /* ═══ 10. CAPÍTULO 05 — CREDENCIAIS ═══ */
 .cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
@@ -647,7 +696,7 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
 .cert-name { font-size: var(--fs-description); font-weight: 600; color: var(--tb); line-height: 1.35; }
 .cert-issuer { font-family: var(--mono); font-size: var(--fs-small); color: var(--td); }
 .cert-year { font-family: var(--mono); font-size: var(--fs-small); color: var(--neon2); margin-left: auto; flex-shrink: 0; align-self: flex-start; }
-.cert-hint { opacity: .7; }
+.cert-hint { width: 12px; height: 12px; opacity: .7; margin-left: 4px; }
 
 /* ═══ 11. EPÍLOGO ═══ */
 .goal {
@@ -793,6 +842,7 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
   .chap-head { flex-direction: column; gap: 10px; }
   .chap-title { max-width: none; }
   .hud-status { display: none; }
+  .hud-cta { padding: 6px 13px; font-size: var(--fs-small); }
   .rail { padding-bottom: 6px; }
   .rail-hud { gap: 12px; }
   .lb-prev { left: 6px; } .lb-next { right: 6px; }
@@ -804,14 +854,17 @@ html.anim [data-stagger].rv-in > *:nth-child(n+7) { transition-delay: .40s; }
 }
 
 @media (max-width: 480px) {
+  /* Espaço curto: mantém os semáforos e o CTA, dispensa o caminho */
+  .hud-brand span:last-child { display: none; }
   .cstrip { gap: 2px 16px; }
   .sbox { padding: 10px 12px; }
   .cert-item { padding: 15px 16px; }
 }
 
-/* Telas baixas: o modo fixado precisa de altura mínima para respirar */
-@media (max-height: 560px) {
+/* Telas baixas: o palco fixado abre mão do subtítulo para o trilho respirar */
+@media (max-height: 720px) {
   .chap-head-pin .chap-sub { display: none; }
+  .chap-head-pin .chap-num { font-size: clamp(38px, 4vw, 62px); }
 }
 
 /* ═══ 15. MOVIMENTO REDUZIDO ═══ */
