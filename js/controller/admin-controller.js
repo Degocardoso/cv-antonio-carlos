@@ -2,7 +2,7 @@
  * Controller — Admin Panel
  * Lógica de autenticação, coleta de dados, tabs, upload, etc.
  */
-import { getData, setData, setDataSource, getDataSource, resetToDefaults, applyTheme, applyTypography } from '../model/state.js';
+import { getData, setData, setDataSource, getDataSource, resetToDefaults, applyTheme, applyTypography, pruneBackupsToFit, recordBytes, RECORD_BUDGET, MAX_BACKUPS } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
 import { loadFromCloud, saveToCloud, uploadImage, validatePassword, CV_READ_URL } from './api.js';
 import {
@@ -166,10 +166,21 @@ function renderTab(id) {
 window.saveAll = async function() {
   collectCurrent();
   setBadge('loading', '☁ Salvando...');
+
+  // Poda backups antigos antes de enviar: o registro precisa caber no
+  // limite do JSONBin, senão a gravação volta 403.
+  const fit = pruneBackupsToFit();
+  if (!fit.ok) {
+    flash(`⚠ O conteúdo tem ${(fit.bytes / 1024).toFixed(0)} KB e excede o limite do JSONBin mesmo sem backups. Reduza textos ou imagens.`, true);
+    setBadge('err', '☁ Grande demais');
+    return;
+  }
+
   const result = await saveToCloud(SESSION_PWD);
   if (result.ok) {
-    flash('☁ Salvo na nuvem!');
+    flash('☁ Salvo na nuvem!' + (fit.dropped ? ` (${fit.dropped} backup antigo removido para caber)` : ''));
     setBadge('ok', '☁ Salvo');
+    showRecordSize();
   } else if (result.status === 401) {
     flash('❌ Sessão expirada.', true);
     setBadge('err', '☁ Não autorizado');
@@ -668,6 +679,24 @@ async function refreshVisits() {
   } catch (e) {
     flash('⚠ Erro ao carregar visitas', true);
   }
+  showRecordSize();
+}
+
+/** Deixa o peso do registro visível antes de virar um 403 na cara. */
+function showRecordSize() {
+  const el = document.getElementById('recordSizeDisplay');
+  const bar = document.getElementById('recordSizeBar');
+  if (!el) return;
+  const bytes = recordBytes();
+  const kb = bytes / 1024;
+  const budget = RECORD_BUDGET / 1024;
+  const pct = Math.min(100, (bytes / RECORD_BUDGET) * 100);
+  const backups = (getData().backups || []).length;
+  el.textContent = `${kb.toFixed(1)} KB de ~${budget.toFixed(0)} KB · ${backups} backup(s) guardado(s)`;
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = pct > 90 ? 'var(--neon3)' : pct > 70 ? '#ffbd2e' : 'var(--neon)';
+  }
 }
 
 /* ═══ BACKUP ═══ */
@@ -677,8 +706,9 @@ function createBackupSilent() {
   const snapshot = JSON.parse(JSON.stringify(D));
   delete snapshot.backups;
   D.backups.unshift({ timestamp: new Date().toISOString(), data: snapshot });
-  // Keep max 10 backups
-  if (D.backups.length > 10) D.backups = D.backups.slice(0, 10);
+  // Cada backup é uma cópia inteira do CV no mesmo registro do JSONBin:
+  // guardar 10 multiplicava o payload por ~11 e estourava o limite do plano.
+  if (D.backups.length > MAX_BACKUPS) D.backups = D.backups.slice(0, MAX_BACKUPS);
 }
 
 function createBackup() {

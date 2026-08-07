@@ -406,6 +406,18 @@ export function tSettings() {
   </div>
 
   <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">📦 Tamanho do registro</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;margin-bottom:10px;">
+      O JSONBin guarda tudo em um único registro e o plano tem limite de tamanho.
+      Estourar o limite faz o salvamento voltar <strong>403</strong>.
+    </div>
+    <div style="height:6px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-bottom:6px;">
+      <div id="recordSizeBar" style="height:100%;width:0;background:var(--neon);transition:width .4s;"></div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);" id="recordSizeDisplay">—</div>
+  </div>
+
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
     <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">💾 Backup e Restauração</div>
     <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;margin-bottom:12px;">
       Ao salvar, um snapshot automático é criado. Restaure versões anteriores se necessário.

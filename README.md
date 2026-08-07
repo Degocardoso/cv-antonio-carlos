@@ -252,6 +252,18 @@ significa: `JSONBIN_MASTER_KEY` inválida **ou** o bin pertence a outra conta.
 - Verifique se a cota mensal de requisições do plano não estourou.
 - Atualize a variável no host e faça um novo deploy.
 
+**403 por tamanho do registro**
+O JSONBin guarda tudo em **um único registro**, e o plano tem limite de
+tamanho. Cada backup automático é uma **cópia completa do CV** dentro desse
+mesmo registro — guardar 10 multiplicava o payload por ~11 e o estourava
+conforme o conteúdo crescia (leitura continuava funcionando; só a gravação
+voltava 403).
+
+Hoje o registro é podado antes de cada envio (`pruneBackupsToFit` em
+`js/model/state.js`): no máximo `MAX_BACKUPS` cópias e um teto de
+`RECORD_BUDGET` bytes, descartando os backups mais antigos primeiro. A aba
+*Configurações* do admin mostra o peso atual com uma barra de alerta.
+
 > ⚠️ O contador de visitas grava no mesmo bin a cada acesso (lê e regrava o
 > registro inteiro). Isso consome cota do JSONBin proporcionalmente ao tráfego
 > e, em teoria, pode competir com um salvamento feito no admin no mesmo
