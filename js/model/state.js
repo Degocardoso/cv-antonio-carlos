@@ -20,6 +20,49 @@ export function getDataSource() { return dataSource; }
 /** Define a fonte dos dados */
 export function setDataSource(src) { dataSource = src; }
 
+/**
+ * Orçamento de bytes para o registro enviado ao JSONBin.
+ * O plano free corta em ~100 KB; 80 KB deixa folga para o CV crescer.
+ */
+export const RECORD_BUDGET = 80 * 1024;
+
+/** Backups mantidos no registro (cada um é uma cópia completa do CV). */
+export const MAX_BACKUPS = 3;
+
+/** Tamanho em BYTES (acentos ocupam 2 — `.length` mediria caracteres). */
+export function recordBytes(data = D) {
+  return new TextEncoder().encode(JSON.stringify(data)).length;
+}
+
+/**
+ * Cada backup é uma cópia completa do CV guardada dentro do próprio
+ * registro, então o payload cresce ~(1 + N) vezes. Poda os backups mais
+ * antigos até caber no orçamento — sem isso o registro incha a cada save
+ * até o JSONBin recusar a gravação.
+ * @returns {{bytes:number, dropped:number, ok:boolean}}
+ */
+export function pruneBackupsToFit(budget = RECORD_BUDGET, maxCount = MAX_BACKUPS) {
+  if (!Array.isArray(D.backups)) D.backups = [];
+  let dropped = 0;
+
+  // Teto de quantidade primeiro — vale para qualquer caminho de save,
+  // inclusive registros antigos que chegaram da nuvem com 10 backups.
+  if (D.backups.length > maxCount) {
+    dropped += D.backups.length - maxCount;
+    D.backups = D.backups.slice(0, maxCount);
+  }
+
+  // Depois o teto de bytes, caso o próprio CV já seja grande.
+  // `unshift` põe o mais novo no início: `pop` remove sempre o mais antigo.
+  let bytes = recordBytes();
+  while (bytes > budget && D.backups.length) {
+    D.backups.pop();
+    dropped++;
+    bytes = recordBytes();
+  }
+  return { bytes, dropped, ok: bytes <= budget };
+}
+
 /** Reseta para os padrões */
 export function resetToDefaults() {
   D = JSON.parse(JSON.stringify(DEFAULTS));
