@@ -54,11 +54,12 @@ export async function saveToCloud(password) {
       headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Admin-Password': password },
       body: JSON.stringify(D)
     });
-    let error, hint;
+    let error, hint, detail;
     if (!res.ok) {
-      try { const j = await res.json(); error = j.error; hint = j.hint; } catch (_) { /* sem corpo JSON */ }
+      // `detail` traz a mensagem literal do JSONBin — é ela que diz o motivo real.
+      try { const j = await res.json(); error = j.error; hint = j.hint; detail = j.detail; } catch (_) { /* sem corpo JSON */ }
     }
-    return { ok: res.ok, status: res.status, error, hint };
+    return { ok: res.ok, status: res.status, error, hint, detail };
   } catch (e) {
     return { ok: false, status: 0, error: e.message };
   }
