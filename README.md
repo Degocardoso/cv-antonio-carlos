@@ -1,7 +1,9 @@
 # CV — Antônio Carlos Cardoso
 
-Currículo / portfólio web com estética de terminal, painel administrativo para
-edição do conteúdo sem mexer no código e armazenamento dos dados na nuvem.
+Portfólio web em formato de **história**: em vez de listar informações, o CV
+conduz o visitante por capítulos conforme ele rola a página — com trechos que
+se movem lateralmente durante o scroll vertical. Inclui painel administrativo
+para editar o conteúdo sem mexer no código e armazenamento na nuvem.
 
 🔗 **Páginas**
 - `index.html` — CV público
@@ -9,10 +11,30 @@ edição do conteúdo sem mexer no código e armazenamento dos dados na nuvem.
 
 ---
 
+## 📖 A narrativa
+
+O conteúdo é reorganizado em capítulos, e não em blocos independentes:
+
+| Capítulo | Seção | Efeito |
+| -------- | ----- | ------ |
+| Prólogo    | Apresentação, tags, contato | Entrada escalonada + parallax |
+| 01 Origem  | "Sobre mim" + números da carreira | Revelação no scroll + contadores |
+| 02 Trajetória | Experiência **e** formação fundidas em uma linha do tempo única, ordenada por ano | **Scroll horizontal fixado** |
+| 03 Impacto | Projetos em destaque com métricas e galeria | **Scroll horizontal fixado** |
+| 04 Arsenal | Habilidades, idiomas e stack | Barras animadas + esteira infinita |
+| 05 Credenciais | Certificações e cursos | Revelação escalonada |
+| Epílogo    | Objetivo profissional e contato | Encerramento com CTA |
+
+---
+
 ## ✨ Funcionalidades
 
-- 🖥️ **Design "terminal/hacker"** responsivo (desktop e mobile)
-- 🌙 **Tema claro/escuro** com cores personalizáveis
+- 🎬 **Storytelling em scroll** com capítulos, progresso de leitura e navegação lateral
+- ↔️ **Seções horizontais fixadas** ("pin"): a página prende na tela e o conteúdo
+  desliza lateralmente conforme o scroll vertical
+- ✦ **Animações de entrada**, parallax sutil e contadores animados nas métricas
+- 🖥️ **Estética de terminal** modernizada, responsiva (desktop e mobile)
+- 🌙 **Tema claro/escuro** com cores personalizáveis (preferência salva no navegador)
 - 🌐 **Bilíngue (PT/EN)** via i18n configurável
 - ✏️ **Painel admin** para editar perfil, experiências, projetos, skills,
   formação, certificações, stack, idiomas e seções
@@ -23,6 +45,39 @@ edição do conteúdo sem mexer no código e armazenamento dos dados na nuvem.
 - 📄 **Exportação para PDF/impressão** otimizada (ATS) + **QR Code**
 - 📊 **Contador de visitas**
 - ☁️ **Dados na nuvem** (JSONBin) — edição reflete no CV ao salvar
+
+---
+
+## 🎛️ Como o motor de scroll funciona
+
+Toda a experiência é feita **sem bibliotecas externas** (`js/controller/story.js`),
+por três motivos: nada de payload extra, controle total de performance e
+nenhuma dependência para manter.
+
+**Performance**
+- Um único listener de scroll (passivo) que apenas agenda um `requestAnimationFrame`
+- Leituras de layout agrupadas **antes** de qualquer escrita de estilo (evita
+  *layout thrashing*); medidas ficam em cache e só são refeitas em `resize`
+- Só `transform` e `opacity` são animados
+- Medido em ~60 fps na página inteira (mediana de 16,7 ms por frame)
+
+**Fixação horizontal (pin)**
+A seção recebe uma altura extra igual à distância horizontal do trilho. Enquanto
+ela ocupa a tela, o progresso vertical vira `translateX` no trilho — 1 px de
+scroll = 1 px de deslocamento lateral.
+
+**Acessibilidade**
+- `prefers-reduced-motion`: desliga fixação, parallax e transições; o conteúdo
+  vira uma lista vertical normal
+- O scroll nativo **nunca** é sequestrado (sem *smooth scroll* customizado)
+- Trilhos horizontais navegáveis por teclado (Tab, ← →, botões) — dar Tab em um
+  cartão fora da tela traz o cartão para a viewport
+- Diálogos (galeria e portfólio) com foco preso, `Esc` e devolução do foco
+- Sem JS, o conteúdo continua visível e legível
+
+**Quando o pin é desativado** (e vira swipe horizontal nativo com *scroll snap*):
+telas com menos de 900 px de largura ou 520 px de altura, movimento reduzido, ou
+quando o trilho é curto demais para justificar o efeito.
 
 ---
 
@@ -39,7 +94,7 @@ A arquitetura segue o padrão **MVC**:
 js/
 ├── model/        → dados (defaults.js) e estado (state.js)
 ├── view/         → renderização (index-view.js, admin-view.js)
-├── controller/   → lógica + comunicação com as APIs
+├── controller/   → lógica, motor de scroll e comunicação com as APIs
 └── utils.js      → utilitários compartilhados
 ```
 
@@ -56,11 +111,11 @@ js/
 ├── vercel.json                 # Config de deploy (Vercel)
 │
 ├── css/
-│   ├── variables.css           # Variáveis de tema/cores
+│   ├── variables.css           # Design tokens (cores, escalas, easing)
 │   ├── base.css                # Reset e base
-│   ├── index.css               # Estilos do CV público
+│   ├── index.css               # Estilos do CV público (narrativa em scroll)
 │   ├── admin.css               # Estilos do painel admin
-│   └── print.css               # Estilos de impressão/PDF
+│   └── print.css               # Estilos de impressão/PDF (ATS)
 │
 ├── js/
 │   ├── utils.js
@@ -68,10 +123,11 @@ js/
 │   │   ├── defaults.js         # Conteúdo padrão do CV
 │   │   └── state.js            # Estado + merge com a nuvem
 │   ├── view/
-│   │   ├── index-view.js
+│   │   ├── index-view.js       # Monta os capítulos a partir dos dados
 │   │   └── admin-view.js
 │   └── controller/
 │       ├── api.js              # Chamadas às serverless functions
+│       ├── story.js            # Motor de scroll (pin, revelação, parallax)
 │       ├── index-controller.js
 │       └── admin-controller.js
 │

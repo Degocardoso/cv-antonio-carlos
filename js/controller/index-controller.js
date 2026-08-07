@@ -1,184 +1,197 @@
 /**
  * Controller — Index (CV público)
- * Lógica de inicialização, lightbox, PDF, typewriter, etc.
+ *
+ * Orquestra o carregamento dos dados, o render da narrativa, o motor de
+ * scroll (story.js) e as interações: tema, idioma, galeria e portfólio.
  */
 import { getData, setData, applyTheme, applyTypography, mergeFromCloud } from '../model/state.js';
-import { DEFAULTS } from '../model/defaults.js';
 import { CV_READ_URL } from './api.js';
-import { render, renderPortfolio, setLang } from '../view/index-view.js';
-import { copyEmail, escAttr } from '../utils.js';
+import { render, renderPortfolio, setLang, getGallery } from '../view/index-view.js';
+import { mountStory, refreshStory } from './story.js';
+import { copyEmail } from '../utils.js';
 
-/* ═══ GALLERY STATE ═══ */
-let gallery = [];    // lista de URLs da galeria atual
-let galleryIdx = 0;  // índice atual
+const THEME_KEY = 'cv-theme';
 
-/** Inicializa o CV público */
+/* Estado da galeria aberta */
+let gallery = [];
+let galleryIdx = 0;
+let lastFocused = null;
+
+/* ═══════════════════════════ INICIALIZAÇÃO ═══════════════════════════ */
+
 export async function init() {
-  // Expõe funções necessárias para onclick inline
-  window.__copyEmail = copyEmail;
-  window.__toggleTheme = toggleTheme;
-  window.__toggleLang = toggleLang;
-  window.closeLB = closeLB;
-
-  // Event delegation para lightbox e certificações
-  document.addEventListener('click', (e) => {
-    // Fechar lightbox pelo X
-    if (e.target.closest('.lb-x')) {
-      closeLB();
-      return;
-    }
-
-    // Imagens de projeto — abrir galeria com navegação
-    const lbTrigger = e.target.closest('[data-lightbox]');
-    if (lbTrigger) {
-      e.stopPropagation();
-      const container = lbTrigger.closest('.proj-imgs, .po-imgs');
-      if (container) {
-        const allImgs = Array.from(container.querySelectorAll('[data-lightbox]'));
-        gallery = allImgs.map(el => el.dataset.lightbox);
-        galleryIdx = allImgs.indexOf(lbTrigger);
-        if (galleryIdx < 0) galleryIdx = 0;
-      } else {
-        gallery = [lbTrigger.dataset.lightbox];
-        galleryIdx = 0;
-      }
-      showGalleryItem();
-      return;
-    }
-
-    // Certificações — abrir link em nova aba
-    const certItem = e.target.closest('[data-cert-url]');
-    if (certItem) {
-      window.open(certItem.dataset.certUrl, '_blank', 'noopener');
-      return;
-    }
-  });
-
-  // Fechar lightbox/portfolio com Escape, navegar com setas
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeLB(); closePO(); }
-    if (document.getElementById('lb').style.display === 'flex') {
-      if (e.key === 'ArrowRight') navGallery(1);
-      if (e.key === 'ArrowLeft') navGallery(-1);
-    }
-  });
-
-  // Lightbox close on background click
-  document.getElementById('lb').addEventListener('click', function(e) {
-    if (e.target === this) closeLB();
-  });
-
-  // Lightbox nav buttons
-  document.getElementById('lbPrev').addEventListener('click', () => navGallery(-1));
-  document.getElementById('lbNext').addEventListener('click', () => navGallery(1));
-
-  // Portfolio button
-  window.openPO = openPO;
-  window.closePO = closePO;
-
-  // Scroll progress
-  window.addEventListener('scroll', () => {
-    const e = document.documentElement;
-    document.getElementById('pb').style.width = ((e.scrollTop / (e.scrollHeight - e.clientHeight)) * 100) + '%';
-  }, { passive: true });
-
-  // Typewriter
+  mountStory();
+  bindGlobalEvents();
   startTypewriter();
-
-  // Clock
   startClock();
 
-  // Loading messages
-  const ldMsgs = ['Acessando histórico profissional', 'Carregando portfólio', 'Bem-vindo ao meu CV'];
-  let ldIdx = 0;
-  const ldEl = document.getElementById('ldMsg');
-  const ldInterval = setInterval(() => {
-    ldIdx = (ldIdx + 1) % ldMsgs.length;
-    if (ldEl) ldEl.textContent = ldMsgs[ldIdx];
-  }, 1800);
+  // Permite que o painel admin injete dados para o preview em iframe.
+  window.__applyPreview = (data) => {
+    setData(mergeFromCloud(data));
+    applyTheme();
+    applyTypography();
+    applyDataChrome();
+    render();
+    afterRender();
+  };
 
-  // Load data
+  const ldInterval = startLoadingMessages();
   await loadData();
   clearInterval(ldInterval);
 }
 
 async function loadData() {
-  try {
-    const res = await fetch(CV_READ_URL, { cache: 'no-cache' });
-    if (res.ok) {
-      const record = await res.json();
-      if (record && Object.keys(record).length > 0) {
-        setData(mergeFromCloud(record));
+  if (window.__previewData) {
+    setData(mergeFromCloud(window.__previewData));
+  } else {
+    try {
+      const res = await fetch(CV_READ_URL, { cache: 'no-cache' });
+      if (res.ok) {
+        const record = await res.json();
+        if (record && Object.keys(record).length > 0) setData(mergeFromCloud(record));
       }
+    } catch {
+      // Sem rede ou sem functions: segue com o conteúdo de defaults.js
     }
-  } catch (e) {
-    // silently fall back to DEFAULTS
   }
 
   const D = getData();
 
-  // Apply saved theme mode
-  const mode = D.theme?.mode || 'dark';
-  if (mode === 'light') document.documentElement.classList.add('light');
-  updateThemeToggleBtn();
+  // Tema: preferência salva do visitante > modo definido no admin
+  const saved = safeStorage.get(THEME_KEY);
+  const mode = saved || D.theme?.mode || 'dark';
+  document.documentElement.classList.toggle('light', mode === 'light');
+  updateThemeButton();
 
-  // i18n toggle visibility
-  if (D.i18n?.enabled) {
-    const btn = document.getElementById('langToggle');
-    if (btn) btn.style.display = '';
-  }
-
+  applyDataChrome();
   applyTheme();
   applyTypography();
   render();
-  initPhotoFx();
+  afterRender();
+
   generateQR();
   trackVisit();
   hideLoading();
 }
 
-/* ═══ EFEITO DA FOTO DE PERFIL ═══ */
-let _photoObserver = null;
-function initPhotoFx() {
-  const frame = document.querySelector('.hp-frame');
-  if (!frame) return;
-  if (_photoObserver) { _photoObserver.disconnect(); _photoObserver = null; }
-  // Desktop usa :hover (CSS). Em touch/sem hover, ativa a moldura ao entrar em foco.
-  const noHover = window.matchMedia('(hover: none)').matches;
-  if (noHover && 'IntersectionObserver' in window) {
-    _photoObserver = new IntersectionObserver((entries) => {
-      entries.forEach(e => frame.classList.toggle('in-view', e.isIntersecting));
-    }, { threshold: 0.6 });
-    _photoObserver.observe(frame);
+/** Ajustes de interface que dependem do conteúdo carregado. */
+function applyDataChrome() {
+  const btn = document.getElementById('langToggle');
+  if (btn) btn.hidden = !getData().i18n?.enabled;
+}
+
+/** Passos que dependem do DOM já renderizado. */
+function afterRender() {
+  refreshStory();
+  initPhotoFx();
+}
+
+/* ═══════════════════════════ EVENTOS ═══════════════════════════ */
+
+function bindGlobalEvents() {
+  document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+  document.getElementById('langToggle')?.addEventListener('click', toggleLang);
+  document.getElementById('poClose')?.addEventListener('click', closePortfolio);
+  document.getElementById('lbClose')?.addEventListener('click', closeLightbox);
+  document.getElementById('lbPrev')?.addEventListener('click', () => navGallery(-1));
+  document.getElementById('lbNext')?.addEventListener('click', () => navGallery(1));
+
+  document.getElementById('lb')?.addEventListener('click', (e) => {
+    if (e.target.id === 'lb') closeLightbox();
+  });
+
+  document.addEventListener('click', onDocumentClick);
+  document.addEventListener('keydown', onKeyDown);
+}
+
+function onDocumentClick(e) {
+  const copyTrigger = e.target.closest('[data-copy]');
+  if (copyTrigger) { copyEmail(copyTrigger.dataset.copy); return; }
+
+  if (e.target.closest('#openPortfolio')) { openPortfolio(); return; }
+
+  const galleryTrigger = e.target.closest('[data-gallery]');
+  if (galleryTrigger) {
+    openGallery(
+      parseInt(galleryTrigger.dataset.gallery, 10),
+      parseInt(galleryTrigger.dataset.galleryStart || '0', 10)
+    );
   }
 }
 
-function hideLoading() {
-  const el = document.getElementById('loading');
-  el.classList.add('out');
-  setTimeout(() => el.style.display = 'none', 750);
+function onKeyDown(e) {
+  const lb = document.getElementById('lb');
+  const po = document.getElementById('po');
+  const lbOpen = lb && !lb.hidden;
+  const poOpen = po && !po.hidden;
+
+  // Miniaturas do portfólio são acionáveis por teclado
+  if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.matches('img[data-gallery]')) {
+    e.preventDefault();
+    document.activeElement.click();
+    return;
+  }
+
+  if (e.key === 'Escape') {
+    if (lbOpen) { closeLightbox(); return; }
+    if (poOpen) { closePortfolio(); return; }
+  }
+
+  if (lbOpen) {
+    if (e.key === 'ArrowRight') navGallery(1);
+    if (e.key === 'ArrowLeft') navGallery(-1);
+    if (e.key === 'Tab') trapFocus(lb, e);
+    return;
+  }
+  if (poOpen && e.key === 'Tab') trapFocus(po, e);
 }
 
-/* ═══ LIGHTBOX com galeria ═══ */
+/** Mantém o Tab dentro do diálogo aberto. */
+function trapFocus(container, e) {
+  const focusables = Array.from(container.querySelectorAll(
+    'a[href], button:not([disabled]), img[tabindex="0"], [tabindex]:not([tabindex="-1"])'
+  )).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0);
+  if (!focusables.length) return;
+
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+
+/* ═══════════════════════════ GALERIA / LIGHTBOX ═══════════════════════════ */
+
+function openGallery(projectIdx, startIdx) {
+  const images = getGallery(projectIdx);
+  if (!images.length) return;
+  gallery = images;
+  galleryIdx = Math.max(0, Math.min(images.length - 1, startIdx || 0));
+  lastFocused = document.activeElement;
+  showGalleryItem();
+}
+
 function showGalleryItem() {
-  const src = gallery[galleryIdx];
-  const container = document.getElementById('lb-content');
-  container.innerHTML = '';
+  const lb = document.getElementById('lb');
+  const content = document.getElementById('lb-content');
+  content.innerHTML = '';
 
   const img = document.createElement('img');
-  img.src = src;
+  img.src = gallery[galleryIdx];
   img.alt = '';
-  container.appendChild(img);
+  img.decoding = 'async';
+  content.appendChild(img);
 
-  // Mostrar/esconder nav
   const hasNav = gallery.length > 1;
-  document.getElementById('lbPrev').style.display = hasNav ? '' : 'none';
-  document.getElementById('lbNext').style.display = hasNav ? '' : 'none';
+  document.getElementById('lbPrev').hidden = !hasNav;
+  document.getElementById('lbNext').hidden = !hasNav;
   const counter = document.getElementById('lbCounter');
-  counter.style.display = hasNav ? '' : 'none';
+  counter.hidden = !hasNav;
   counter.textContent = `${galleryIdx + 1} / ${gallery.length}`;
 
-  document.getElementById('lb').style.display = 'flex';
+  lb.hidden = false;
+  requestAnimationFrame(() => lb.classList.add('is-open'));
+  lockScroll(true);
+  document.getElementById('lbClose').focus();
 }
 
 function navGallery(dir) {
@@ -187,95 +200,160 @@ function navGallery(dir) {
   showGalleryItem();
 }
 
-function closeLB() {
-  document.getElementById('lb').style.display = 'none';
+function closeLightbox() {
+  const lb = document.getElementById('lb');
+  if (!lb || lb.hidden) return;
+  lb.classList.remove('is-open');
+  lb.hidden = true;
   document.getElementById('lb-content').innerHTML = '';
   gallery = [];
   galleryIdx = 0;
+  // Se o portfólio segue aberto, o scroll continua travado por ele.
+  lockScroll(!document.getElementById('po').hidden);
+  lastFocused?.focus?.();
 }
 
-/* ═══ PORTFOLIO OVERLAY ═══ */
-function openPO() {
-  document.getElementById('po').classList.add('open');
-  document.body.style.overflow = 'hidden';
+/* ═══════════════════════════ PORTFÓLIO COMPLETO ═══════════════════════════ */
+
+function openPortfolio() {
+  const po = document.getElementById('po');
   renderPortfolio();
+  lastFocused = document.activeElement;
+  po.hidden = false;
+  requestAnimationFrame(() => po.classList.add('is-open'));
+  lockScroll(true);
+  document.getElementById('poClose').focus();
 }
 
-function closePO() {
-  document.getElementById('po').classList.remove('open');
-  document.body.style.overflow = '';
+function closePortfolio() {
+  const po = document.getElementById('po');
+  if (!po || po.hidden) return;
+  po.classList.remove('is-open');
+  po.hidden = true;
+  lockScroll(false);
+  lastFocused?.focus?.();
 }
 
-/* ═══ TYPEWRITER ═══ */
-function startTypewriter() {
-  const phrases = ['cat perfil.json', 'git log --oneline', 'python analise.py', 'az login --ok'];
-  let pi = 0, ci = 0, dl = false;
-  const tw = document.getElementById('tw');
-
-  function type() {
-    const c = phrases[pi];
-    if (!dl) { tw.textContent = c.slice(0, ++ci); if (ci === c.length) { dl = true; setTimeout(type, 1800); return; } }
-    else { tw.textContent = c.slice(0, --ci); if (ci === 0) { dl = false; pi = (pi + 1) % phrases.length; } }
-    setTimeout(type, dl ? 35 : 70);
-  }
-  setTimeout(type, 700);
+function lockScroll(locked) {
+  document.body.style.overflow = locked ? 'hidden' : '';
 }
 
-/* ═══ CLOCK ═══ */
-function startClock() {
-  function tick() {
-    const e = document.getElementById('clk');
-    if (e) e.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  }
-  tick();
-  setInterval(tick, 1000);
-}
+/* ═══════════════════════════ TEMA E IDIOMA ═══════════════════════════ */
 
-/* ═══ THEME TOGGLE ═══ */
 function toggleTheme() {
-  document.documentElement.classList.toggle('light');
-  updateThemeToggleBtn();
+  const isLight = document.documentElement.classList.toggle('light');
+  safeStorage.set(THEME_KEY, isLight ? 'light' : 'dark');
+  updateThemeButton();
   applyTheme();
 }
 
-function updateThemeToggleBtn() {
+function updateThemeButton() {
   const btn = document.getElementById('themeToggle');
   if (!btn) return;
   const isLight = document.documentElement.classList.contains('light');
   btn.textContent = isLight ? '☀️' : '🌙';
-  btn.title = isLight ? 'Mudar para tema escuro' : 'Mudar para tema claro';
+  btn.setAttribute('aria-label', isLight ? 'Mudar para tema escuro' : 'Mudar para tema claro');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isLight ? '#ffffff' : '#070a0e');
 }
 
-/* ═══ I18N TOGGLE ═══ */
 let currentLang = 'pt';
 function toggleLang() {
-  const D = getData();
-  if (!D.i18n?.enabled) return;
+  if (!getData().i18n?.enabled) return;
   currentLang = currentLang === 'pt' ? 'en' : 'pt';
   setLang(currentLang);
   const btn = document.getElementById('langToggle');
   if (btn) btn.textContent = currentLang.toUpperCase();
   render();
-  initPhotoFx();
+  afterRender();
 }
 
-/* ═══ QR CODE ═══ */
+/* ═══════════════════════════ ABERTURA ═══════════════════════════ */
+
+function startLoadingMessages() {
+  const msgs = ['Acessando histórico profissional', 'Carregando portfólio', 'Bem-vindo à minha trajetória'];
+  const el = document.getElementById('ldMsg');
+  let i = 0;
+  return setInterval(() => {
+    i = (i + 1) % msgs.length;
+    if (el) el.textContent = msgs[i];
+  }, 1800);
+}
+
+function hideLoading() {
+  const el = document.getElementById('loading');
+  if (!el) return;
+  el.classList.add('out');
+  setTimeout(() => { el.style.display = 'none'; }, 750);
+}
+
+/* ═══════════════════════════ DETALHES DE INTERFACE ═══════════════════════════ */
+
+/** Sem :hover (touch), a moldura da foto acende ao entrar na viewport. */
+let photoObserver = null;
+function initPhotoFx() {
+  photoObserver?.disconnect();
+  const frame = document.querySelector('.hp-frame');
+  if (!frame || !window.matchMedia('(hover: none)').matches) return;
+  photoObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => frame.classList.toggle('in-view', e.isIntersecting));
+  }, { threshold: 0.6 });
+  photoObserver.observe(frame);
+}
+
+function startTypewriter() {
+  const el = document.getElementById('tw');
+  if (!el) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.textContent = 'cat trajetoria.json';
+    return;
+  }
+  const phrases = ['cat trajetoria.json', 'git log --oneline', 'python analise.py', 'az login --ok'];
+  let pi = 0, ci = 0, deleting = false;
+
+  (function type() {
+    const current = phrases[pi];
+    if (!deleting) {
+      el.textContent = current.slice(0, ++ci);
+      if (ci === current.length) { deleting = true; setTimeout(type, 1900); return; }
+    } else {
+      el.textContent = current.slice(0, --ci);
+      if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; }
+    }
+    setTimeout(type, deleting ? 32 : 68);
+  })();
+}
+
+function startClock() {
+  const el = document.getElementById('clk');
+  if (!el) return;
+  const tick = () => {
+    el.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+
+/** QR usado apenas na versão impressa. */
 function generateQR() {
   const container = document.getElementById('qrCode');
   if (!container) return;
   const url = window.location.href.split('?')[0].split('#')[0];
-  // Simple QR code via canvas-free SVG approach using a public-domain QR library fallback
-  // We'll use a tiny inline QR generation for the print version
-  const size = 80;
-  container.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}" alt="QR Code" width="${size}" height="${size}" style="border:1px solid #ddd;border-radius:4px;">`;
+  container.innerHTML =
+    `<img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(url)}"
+          alt="QR Code" width="80" height="80" loading="lazy">`;
 }
 
-/* ═══ VISIT COUNTER ═══ */
 async function trackVisit() {
   try {
     const base = document.querySelector('meta[name="api-base"]')?.content || '/.netlify/functions';
     await fetch(`${base}/cv-ping`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-  } catch (e) {
-    // silent
+  } catch {
+    // silencioso
   }
 }
+
+/* localStorage pode lançar em modo restrito — encapsula. */
+const safeStorage = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* ignora */ } }
+};

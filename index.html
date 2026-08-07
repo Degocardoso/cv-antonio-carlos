@@ -2,29 +2,41 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Antônio Carlos Cardoso — CRM &amp; Data Science</title>
 <meta name="description" content="Analista de CRM e Desenvolvedor Web com 3+ anos na FECAP. Especialista em Dynamics 365, Power Platform e Data Science. São Paulo, SP.">
-<meta property="og:title" content="Antônio Carlos Ferreira — CRM & Data Science">
+<meta property="og:title" content="Antônio Carlos Ferreira — CRM &amp; Data Science">
 <meta property="og:description" content="Analista de CRM · Desenvolvedor Web · Data Science · Dynamics 365 · Power Platform · São Paulo, SP">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
-<meta name="theme-color" content="#080c10">
+<meta name="theme-color" content="#070a0e">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/variables.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/index.css">
 <link rel="stylesheet" href="css/print.css">
 </head>
-<body class="cv-page">
+<body class="story">
 
-<div id="pb"></div>
-<div class="copy-toast" id="copyToast">✓ E-mail copiado!</div>
+<a class="skip-link" href="#story">Ir direto para o conteúdo</a>
 
-<!-- WELCOME SCREEN -->
-<div id="loading">
+<!-- ═══ CAMADAS DE FUNDO (parallax) ═══ -->
+<div class="fx" aria-hidden="true">
+  <div class="fx-aurora" id="fxAurora"></div>
+  <div class="fx-grid"></div>
+  <div class="fx-vignette"></div>
+</div>
+
+<!-- ═══ PROGRESSO DE LEITURA ═══ -->
+<div class="progress" aria-hidden="true"><span class="progress-fill" id="pb"></span></div>
+
+<div class="copy-toast" id="copyToast" role="status" aria-live="polite">✓ E-mail copiado</div>
+
+<!-- ═══ ABERTURA ═══ -->
+<div id="loading" role="status" aria-live="polite">
   <div class="ld-content">
     <div class="ld-name">Antônio</div>
     <div class="ld-role">CRM · Dev · Data Science</div>
@@ -33,114 +45,211 @@
   </div>
 </div>
 
-<!-- PORTFOLIO OVERLAY -->
-<div id="po">
+<!-- ═══ HUD FIXO ═══ -->
+<header class="hud">
+  <a class="hud-brand" href="#ch-hero">
+    <span class="dots"><i class="dot dr"></i><i class="dot dy"></i><i class="dot dg"></i></span>
+    <span id="topTitle">~/antonio/portfolio</span>
+  </a>
+  <div class="hud-right">
+    <span class="hud-status"><span class="pulse"></span><span data-ui="online">ONLINE · São Paulo, BR</span></span>
+    <button class="icon-btn" id="langToggle" type="button" hidden aria-label="Alternar idioma">PT</button>
+    <button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar tema claro/escuro">🌙</button>
+  </div>
+</header>
+
+<!-- ═══ NAVEGAÇÃO POR CAPÍTULOS ═══ -->
+<nav class="chapnav" id="chapNav" aria-label="Capítulos"></nav>
+
+<main id="story">
+
+  <!-- ─────────── PRÓLOGO ─────────── -->
+  <section class="chap chap-hero" id="ch-hero" data-nav="Prólogo" aria-labelledby="hHeadline">
+    <div class="hero-grid">
+      <div class="hero-main">
+        <p class="hero-cmd" data-reveal><span class="prompt">root@cv:~$</span><span id="tw"></span><span class="caret"></span></p>
+        <h1 class="hero-headline" id="hHeadline">
+          <span class="hero-hello" data-reveal data-ui="hello">Olá, eu sou</span>
+          <span class="hero-name" id="hNick" data-reveal></span>
+        </h1>
+        <p class="hero-full" id="hFull" data-reveal></p>
+        <p class="hero-role" id="hRole" data-reveal></p>
+        <div class="hero-tags" id="htags" data-reveal></div>
+        <div class="hero-actions" id="heroActions" data-reveal></div>
+        <div class="cstrip" id="cstrip" data-reveal></div>
+      </div>
+      <aside class="hero-aside" aria-label="Resumo">
+        <div class="hero-photo" id="heroPhoto" data-reveal data-parallax="-0.05"></div>
+        <ul class="hero-stats" id="hstats" data-reveal></ul>
+      </aside>
+    </div>
+    <a class="scroll-cue" href="#ch-about" id="scrollCue">
+      <span data-ui="scrollCue">role para começar a história</span>
+      <span class="scroll-cue-line"><i></i></span>
+    </a>
+  </section>
+
+  <!-- ─────────── CAPÍTULO 01 · ORIGEM ─────────── -->
+  <section class="chap" id="ch-about" data-nav="Origem" aria-labelledby="ttl-about">
+    <div class="wrap">
+      <header class="chap-head" data-reveal>
+        <span class="chap-num" data-parallax="0.08">01</span>
+        <div>
+          <p class="chap-kicker" data-ui="k1">Capítulo um</p>
+          <h2 class="chap-title" id="ttl-about" data-ui="t1">Onde a história começa</h2>
+          <p class="chap-sub" data-ui="s1">O ponto de partida, o que me move e o tipo de problema que gosto de resolver.</p>
+        </div>
+      </header>
+      <div class="about-grid">
+        <div class="about-text" id="sec-about" data-reveal>
+          <p class="lead" id="sobreEl"></p>
+        </div>
+        <ul class="about-facts" id="aboutFacts" data-reveal></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── CAPÍTULO 02 · TRAJETÓRIA (scroll horizontal) ─────────── -->
+  <section class="chap chap-pin" id="ch-journey" data-nav="Trajetória" aria-labelledby="ttl-journey">
+    <div class="pin-shell">
+      <div class="pin-stage">
+        <header class="chap-head chap-head-pin" data-reveal>
+          <span class="chap-num" data-parallax="0.08">02</span>
+          <div>
+            <p class="chap-kicker" data-ui="k2">Capítulo dois</p>
+            <h2 class="chap-title" id="ttl-journey" data-ui="t2">A trajetória, ano a ano</h2>
+            <p class="chap-sub" data-ui="s2">Formação e carreira avançando lado a lado — continue rolando para percorrer a linha do tempo.</p>
+          </div>
+        </header>
+        <div class="rail" id="journeyRail" tabindex="0" aria-labelledby="ttl-journey">
+          <ol class="rail-track" id="journeyTrack"></ol>
+        </div>
+        <div class="rail-hud">
+          <button class="rail-btn" type="button" data-rail-prev aria-label="Etapa anterior">‹</button>
+          <div class="rail-bar"><span></span></div>
+          <button class="rail-btn" type="button" data-rail-next aria-label="Próxima etapa">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── CAPÍTULO 03 · IMPACTO (scroll horizontal) ─────────── -->
+  <section class="chap chap-pin" id="ch-work" data-nav="Impacto" aria-labelledby="ttl-work">
+    <div class="pin-shell">
+      <div class="pin-stage">
+        <header class="chap-head chap-head-pin" data-reveal>
+          <span class="chap-num" data-parallax="0.08">03</span>
+          <div>
+            <p class="chap-kicker" data-ui="k3">Capítulo três</p>
+            <h2 class="chap-title" id="ttl-work" data-ui="t3">O que eu construí</h2>
+            <p class="chap-sub" data-ui="s3">Projetos reais, em produção, com números por trás de cada um.</p>
+          </div>
+        </header>
+        <div class="rail rail-work" id="workRail" tabindex="0" aria-labelledby="ttl-work">
+          <ol class="rail-track" id="workTrack"></ol>
+        </div>
+        <div class="rail-hud">
+          <button class="rail-btn" type="button" data-rail-prev aria-label="Projeto anterior">‹</button>
+          <div class="rail-bar"><span></span></div>
+          <button class="rail-btn" type="button" data-rail-next aria-label="Próximo projeto">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── CAPÍTULO 04 · ARSENAL ─────────── -->
+  <section class="chap" id="ch-craft" data-nav="Arsenal" aria-labelledby="ttl-craft">
+    <div class="wrap">
+      <header class="chap-head" data-reveal>
+        <span class="chap-num" data-parallax="0.08">04</span>
+        <div>
+          <p class="chap-kicker" data-ui="k4">Capítulo quatro</p>
+          <h2 class="chap-title" id="ttl-craft" data-ui="t4">As ferramentas do ofício</h2>
+          <p class="chap-sub" data-ui="s4">O que uso para tirar uma ideia do papel e colocá-la em produção.</p>
+        </div>
+      </header>
+      <div class="craft-grid">
+        <div class="card card-skills" id="sec-skills" data-reveal>
+          <h3 class="card-title" data-ui="skills">Habilidades técnicas</h3>
+          <div id="skillsEl"></div>
+        </div>
+        <div class="card card-langs" id="sec-languages" data-reveal>
+          <h3 class="card-title" data-ui="languages">Idiomas</h3>
+          <div id="langEl"></div>
+        </div>
+      </div>
+    </div>
+    <div class="marquee" id="sec-tech" data-reveal aria-label="Stack de tecnologias">
+      <div class="marquee-track" id="techEl"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── CAPÍTULO 05 · CREDENCIAIS ─────────── -->
+  <section class="chap" id="ch-proof" data-nav="Credenciais" aria-labelledby="ttl-proof">
+    <div class="wrap">
+      <header class="chap-head" data-reveal>
+        <span class="chap-num" data-parallax="0.08">05</span>
+        <div>
+          <p class="chap-kicker" data-ui="k5">Capítulo cinco</p>
+          <h2 class="chap-title" id="ttl-proof" data-ui="t5">Estudo que não para</h2>
+          <p class="chap-sub" data-ui="s5">Certificações e cursos que sustentam a prática do dia a dia.</p>
+        </div>
+      </header>
+      <div class="cert-grid" id="certEl"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── EPÍLOGO · DESTINO + CONTATO ─────────── -->
+  <section class="chap chap-end" id="ch-contact" data-nav="Contato" aria-labelledby="ttl-contact">
+    <div class="wrap">
+      <header class="chap-head" data-reveal>
+        <span class="chap-num" data-parallax="0.08">06</span>
+        <div>
+          <p class="chap-kicker" data-ui="k6">Epílogo</p>
+          <h2 class="chap-title" id="ttl-contact" data-ui="t6">O próximo capítulo</h2>
+          <p class="chap-sub" data-ui="s6">Para onde eu quero levar essa história — e como falar comigo.</p>
+        </div>
+      </header>
+      <blockquote class="goal" id="sec-objective" data-reveal>
+        <p id="objetivoEl"></p>
+      </blockquote>
+      <div class="cta" id="ctaEl" data-reveal></div>
+      <div class="contact-grid" id="contactEl" data-reveal></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <span><span id="bname"></span> · <span id="yr"></span> · São Paulo, BR</span>
+  <span class="foot-live"><span class="pulse"></span>LIVE</span>
+  <span id="clk"></span>
+</footer>
+
+<!-- ═══ PORTFÓLIO COMPLETO ═══ -->
+<div class="overlay" id="po" role="dialog" aria-modal="true" aria-labelledby="poTitle" hidden>
   <div class="po-top">
-    <div class="po-title">◈ Portfólio Completo <span style="color:var(--td);font-size:10px;" id="poCount"></span></div>
-    <button class="po-close" onclick="closePO()">✕ Fechar</button>
+    <h2 class="po-title" id="poTitle">◈ <span data-ui="allProjects">Portfólio completo</span> <span class="po-count" id="poCount"></span></h2>
+    <button class="ghost-btn" type="button" id="poClose">✕ <span data-ui="close">Fechar</span></button>
   </div>
   <div class="po-body"><div class="po-grid" id="poGrid"></div></div>
 </div>
 
-<!-- LIGHTBOX -->
-<div id="lb" style="display:none;">
+<!-- ═══ LIGHTBOX ═══ -->
+<div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="Galeria de imagens" hidden>
   <div class="lb-inner">
-    <span class="lb-x">✕ Fechar</span>
-    <button class="lb-nav lb-prev" id="lbPrev">‹</button>
+    <button class="lb-x" type="button" id="lbClose" aria-label="Fechar galeria">✕</button>
+    <button class="lb-nav lb-prev" type="button" id="lbPrev" aria-label="Imagem anterior">‹</button>
     <div id="lb-content"></div>
-    <button class="lb-nav lb-next" id="lbNext">›</button>
-    <div class="lb-counter" id="lbCounter"></div>
+    <button class="lb-nav lb-next" type="button" id="lbNext" aria-label="Próxima imagem">›</button>
+    <div class="lb-counter" id="lbCounter" aria-live="polite"></div>
   </div>
 </div>
 
-<div class="w">
-  <div class="topbar">
-    <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
-    <span style="color:var(--neon);" id="topTitle">~/antonio/portfolio</span>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <button class="theme-toggle" id="themeToggle" onclick="window.__toggleTheme()" title="Alternar tema claro/escuro">🌙</button>
-      <button class="lang-toggle" id="langToggle" onclick="window.__toggleLang()" title="EN/PT" style="display:none;">PT</button>
-      <span class="pulse"></span><span>ONLINE · São Paulo, BR</span>
-    </div>
-  </div>
-
-  <div class="hero">
-    <div class="hero-layout">
-      <div class="hero-left">
-        <div class="hp"><span>root@cv:~$</span><span id="tw"></span><span class="cur2"></span></div>
-        <div class="hero-name"><span id="hNick">Antônio</span></div>
-        <div class="hero-full" id="hFull"></div>
-        <div class="hero-role" id="hRole"></div>
-        <div class="cstrip" id="cstrip"></div>
-        <div class="hero-tags" id="htags"></div>
-        <div class="hero-actions" id="heroActions"></div>
-      </div>
-      <div class="hero-aside">
-        <div class="hero-photo" id="heroPhoto"></div>
-        <div class="hero-stats" id="hstats"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="g2 gap2" id="sobre-row">
-    <div class="panel" id="sec-about">
-      <div class="ph"><div class="pi pi-g">👤</div><div class="pt">Sobre Mim</div></div>
-      <p class="sobre" id="sobreEl"></p>
-    </div>
-    <div class="panel" id="sec-objective">
-      <div class="ph"><div class="pi pi-c">🎯</div><div class="pt">Objetivo</div></div>
-      <p class="sobre" id="objetivoEl"></p>
-    </div>
-  </div>
-
-  <div class="g2 gap2">
-    <div class="panel" id="sec-experience">
-      <div class="ph"><div class="pi pi-c">◷</div><div class="pt">Experiência Profissional</div><div class="pb pb-c">TIMELINE</div></div>
-      <div class="timeline" id="expEl"></div>
-    </div>
-    <div class="panel" id="sec-projects">
-      <div class="ph"><div class="pi pi-o">◈</div><div class="pt">Projetos em Destaque</div><div class="pb pb-o">TOP 3</div></div>
-      <div id="projEl"></div>
-      <div class="view-all-wrap">
-        <button class="view-all-btn" onclick="openPO()">◈ Acessar portfólio completo</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="g3 gap2">
-    <div class="panel" id="sec-skills">
-      <div class="ph"><div class="pi pi-g">⚡</div><div class="pt">Habilidades Técnicas</div><div class="pb pb-g">SKILLS</div></div>
-      <div id="skillsEl"></div>
-      <div id="langSection" style="margin-top:18px;">
-        <div class="ph" style="margin-bottom:10px;"><div class="pi pi-o">🌐</div><div class="pt">Idiomas</div></div>
-        <div id="langEl"></div>
-      </div>
-    </div>
-    <div class="panel" id="sec-education">
-      <div class="ph"><div class="pi pi-p">🎓</div><div class="pt">Formação Acadêmica</div></div>
-      <div class="timeline" id="eduEl"></div>
-      <div style="margin-top:18px;" id="sec-tech">
-        <div class="ph" style="margin-bottom:10px;"><div class="pi pi-o">◻</div><div class="pt">Stack</div></div>
-        <div class="tgrid" id="techEl"></div>
-      </div>
-    </div>
-    <div class="panel" id="sec-certifications">
-      <div class="ph"><div class="pi pi-c">★</div><div class="pt">Certificações &amp; Cursos</div><div class="pb pb-c">EXTRA</div></div>
-      <div class="cert-list" id="certEl"></div>
-    </div>
-  </div>
-
-  <!-- QR Code for print -->
-  <div id="qrSection" class="qr-print-section">
-    <div id="qrCode"></div>
-    <div class="qr-label">Escaneie para ver online</div>
-  </div>
-
-  <div class="bottombar">
-    <div style="display:flex;gap:14px;"><span>UTF-8</span><span style="color:var(--neon);">● LIVE</span></div>
-    <div><span id="bname"></span> · <span id="yr"></span> · São Paulo, BR</div>
-    <div><span id="clk" style="color:var(--neon2);"></span></div>
-  </div>
+<!-- QR Code (somente impressão) -->
+<div id="qrSection" class="qr-print-section" aria-hidden="true">
+  <div id="qrCode"></div>
+  <div class="qr-label">Escaneie para ver online</div>
 </div>
 
 <script type="module">
