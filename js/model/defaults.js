@@ -371,6 +371,22 @@ export const DEFAULTS = {
       "certifications": []
     }
   },
+  "chapterOrder": ["work", "proof", "about", "journey", "craft", "contact"],
+  "chapters": {
+    "work":    { "nav": "", "kicker": "", "title": "", "sub": "" },
+    "proof":   { "nav": "", "kicker": "", "title": "", "sub": "" },
+    "about":   { "nav": "", "kicker": "", "title": "", "sub": "" },
+    "journey": { "nav": "", "kicker": "", "title": "", "sub": "" },
+    "craft":   { "nav": "", "kicker": "", "title": "", "sub": "" },
+    "contact": { "nav": "", "kicker": "", "title": "", "sub": "" }
+  },
+  "uiText": {
+    "hello": "", "seeWork": "", "scrollCue": "", "online": "", "talk": "",
+    "work": "", "study": "",
+    "journeyEndKind": "", "journeyEndTitle": "", "journeyEndDesc": "", "journeyEndLink": "",
+    "seeAllTitle": "", "seeAllDesc": "", "seeAll": "",
+    "skills": "", "languages": ""
+  },
   "backups": [],
   "objetivo": "Busco oportunidades em <strong>desenvolvimento de software</strong> e <strong>análise de dados</strong>, onde possa aplicar minha experiência em CRM, automação de processos e ciência de dados para gerar resultados concretos. Tenho interesse especial em posições que combinem visão estratégica e execução técnica, preferencialmente em empresas com cultura de inovação."
 };

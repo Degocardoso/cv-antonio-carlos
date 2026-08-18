@@ -4,9 +4,10 @@
  * Transforma os dados do CV em uma narrativa em capítulos:
  *   Prólogo → Impacto → Credenciais → Origem → Trajetória → Arsenal → Epílogo
  *
- * A ordem vem da posição das seções no HTML: numeração e kicker
- * ("Capítulo dois") são calculados em `applyChapters`. Para reordenar,
- * basta mover os <section> — nada aqui precisa acompanhar.
+ * A ordem, os títulos e os subtítulos vêm dos dados (`chapterOrder` e
+ * `chapters`), editáveis no painel admin. A numeração e o kicker
+ * ("Capítulo dois") são derivados da ordem em `applyChapters`; texto
+ * vazio nos dados cai no padrão de model/narrative.js.
  *
  * A "Trajetória" funde experiência e formação em uma única linha do tempo
  * ordenada por ano — ela e "Impacto" rolam horizontalmente durante o scroll.
@@ -15,6 +16,7 @@ import { getData } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
 import { esc, cc, escAttr } from '../utils.js';
 import { icon, iconFromEmoji } from './icons.js';
+import { NARRATIVE, CHAPTER_KEYS } from '../model/narrative.js';
 
 /* ═══ IDIOMA ═══ */
 let _lang = 'pt';
@@ -23,102 +25,40 @@ function isEN() { return _lang === 'en'; }
 /** Valor traduzido com fallback para o original em PT. */
 function t(enVal, ptVal) { return (enVal && String(enVal).trim()) ? enVal : ptVal; }
 
-/* ═══ TEXTOS DA NARRATIVA ═══ */
-const UI = {
-  pt: {
-    hello: 'Olá, eu sou',
-    online: 'ONLINE · São Paulo, BR',
-    scrollCue: 'role para começar a história',
-    /* Numeração e kicker são calculados pela ordem no DOM — reordenar as
-       seções no HTML basta, nada aqui precisa mudar junto. */
-    chapterWord: 'Capítulo',
-    ordinals: ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito'],
-    chapters: {
-      work:    { nav: 'Impacto',     title: 'O que eu construí',
-                 sub: 'Projetos reais, em produção, com números por trás de cada um.' },
-      proof:   { nav: 'Credenciais', title: 'Estudo que não para',
-                 sub: 'Certificações e cursos que sustentam a prática do dia a dia.' },
-      about:   { nav: 'Origem',      title: 'Quem está por trás',
-                 sub: 'O que me move e o tipo de problema que gosto de resolver.' },
-      journey: { nav: 'Trajetória',  title: 'A trajetória, ano a ano',
-                 sub: 'Formação e carreira avançando lado a lado — continue rolando para percorrer a linha do tempo.' },
-      craft:   { nav: 'Arsenal',     title: 'As ferramentas do ofício',
-                 sub: 'O que uso para tirar uma ideia do papel e colocá-la em produção.' },
-      contact: { nav: 'Contato',     title: 'O próximo capítulo', kicker: 'Epílogo',
-                 sub: 'Para onde eu quero levar essa história — e como falar comigo.' }
-    },
-    skills: 'Habilidades técnicas',
-    languages: 'Idiomas',
-    allProjects: 'Portfólio completo',
-    close: 'Fechar',
-    work: 'Trabalho', study: 'Formação',
-    journeyEndKind: 'Agora',
-    journeyEndTitle: 'E a história continua',
-    journeyEndDesc: 'Cada etapa somou uma camada: primeiro o código, depois os dados, hoje a visão de negócio que conecta os dois.',
-    journeyEndLink: 'Ver o próximo capítulo',
-    results: 'Resultados',
-    gallery: 'Ver galeria',
-    openGallery: 'Abrir galeria do projeto',
-    seeAll: 'Ver tudo',
-    seeAllTitle: 'Tem mais história aqui',
-    seeAllDesc: 'Estes são os destaques. O portfólio completo traz todos os projetos, com contexto e imagens.',
-    featured: 'Destaque',
-    projects: 'projetos',
-    talk: 'Vamos conversar',
-    seeWork: 'Ver os projetos',
-    facts: { projects: 'Projetos', education: 'Formações', certs: 'Certificações', tech: 'Tecnologias', where: 'Base' },
-    contact: { email: 'E-mail', linkedin: 'LinkedIn', github: 'GitHub', phone: 'Telefone', location: 'Localização', portfolio: 'Portfólio' },
-    copyHint: 'clique para copiar',
-    downloadCV: 'Baixar CV',
-    levels: { advanced: 'Avançado', intermediate: 'Intermediário', basic: 'Básico', language: 'Idiomas' }
-  },
-  en: {
-    hello: "Hi, I'm",
-    online: 'ONLINE · São Paulo, BR',
-    scrollCue: 'scroll to begin the story',
-    chapterWord: 'Chapter',
-    ordinals: ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'],
-    chapters: {
-      work:    { nav: 'Impact',      title: 'What I have built',
-                 sub: 'Real projects, in production, with numbers behind each one.' },
-      proof:   { nav: 'Credentials', title: 'Always learning',
-                 sub: 'Certifications and courses that back the day-to-day practice.' },
-      about:   { nav: 'Origin',      title: 'Who is behind this',
-                 sub: 'What drives me and the kind of problem I like to solve.' },
-      journey: { nav: 'Journey',     title: 'The journey, year by year',
-                 sub: 'Education and career moving side by side — keep scrolling to walk the timeline.' },
-      craft:   { nav: 'Toolkit',     title: 'Tools of the trade',
-                 sub: 'What I use to take an idea from paper to production.' },
-      contact: { nav: 'Contact',     title: 'The next chapter', kicker: 'Epilogue',
-                 sub: 'Where I want to take this story — and how to reach me.' }
-    },
-    skills: 'Technical skills',
-    languages: 'Languages',
-    allProjects: 'Full portfolio',
-    close: 'Close',
-    work: 'Work', study: 'Education',
-    journeyEndKind: 'Now',
-    journeyEndTitle: 'And the story goes on',
-    journeyEndDesc: 'Every step added a layer: first the code, then the data, today the business view that ties both together.',
-    journeyEndLink: 'See the next chapter',
-    results: 'Results',
-    gallery: 'View gallery',
-    openGallery: 'Open project gallery',
-    seeAll: 'See everything',
-    seeAllTitle: 'There is more to this story',
-    seeAllDesc: 'These are the highlights. The full portfolio holds every project, with context and images.',
-    featured: 'Featured',
-    projects: 'projects',
-    talk: "Let's talk",
-    seeWork: 'See the projects',
-    facts: { projects: 'Projects', education: 'Degrees', certs: 'Certifications', tech: 'Technologies', where: 'Based in' },
-    contact: { email: 'Email', linkedin: 'LinkedIn', github: 'GitHub', phone: 'Phone', location: 'Location', portfolio: 'Portfolio' },
-    copyHint: 'click to copy',
-    downloadCV: 'Download CV',
-    levels: { advanced: 'Advanced', intermediate: 'Intermediate', basic: 'Basic', language: 'Languages' }
+/* ═══ TEXTOS DA NARRATIVA ═══
+   O dicionário base vive em model/narrative.js (compartilhado com o
+   admin). Aqui ele é fundido com o que o usuário escreveu no painel:
+   campo vazio mantém o padrão. */
+let _ui = NARRATIVE.pt;
+
+/** Monta o dicionário efetivo = padrão do idioma + textos do admin. */
+function buildUI(D) {
+  const base = isEN() ? NARRATIVE.en : NARRATIVE.pt;
+  const over = D.uiText || {};
+  const merged = { ...base };
+
+  for (const [k, val] of Object.entries(over)) {
+    if (typeof val === 'string' && val.trim()) merged[k] = val.trim();
   }
-};
-function ui() { return isEN() ? UI.en : UI.pt; }
+
+  merged.chapters = {};
+  for (const [key, def] of Object.entries(base.chapters)) {
+    const c = (D.chapters || {})[key] || {};
+    merged.chapters[key] = {
+      nav:    pickText(c.nav,    def.nav),
+      kicker: pickText(c.kicker, def.kicker),
+      title:  pickText(c.title,  def.title),
+      sub:    pickText(c.sub,    def.sub),
+    };
+  }
+  return merged;
+}
+
+function pickText(custom, fallback) {
+  return (typeof custom === 'string' && custom.trim()) ? custom.trim() : fallback;
+}
+
+function ui() { return _ui; }
 
 /* Cor do item → variável CSS */
 const COLOR_VAR = { g: '--neon', c: '--neon2', o: '--neon3', p: '--neon4' };
@@ -152,6 +92,7 @@ export function render() {
 
   galleries = (D.projects || []).map(pr => pr.images || []);
 
+  _ui = buildUI(D);
   applyUIStrings(D);
 
   document.getElementById('hNick').textContent = p.nickname || '';
@@ -179,7 +120,7 @@ export function render() {
   renderEpilogue(D);
 
   applySectionVisibility(sec);
-  applyChapters(); // depois da visibilidade: capítulo oculto não consome número
+  applyChapters(D); // depois da visibilidade: capítulo oculto não consome número
 }
 
 /** Aplica os textos da narrativa (e as traduções do painel admin). */
@@ -196,12 +137,29 @@ function applyUIStrings(D) {
 }
 
 /**
+ * Reordena as seções conforme `chapterOrder`. O prólogo não tem
+ * `data-key`, então permanece onde está; os demais são reanexados na
+ * ordem pedida.
+ */
+function applyChapterOrder(D) {
+  const order = Array.isArray(D.chapterOrder) && D.chapterOrder.length
+    ? D.chapterOrder : CHAPTER_KEYS;
+  const story = document.getElementById('story');
+  if (!story) return;
+  for (const key of order) {
+    const sec = story.querySelector(`.chap[data-key="${key}"]`);
+    if (sec) story.appendChild(sec);
+  }
+}
+
+/**
  * Numera e rotula os capítulos pela ordem em que aparecem no DOM,
  * pulando os que estiverem desligados no admin. Reordenar as seções no
  * HTML é suficiente: a numeração se ajusta sozinha.
  */
-function applyChapters() {
+function applyChapters(D) {
   const dict = ui();
+  applyChapterOrder(D);
   const secs = [...document.querySelectorAll('#story .chap[data-key]')]
     .filter(s => s.style.display !== 'none');
 
@@ -215,6 +173,10 @@ function applyChapters() {
     set('.chap-sub', c.sub);
     sec.dataset.nav = c.nav;
   });
+
+  // A dica de scroll aponta para o primeiro capítulo, seja ele qual for.
+  const cue = document.getElementById('scrollCue');
+  if (cue && secs[0]) cue.setAttribute('href', '#' + secs[0].id);
 }
 
 function pick(obj, keys) {

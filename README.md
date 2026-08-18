@@ -25,9 +25,12 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
 | 05 Arsenal | Habilidades, idiomas e stack | Barras animadas + esteira infinita |
 | Epílogo    | Objetivo profissional e contato | Encerramento com CTA |
 
-> A ordem é definida pela posição dos `<section>` no `index.html`. A numeração
-> e o kicker ("Capítulo dois") são calculados em tempo de execução, pulando
-> seções desligadas no admin — para reordenar, basta mover as seções.
+> **Tudo isso é editável no admin**, na aba *📖 Capítulos*: título, subtítulo,
+> kicker, rótulo do menu lateral e a **ordem** dos capítulos (▲▼). A numeração
+> (01, 02…) e o "Capítulo dois" são derivados da ordem em tempo de execução,
+> pulando seções desligadas. Campo vazio usa o texto padrão de
+> `js/model/narrative.js`, que aparece como *placeholder* no formulário — assim
+> o registro só guarda o que você realmente personalizou.
 
 ---
 
@@ -42,6 +45,8 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
 - 🌐 **Bilíngue (PT/EN)** via i18n configurável
 - ✏️ **Painel admin** para editar perfil, experiências, projetos, skills,
   formação, certificações, stack, idiomas e seções
+- 📖 **Capítulos editáveis**: títulos, subtítulos, kickers, rótulos do menu e a
+  ordem das seções — sem tocar em código
 - 🖼️ **Upload de imagens** dos projetos (Cloudinary) com galeria/lightbox
 - 🔀 **Reordenação por drag-and-drop** dos itens
 - 💾 **Backups automáticos** (até 3) e restauração — limitados de propósito:
@@ -138,6 +143,7 @@ js/
 │   ├── utils.js
 │   ├── model/
 │   │   ├── defaults.js         # Conteúdo padrão do CV
+│   │   ├── narrative.js        # Textos padrão dos capítulos (CV + admin)
 │   │   └── state.js            # Estado + merge com a nuvem
 │   ├── view/
 │   │   ├── index-view.js       # Monta os capítulos a partir dos dados

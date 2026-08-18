@@ -10,6 +10,7 @@ import {
   rHS, rSkills, rExp, rProjs, rEdu, rCerts, rTech, rLangs
 } from '../view/admin-view.js';
 import { compressImage } from '../utils.js';
+import { CHAPTER_KEYS, CHAPTER_FIELDS, UI_TEXT_FIELDS } from '../model/narrative.js';
 
 let SESSION_PWD = '';
 let curTab = 'profile';
@@ -32,6 +33,7 @@ function exposeGlobals() {
     setThemeMode,
     reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults,
     openPreview, refreshVisits, createBackup, showBackups, restoreBackup,
+    moveChapter,
   };
 
   // Color dot handlers (up to 20 items)
@@ -216,6 +218,7 @@ function saveTab(tabId) {
     profile: 'msg-p', herostats: 'msg-hs', objective: 'msg-obj',
     skills: 'msg-sk', experience: 'msg-exp', projects: 'msg-proj',
     education: 'msg-edu', certifications: 'msg-cert', tech: 'msg-tech',
+    chapters: 'msg-chap',
     theme: 'msg-th', languages: 'msg-lang', sections: 'msg-sec', i18n: 'msg-i18n'
   };
   if (msgMap[tabId]) showMsg(msgMap[tabId]);
@@ -227,7 +230,7 @@ function collectCurrent() {
     profile: cProfile, herostats: cHS, objective: cObj,
     skills: cSkills, experience: cExp, projects: cProjs,
     education: cEdu, certifications: cCerts, tech: cTech, theme: cTheme,
-    languages: cLangs, sections: cSections, i18n: cI18n
+    languages: cLangs, sections: cSections, i18n: cI18n, chapters: cChapters
   };
   if (fns[curTab]) fns[curTab]();
 }
@@ -242,6 +245,42 @@ function cProfile() {
   D.profile.pdfUrl = v('f-pdfUrl');
   D.profile.available = !!document.getElementById('f-avail')?.checked;
   D.tags = v('f-tags').split(',').map(s => s.trim()).filter(Boolean);
+}
+
+/** Textos dos capítulos e demais strings da narrativa. */
+function cChapters() {
+  const D = getData();
+  D.chapters = D.chapters || {};
+  for (const key of CHAPTER_KEYS) {
+    const atual = D.chapters[key] || {};
+    for (const f of CHAPTER_FIELDS) {
+      const el = document.getElementById(`ch-${key}-${f.key}`);
+      // Campo ausente no DOM (aba não renderizada) não pode apagar o salvo.
+      if (el) atual[f.key] = el.value.trim();
+    }
+    D.chapters[key] = atual;
+  }
+  D.uiText = D.uiText || {};
+  for (const f of UI_TEXT_FIELDS) {
+    const el = document.getElementById(`ui-${f.key}`);
+    if (el) D.uiText[f.key] = el.value.trim();
+  }
+}
+
+/** Sobe/desce um capítulo na ordem do site. */
+function moveChapter(key, delta) {
+  collectCurrent();
+  const D = getData();
+  const order = (Array.isArray(D.chapterOrder) && D.chapterOrder.length
+    ? D.chapterOrder.slice() : CHAPTER_KEYS.slice());
+  for (const k of CHAPTER_KEYS) if (!order.includes(k)) order.push(k);
+
+  const from = order.indexOf(key);
+  const to = from + delta;
+  if (from < 0 || to < 0 || to >= order.length) return;
+  order.splice(to, 0, order.splice(from, 1)[0]);
+  D.chapterOrder = order;
+  renderTab('chapters');
 }
 
 function cHS() {
