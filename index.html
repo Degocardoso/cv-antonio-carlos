@@ -23,19 +23,16 @@
 
 <a class="skip-link" href="#story">Ir direto para o conteúdo</a>
 
-<!-- ═══ CAMADAS DE FUNDO (parallax) ═══ -->
 <div class="fx" aria-hidden="true">
   <div class="fx-aurora" id="fxAurora"></div>
   <div class="fx-grid"></div>
   <div class="fx-vignette"></div>
 </div>
 
-<!-- ═══ PROGRESSO DE LEITURA ═══ -->
 <div class="progress" aria-hidden="true"><span class="progress-fill" id="pb"></span></div>
 
 <div class="copy-toast" id="copyToast" role="status" aria-live="polite">✓ E-mail copiado</div>
 
-<!-- ═══ ABERTURA ═══ -->
 <div id="loading" role="status" aria-live="polite">
   <div class="ld-content">
     <div class="ld-name">Antônio</div>
@@ -45,7 +42,6 @@
   </div>
 </div>
 
-<!-- ═══ HUD FIXO ═══ -->
 <header class="hud">
   <a class="hud-brand" href="#ch-hero">
     <span class="dots"><i class="dot dr"></i><i class="dot dy"></i><i class="dot dg"></i></span>
@@ -59,12 +55,10 @@
   </div>
 </header>
 
-<!-- ═══ NAVEGAÇÃO POR CAPÍTULOS ═══ -->
 <nav class="chapnav" id="chapNav" aria-label="Capítulos"></nav>
 
 <main id="story">
 
-  <!-- ─────────── PRÓLOGO ─────────── -->
   <section class="chap chap-hero" id="ch-hero" data-nav="Prólogo" aria-labelledby="hHeadline">
     <div class="hero-grid">
       <div class="hero-main">
@@ -90,7 +84,6 @@
     </a>
   </section>
 
-  <!-- ─────────── CAPÍTULO 03 · IMPACTO (trilho horizontal) ─────────── -->
   <section class="chap chap-rail" id="ch-work" data-key="work" data-nav="Impacto" aria-labelledby="ttl-work">
     <div class="rail-shell">
       <div class="rail-stage">
@@ -114,7 +107,6 @@
     </div>
   </section>
 
-  <!-- ─────────── CAPÍTULO 05 · CREDENCIAIS ─────────── -->
   <section class="chap" id="ch-proof" data-key="proof" data-nav="Credenciais" aria-labelledby="ttl-proof">
     <div class="wrap">
       <header class="chap-head" data-reveal>
@@ -129,7 +121,6 @@
     </div>
   </section>
 
-  <!-- ─────────── CAPÍTULO 01 · ORIGEM ─────────── -->
   <section class="chap" id="ch-about" data-key="about" data-nav="Origem" aria-labelledby="ttl-about">
     <div class="wrap">
       <header class="chap-head" data-reveal>
@@ -149,7 +140,6 @@
     </div>
   </section>
 
-  <!-- ─────────── CAPÍTULO 02 · TRAJETÓRIA (trilho horizontal) ─────────── -->
   <section class="chap chap-rail" id="ch-journey" data-key="journey" data-nav="Trajetória" aria-labelledby="ttl-journey">
     <div class="rail-shell">
       <div class="rail-stage">
@@ -173,7 +163,6 @@
     </div>
   </section>
 
-  <!-- ─────────── CAPÍTULO 04 · ARSENAL ─────────── -->
   <section class="chap" id="ch-craft" data-key="craft" data-nav="Arsenal" aria-labelledby="ttl-craft">
     <div class="wrap">
       <header class="chap-head" data-reveal>
@@ -200,7 +189,6 @@
     </div>
   </section>
 
-  <!-- ─────────── EPÍLOGO · DESTINO + CONTATO ─────────── -->
   <section class="chap chap-end" id="ch-contact" data-key="contact" data-nav="Contato" aria-labelledby="ttl-contact">
     <div class="wrap">
       <header class="chap-head" data-reveal>
@@ -227,7 +215,6 @@
   <span id="clk"></span>
 </footer>
 
-<!-- ═══ PORTFÓLIO COMPLETO ═══ -->
 <div class="overlay" id="po" role="dialog" aria-modal="true" aria-labelledby="poTitle" hidden>
   <div class="po-top">
     <h2 class="po-title" id="poTitle">◈ <span data-ui="allProjects">Portfólio completo</span> <span class="po-count" id="poCount"></span></h2>
@@ -236,7 +223,6 @@
   <div class="po-body"><div class="po-grid" id="poGrid"></div></div>
 </div>
 
-<!-- ═══ LIGHTBOX ═══ -->
 <div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="Galeria de imagens" hidden>
   <div class="lb-inner">
     <button class="lb-x" type="button" id="lbClose" aria-label="Fechar galeria">✕</button>
@@ -246,7 +232,6 @@
     <div class="lb-counter" id="lbCounter" aria-live="polite"></div>
   </div>
 </div>
-
 
 <script type="module">
 import { init } from './js/controller/index-controller.js';
