@@ -55,7 +55,13 @@
 .lbl { font-family: var(--mono); font-size: 10px; color: var(--td); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: block; }
 .inp { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; color: var(--tb); font-family: var(--mono); font-size: 12px; outline: none; transition: border-color .2s; }
 .inp:focus { border-color: var(--neon2); }
-.inp::placeholder { color: var(--td); }
+.inp::placeholder {
+  /* Na aba Capítulos o placeholder mostra o texto PADRÃO do site.
+     Precisa ficar claramente distinto de um valor digitado. */
+  color: var(--td);
+  opacity: .55;
+  font-style: italic;
+}
 textarea.inp { resize: vertical; min-height: 80px; }
 select.inp { cursor: pointer; }
 .g2f { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

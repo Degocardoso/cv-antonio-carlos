@@ -3,6 +3,7 @@
  * Renderização de todas as tabs do painel admin
  */
 import { getData, getDataSource } from '../model/state.js';
+import { NARRATIVE, CHAPTER_KEYS, CHAPTER_FIELDS, UI_TEXT_FIELDS } from '../model/narrative.js';
 import { esc, escRaw, escAttr } from '../utils.js';
 
 /* ═══ HELPERS ═══ */
@@ -27,6 +28,7 @@ export const TABS = [
   { id: 'education',      label: '🎓 Formação' },
   { id: 'certifications', label: '★ Certs' },
   { id: 'tech',           label: '◻ Stack' },
+  { id: 'chapters',       label: '📖 Capítulos' },
   { id: 'sections',       label: '👁 Seções' },
   { id: 'i18n',           label: '🌍 i18n' },
   { id: 'theme',          label: '🎨 Tema' },
@@ -488,6 +490,61 @@ export function rLangs() {
 }
 
 /* ═══ SECTIONS VISIBILITY TAB ═══ */
+/* ═══ CHAPTERS TAB ═══ */
+
+export function tChapters() {
+  const D = getData();
+  const base = NARRATIVE.pt;
+  const order = (Array.isArray(D.chapterOrder) && D.chapterOrder.length ? D.chapterOrder : CHAPTER_KEYS)
+    .filter(k => base.chapters[k]);
+  // Garante que nenhum capítulo suma se `chapterOrder` vier incompleto da nuvem
+  for (const k of CHAPTER_KEYS) if (!order.includes(k)) order.push(k);
+
+  const ch = D.chapters || {};
+  const ui = D.uiText || {};
+
+  return `
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Capítulos da narrativa</h3>
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:18px;font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.7;">
+    Reordene com ▲▼ — a numeração (01, 02…) e o “Capítulo um” se ajustam sozinhos.<br>
+    Deixe um campo <strong>vazio</strong> para usar o texto padrão, que aparece esmaecido dentro dele.
+  </div>
+
+  ${order.map((key, i) => {
+    const def = base.chapters[key];
+    const cur = ch[key] || {};
+    return `
+    <div class="card" style="padding:14px;margin-bottom:10px;" data-chapter="${key}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--neon);">${String(i + 1).padStart(2, '0')}</span>
+        <strong style="font-size:13px;color:var(--tb);">${esc(def.title)}</strong>
+        <span style="margin-left:auto;display:flex;gap:4px;">
+          <button class="btn" style="padding:4px 10px;font-size:11px;" ${i === 0 ? 'disabled' : ''}
+                  onclick="window.__admin.moveChapter('${key}',-1)" title="Subir">▲</button>
+          <button class="btn" style="padding:4px 10px;font-size:11px;" ${i === order.length - 1 ? 'disabled' : ''}
+                  onclick="window.__admin.moveChapter('${key}',1)" title="Descer">▼</button>
+        </span>
+      </div>
+      ${CHAPTER_FIELDS.map(f => `
+        <label class="lbl">${f.label}</label>
+        <input class="inp" id="ch-${key}-${f.key}" value="${escAttr(cur[f.key] || '')}"
+               placeholder="${escAttr(def[f.key] || '')}">`).join('')}
+    </div>`;
+  }).join('')}
+
+  <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;margin:26px 0 16px;">Outros textos do site</h3>
+  <div class="card" style="padding:14px;">
+    ${UI_TEXT_FIELDS.map(f => `
+      <label class="lbl">${f.label}</label>
+      <input class="inp" id="ui-${f.key}" value="${escAttr(ui[f.key] || '')}"
+             placeholder="${escAttr(base[f.key] || '')}">`).join('')}
+  </div>
+
+  <div class="sbar"><span class="smsg" id="msg-chap"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('chapters')">💾 Salvar</button></div>`;
+}
+
+/* ═══ SECTIONS TAB ═══ */
+
 export function tSections() {
   const sec = getData().sections || {};
   const items = [
@@ -615,6 +672,7 @@ export const TAB_RENDERERS = {
   education: tEdu,
   certifications: tCerts,
   tech: tTech,
+  chapters: tChapters,
   sections: tSections,
   i18n: tI18n,
   theme: tTheme,
