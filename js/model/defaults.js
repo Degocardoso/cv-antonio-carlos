@@ -308,14 +308,16 @@ export const DEFAULTS = {
         "Laravel",
         "Chart.js"
       ],
-      "images": []
+      "images": [
+        "img/projetos/etl-fluxo.jpg"
+      ]
     },
     {
       "name": "Réguas Automáticas de Relacionamento",
       "stack": "Laravel · Dynamics 365 · Cron",
       "color": "g",
       "featured": false,
-      "description": "Motor de jornadas por e-mail. O aluno entra pelo filtro no CRM, por uma base importada ou quando um campo muda de valor. As etapas avançam sozinhas a cada minuto, e os envios passam pela mesma fila de disparos, com as mesmas garantias contra envio em dobro.",
+      "description": "Motor de jornadas por e-mail. O aluno entra pelo filtro no CRM, por uma base importada ou quando um campo muda de valor. A régua combina etapas de e-mail, espera, condição, variação por perfil e registro no CRM, que avançam sozinhas a cada minuto. Os envios passam pela mesma fila de disparos, com as mesmas garantias contra envio em dobro.",
       "result": "Comunicação contínua sem disparo manual",
       "pills": [
         "PHP",
@@ -323,7 +325,9 @@ export const DEFAULTS = {
         "Dynamics 365",
         "Automação"
       ],
-      "images": []
+      "images": [
+        "img/projetos/reguas-fluxo.jpg"
+      ]
     },
     {
       "name": "Gerador de Escala de Atendentes",
@@ -341,7 +345,7 @@ export const DEFAULTS = {
       "images": [
         "img/projetos/escala-semana.jpg",
         "img/projetos/escala-link-publico.jpg",
-        "img/projetos/escala-celular.jpg",
+        "img/projetos/escala-celular-v2.jpg",
         "img/projetos/escala-atendentes.jpg",
         "img/projetos/escala-atendentes-escuro.jpg"
       ]
