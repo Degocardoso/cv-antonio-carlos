@@ -689,10 +689,13 @@ function applyDefaultsContent() {
   const old = JSON.parse(JSON.stringify(D));
   for (const k of CONTENT_KEYS) D[k] = JSON.parse(JSON.stringify(DEFAULTS[k]));
 
-  // Imagens enviadas pelo admin seguem o projeto de mesmo nome.
+  // Imagens: primeiro as do código (a capa é a primeira), depois as enviadas
+  // pelo admin para o projeto de mesmo nome que o código ainda não tem.
   for (const p of D.projects) {
     const antigo = (old.projects || []).find(o => o.name === p.name);
-    if (antigo && (antigo.images || []).length) p.images = antigo.images.slice();
+    const doCodigo = p.images || [];
+    const daNuvem = ((antigo && antigo.images) || []).filter(u => !doCodigo.includes(u));
+    p.images = doCodigo.concat(daNuvem);
   }
 
   // As traduções são casadas pela posição: com itens novos ou removidos,
