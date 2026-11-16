@@ -169,7 +169,13 @@ export const DEFAULTS = {
         "OData",
         "Entra ID"
       ],
-      "images": []
+      "images": [
+        "img/projetos/plataforma-modulos.jpg",
+        "img/projetos/emails-painel.jpg",
+        "img/projetos/whatsapp-painel.jpg",
+        "img/projetos/n2-provas.jpg",
+        "img/projetos/escala-semana.jpg"
+      ]
     },
     {
       "name": "Digitalização de Fila Presencial",
@@ -223,7 +229,53 @@ export const DEFAULTS = {
         "Dynamics 365"
       ],
       "images": [
+        "img/projetos/emails-painel.jpg",
+        "img/projetos/emails-funil.jpg",
+        "img/projetos/emails-criterios.jpg",
+        "img/projetos/emails-enderecos.jpg",
         "https://res.cloudinary.com/cv-antonio/image/upload/v1774707695/cv-portfolio/cv-portfolio/proj-2-1774707695.png"
+      ]
+    },
+    {
+      "name": "Acompanhamento N2 — Alunos PCD e Neurodivergentes",
+      "stack": "Laravel · MySQL · Dynamics 365 · Réguas de e-mail",
+      "color": "p",
+      "featured": true,
+      "description": "Módulo que organiza as provas adaptadas dos alunos PCD e neurodivergentes. Importa a planilha do semestre, liga cada aluno ao CRM e reúne tempo de prova, orientações aos professores, agenda, salas e faltas. Uma régua de e-mails pede aos professores as datas das provas, que eles informam num formulário próprio, e a equipe vê na hora o que está pendente.",
+      "result": "Provas adaptadas organizadas do pedido à sala",
+      "pills": [
+        "PHP",
+        "Laravel",
+        "Dynamics 365",
+        "Acessibilidade",
+        "Automação"
+      ],
+      "images": [
+        "img/projetos/n2-provas.jpg",
+        "img/projetos/n2-aluno.jpg",
+        "img/projetos/n2-calendario.jpg",
+        "img/projetos/n2-regua.jpg",
+        "img/projetos/n2-celular.jpg"
+      ]
+    },
+    {
+      "name": "Atendimentos do WhatsApp — Painel de SLA",
+      "stack": "Laravel · API WorkNow · OData · Power BI",
+      "color": "g",
+      "featured": true,
+      "description": "Painel dos atendimentos do WhatsApp. Sincroniza os tickets pela API da WorkNow e calcula as regras de SLA: espera na fila, resolução, abandono e satisfação. Mostra por dia, departamento e atendente, comparando com o período anterior, e entrega os mesmos números ao Power BI por uma API OData.",
+      "result": "Fila, espera, abandono e satisfação num só painel",
+      "pills": [
+        "PHP",
+        "Laravel",
+        "API REST",
+        "OData",
+        "Power BI"
+      ],
+      "images": [
+        "img/projetos/whatsapp-painel.jpg",
+        "img/projetos/whatsapp-departamentos.jpg",
+        "img/projetos/whatsapp-escuro.jpg"
       ]
     },
     {
@@ -286,7 +338,13 @@ export const DEFAULTS = {
         "Algoritmos",
         "PDF"
       ],
-      "images": []
+      "images": [
+        "img/projetos/escala-semana.jpg",
+        "img/projetos/escala-link-publico.jpg",
+        "img/projetos/escala-celular.jpg",
+        "img/projetos/escala-atendentes.jpg",
+        "img/projetos/escala-atendentes-escuro.jpg"
+      ]
     }
   ],
   "education": [
