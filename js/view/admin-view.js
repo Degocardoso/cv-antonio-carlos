@@ -448,9 +448,13 @@ export function tSettings() {
       Traz do <code style="color:var(--neon);">defaults.js</code> publicado: experiência, projetos, habilidades,<br>
       formação, stack, tags, destaques e os textos de "Sobre mim" e "Objetivo".<br>
       Perfil, foto, certificações, idiomas, tema e traduções não mudam; as imagens<br>
-      dos projetos ficam com o projeto de mesmo nome. Cria um backup antes. Depois, confira e clique em "Salvar Tudo".
+      dos projetos ficam com o projeto de mesmo nome, e as novas sobem para o Cloudinary.<br>
+      Cria um backup antes. Depois, confira e clique em "Salvar Tudo".
     </div>
-    <button class="btn btn-c" onclick="window.__admin.applyDefaultsContent()">⬇ Aplicar conteúdo do código</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-c" onclick="window.__admin.applyDefaultsContent()">⬇ Aplicar conteúdo do código</button>
+      <button class="btn btn-g" onclick="window.__admin.uploadPendingImages()">☁ Enviar imagens pendentes</button>
+    </div>
   </div>
 
   <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">

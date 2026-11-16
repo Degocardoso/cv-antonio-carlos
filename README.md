@@ -55,7 +55,9 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
   publicado a experiência, os projetos, as habilidades, a formação, a stack, as
   tags, os destaques e os textos, sem mexer em perfil, foto, certificações,
   idiomas, tema, traduções e contador de visitas. As imagens seguem o projeto de
-  mesmo nome, e a versão anterior fica em Backups. Depois é só conferir e clicar
+  mesmo nome, e as que o código traz em `img/projetos/` sobem para o Cloudinary
+  (cada uma uma vez só; *☁ Enviar imagens pendentes* tenta de novo as que
+  falharem). A versão anterior fica em Backups. Depois é só conferir e clicar
   em **Salvar Tudo**
 - 👁️ **Preview** das alterações antes de salvar
 - 🎨 **Ícones SVG inline** no lugar de emoji — mesma forma em todo sistema,

@@ -31,7 +31,7 @@ function exposeGlobals() {
     rmImg, handleImgs, handlePhoto, rmPhoto,
     syncH, syncC, prevTheme, rstTheme,
     setThemeMode,
-    reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults, applyDefaultsContent,
+    reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults, applyDefaultsContent, uploadPendingImages,
     openPreview, refreshVisits, createBackup, showBackups, restoreBackup,
     moveChapter,
   };
@@ -661,10 +661,11 @@ async function resetAll() {
   createBackupSilent();
   // O reset troca o registro inteiro: sem isto os backups (inclusive o de
   // agora) e o contador de visitas sumiam junto e não havia como voltar.
-  const { backups, visitCount } = getData();
+  const { backups, visitCount, imageMap } = getData();
   resetToDefaults();
   const D = getData();
   D.backups = backups;
+  if (imageMap) D.imageMap = imageMap;
   if (visitCount !== undefined) D.visitCount = visitCount;
   await window.saveAll();
   buildUI();
@@ -679,21 +680,24 @@ const CONTENT_KEYS = ['heroStats', 'objective', 'objetivo', 'tags', 'skills', 'e
 
 /**
  * Traz o conteúdo novo do defaults.js (publicado pelo GitHub) sem perder o
- * que só existe na nuvem. Não salva sozinho: o usuário confere e salva.
+ * que só existe na nuvem, e manda para o Cloudinary as imagens que o código
+ * traz como arquivos do site. Não salva sozinho: o usuário confere e salva.
  */
-function applyDefaultsContent() {
-  if (!confirm('Trocar experiência, projetos, habilidades, formação, stack, tags, destaques e textos pelo conteúdo do código?\n\nPerfil, foto, certificações, idiomas, tema e traduções não mudam. A versão atual fica guardada em Backups.')) return;
+async function applyDefaultsContent() {
+  if (!confirm('Trocar experiência, projetos, habilidades, formação, stack, tags, destaques e textos pelo conteúdo do código?\n\nPerfil, foto, certificações, idiomas, tema e traduções não mudam. As imagens novas vão para o Cloudinary. A versão atual fica guardada em Backups.')) return;
   collectCurrent();
   createBackupSilent();
   const D = getData();
   const old = JSON.parse(JSON.stringify(D));
   for (const k of CONTENT_KEYS) D[k] = JSON.parse(JSON.stringify(DEFAULTS[k]));
 
-  // Imagens: primeiro as do código (a capa é a primeira), depois as enviadas
-  // pelo admin para o projeto de mesmo nome que o código ainda não tem.
+  // Imagens: primeiro as do código (a capa é a primeira), já trocadas pela
+  // cópia no Cloudinary quando ela existe; depois as enviadas pelo admin
+  // para o projeto de mesmo nome que o código ainda não tem.
+  const mapa = D.imageMap || {};
   for (const p of D.projects) {
     const antigo = (old.projects || []).find(o => o.name === p.name);
-    const doCodigo = p.images || [];
+    const doCodigo = (p.images || []).map(u => mapa[u] || u);
     const daNuvem = ((antigo && antigo.images) || []).filter(u => !doCodigo.includes(u));
     p.images = doCodigo.concat(daNuvem);
   }
@@ -707,8 +711,82 @@ function applyDefaultsContent() {
     en.education = remapByKey(old.education, D.education, en.education, 'title');
   }
 
+  const up = await uploadLocalImages();
   buildUI();
-  flash('✓ Conteúdo aplicado. Confira e clique em Salvar Tudo.');
+  if (up.failed) {
+    flash(`⚠ Conteúdo aplicado, mas ${up.failed} imagem(ns) não subiram. Use "Enviar imagens pendentes".`, true);
+  } else {
+    flash('✓ Conteúdo aplicado' + (up.done ? ` e ${up.done} imagens no Cloudinary` : '') + '. Confira e clique em Salvar Tudo.');
+  }
+}
+
+/** Imagem que ainda é um arquivo do próprio site (img/projetos/...). */
+function isLocalImage(u) {
+  return typeof u === 'string' && u !== '' && !/^(https?:|data:)/i.test(u);
+}
+
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('Falha ao ler a imagem.'));
+    r.readAsDataURL(blob);
+  });
+}
+
+/**
+ * Envia ao Cloudinary as imagens dos projetos que ainda são arquivos do site
+ * e troca o caminho pelo endereço de lá. Cada arquivo sobe uma vez, mesmo se
+ * aparecer em mais de um projeto, e o par caminho → endereço fica em
+ * `imageMap`: assim, aplicar o conteúdo do código de novo reaproveita a
+ * cópia em vez de duplicar a imagem.
+ * @returns {Promise<{done:number, failed:number}>}
+ */
+async function uploadLocalImages() {
+  const D = getData();
+  if (!D.imageMap) D.imageMap = {};
+  const pendentes = [];
+  (D.projects || []).forEach((p, i) => (p.images || []).forEach((u, j) => {
+    if (isLocalImage(u)) pendentes.push({ i, j, u });
+  }));
+  const unicos = [...new Set(pendentes.map(x => x.u))].filter(u => !D.imageMap[u]);
+  let done = 0, failed = 0;
+
+  if (unicos.length && !SESSION_PWD) {
+    flash('❌ Sessão expirada. Faça login novamente.', true);
+    return { done, failed: unicos.length };
+  }
+
+  for (const u of unicos) {
+    flash(`☁ Enviando imagens ao Cloudinary: ${done + failed + 1}/${unicos.length}...`);
+    try {
+      const res = await fetch(u, { cache: 'no-cache' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const base64 = await blobToDataURL(await res.blob());
+      const idx = pendentes.find(x => x.u === u).i;
+      const r = await uploadImage(base64, idx, SESSION_PWD);
+      if (r.ok) { D.imageMap[u] = r.url; done++; continue; }
+      if (r.status === 401) { flash('❌ Não autorizado (401). Faça login novamente.', true); failed = unicos.length - done; break; }
+      throw new Error(r.error || 'HTTP ' + r.status);
+    } catch (e) {
+      failed++;
+      console.error('[CV] Falha ao enviar ' + u + ': ' + e.message);
+    }
+  }
+
+  for (const { i, j, u } of pendentes) {
+    if (D.imageMap[u]) D.projects[i].images[j] = D.imageMap[u];
+  }
+  return { done, failed };
+}
+
+/** Botão da aba Config: tenta de novo as imagens que ficaram de fora. */
+async function uploadPendingImages() {
+  collectCurrent();
+  const up = await uploadLocalImages();
+  buildUI();
+  if (up.failed) flash(`⚠ ${up.failed} imagem(ns) ainda não subiram. Veja o console.`, true);
+  else flash(up.done ? `✓ ${up.done} imagens no Cloudinary. Clique em Salvar Tudo.` : '✓ Nenhuma imagem pendente.');
 }
 
 function remapByKey(oldList, newList, translations, key) {
@@ -949,6 +1027,7 @@ function exportDefaults() {
   delete clean.password;
   clean.backups = [];
   delete clean.visitCount;
+  delete clean.imageMap;
 
   const content = `/**
  * Model — Dados padrão do CV (DEFAULTS)
