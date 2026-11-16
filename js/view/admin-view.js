@@ -443,6 +443,17 @@ export function tSettings() {
   </div>
 
   <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">⬇ Atualizar conteúdo pelo código</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;margin-bottom:12px;">
+      Traz do <code style="color:var(--neon);">defaults.js</code> publicado: experiência, projetos, habilidades,<br>
+      formação, stack, tags, destaques e os textos de "Sobre mim" e "Objetivo".<br>
+      Perfil, foto, certificações, idiomas, tema e traduções não mudam; as imagens<br>
+      dos projetos ficam com o projeto de mesmo nome. Cria um backup antes. Depois, confira e clique em "Salvar Tudo".
+    </div>
+    <button class="btn btn-c" onclick="window.__admin.applyDefaultsContent()">⬇ Aplicar conteúdo do código</button>
+  </div>
+
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
     <div style="font-family:var(--mono);font-size:11px;color:var(--neon2);margin-bottom:10px;">📥 Exportar Defaults</div>
     <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:1.9;margin-bottom:12px;">
       Baixa os dados atuais do JSONBin como <code style="color:var(--neon);">defaults.js</code>.<br>
