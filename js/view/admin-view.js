@@ -449,6 +449,7 @@ export function tSettings() {
       formação, stack, tags, destaques e os textos de "Sobre mim" e "Objetivo".<br>
       Perfil, foto, certificações, idiomas, tema e traduções não mudam; as imagens<br>
       dos projetos ficam com o projeto de mesmo nome, e as novas sobem para o Cloudinary.<br>
+      A ordem e o destaque dos projetos que já existem não mudam; os novos entram no fim.<br>
       Cria um backup antes. Depois, confira e clique em "Salvar Tudo".
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">

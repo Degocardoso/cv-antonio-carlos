@@ -57,7 +57,8 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
   idiomas, tema, traduções e contador de visitas. As imagens seguem o projeto de
   mesmo nome, e as que o código traz em `img/projetos/` sobem para o Cloudinary
   (cada uma uma vez só; *☁ Enviar imagens pendentes* tenta de novo as que
-  falharem). A versão anterior fica em Backups. Depois é só conferir e clicar
+  falharem). A ordem e o destaque dos projetos que já existem não mudam, e os
+  novos entram no fim. A versão anterior fica em Backups. Depois é só conferir e clicar
   em **Salvar Tudo**
 - 👁️ **Preview** das alterações antes de salvar
 - 🎨 **Ícones SVG inline** no lugar de emoji — mesma forma em todo sistema,

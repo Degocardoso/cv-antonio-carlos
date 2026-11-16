@@ -694,13 +694,29 @@ async function applyDefaultsContent() {
   // Imagens: primeiro as do código (a capa é a primeira), já trocadas pela
   // cópia no Cloudinary quando ela existe; depois as enviadas pelo admin
   // para o projeto de mesmo nome que o código ainda não tem.
+  // As cópias de imagens do código que o código não usa mais (trocadas ou
+  // removidas no repositório) saem junto; as enviadas à mão pelo admin ficam.
   const mapa = D.imageMap || {};
+  const copiasDoCodigo = new Set(Object.values(mapa));
+  const usadasNoCodigo = new Set(D.projects.flatMap(p => p.images || []));
   for (const p of D.projects) {
     const antigo = (old.projects || []).find(o => o.name === p.name);
     const doCodigo = (p.images || []).map(u => mapa[u] || u);
-    const daNuvem = ((antigo && antigo.images) || []).filter(u => !doCodigo.includes(u));
+    const daNuvem = ((antigo && antigo.images) || [])
+      .filter(u => !doCodigo.includes(u) && !copiasDoCodigo.has(u));
     p.images = doCodigo.concat(daNuvem);
   }
+  for (const k of Object.keys(mapa)) if (!usadasNoCodigo.has(k)) delete mapa[k];
+
+  // Ordem e destaque são escolhas feitas no admin: os projetos que já existiam
+  // ficam na posição e com o destaque de antes; os novos entram no fim.
+  const antigos = old.projects || [];
+  const pos = nome => { const i = antigos.findIndex(o => o.name === nome); return i < 0 ? 1e9 : i; };
+  for (const p of D.projects) {
+    const antigo = antigos.find(o => o.name === p.name);
+    if (antigo) p.featured = !!antigo.featured;
+  }
+  D.projects.sort((a, b) => pos(a.name) - pos(b.name));
 
   // As traduções são casadas pela posição: com itens novos ou removidos,
   // cada uma precisa acompanhar o seu item (pelo nome), não o índice.

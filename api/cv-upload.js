@@ -70,7 +70,10 @@ module.exports = async (req, res) => {
 
   const folder    = 'cv-portfolio';
   const timestamp = Math.round(Date.now() / 1000);
-  const publicId  = `cv-portfolio/proj-${projectIndex !== undefined ? projectIndex : 'x'}-${timestamp}`;
+  // O sufixo aleatório impede que dois envios no mesmo segundo ganhem o mesmo
+  // public_id: o Cloudinary sobrescrevia a primeira imagem com a segunda.
+  const sufixo    = crypto.randomBytes(4).toString('hex');
+  const publicId  = `cv-portfolio/proj-${projectIndex !== undefined ? projectIndex : 'x'}-${timestamp}-${sufixo}`;
   const signature = signCloudinary({ folder, public_id: publicId, timestamp }, SEC);
 
   const boundary = 'CvBoundary' + timestamp;
