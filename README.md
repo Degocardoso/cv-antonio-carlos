@@ -51,6 +51,12 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
 - 🔀 **Reordenação por drag-and-drop** dos itens
 - 💾 **Backups automáticos** (até 3) e restauração — limitados de propósito:
   cada um é uma cópia completa do CV dentro do mesmo registro do JSONBin
+- ⬇️ **Atualizar conteúdo pelo código** (aba *⚙ Config*): traz do `defaults.js`
+  publicado a experiência, os projetos, as habilidades, a formação, a stack, as
+  tags, os destaques e os textos, sem mexer em perfil, foto, certificações,
+  idiomas, tema, traduções e contador de visitas. As imagens seguem o projeto de
+  mesmo nome, e a versão anterior fica em Backups. Depois é só conferir e clicar
+  em **Salvar Tudo**
 - 👁️ **Preview** das alterações antes de salvar
 - 🎨 **Ícones SVG inline** no lugar de emoji — mesma forma em todo sistema,
   sem depender de fonte de emoji (o admin continua cadastrando emoji: eles são

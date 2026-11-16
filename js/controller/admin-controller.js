@@ -31,7 +31,7 @@ function exposeGlobals() {
     rmImg, handleImgs, handlePhoto, rmPhoto,
     syncH, syncC, prevTheme, rstTheme,
     setThemeMode,
-    reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults,
+    reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults, applyDefaultsContent,
     openPreview, refreshVisits, createBackup, showBackups, restoreBackup,
     moveChapter,
   };
@@ -656,11 +656,64 @@ async function reloadFromCloudUI() {
 }
 
 async function resetAll() {
-  if (!confirm('Resetar TUDO para padrão? Não pode ser desfeito.')) return;
+  if (!confirm('Resetar TUDO para padrão? A versão atual fica guardada em Backups.')) return;
+  collectCurrent();
+  createBackupSilent();
+  // O reset troca o registro inteiro: sem isto os backups (inclusive o de
+  // agora) e o contador de visitas sumiam junto e não havia como voltar.
+  const { backups, visitCount } = getData();
   resetToDefaults();
+  const D = getData();
+  D.backups = backups;
+  if (visitCount !== undefined) D.visitCount = visitCount;
   await window.saveAll();
   buildUI();
-  flash('✓ Resetado!');
+  flash('✓ Resetado! A versão anterior está em Backups.');
+}
+
+/**
+ * Conteúdo que o defaults.js atualiza. Perfil, foto, certificações, idiomas,
+ * tema, seções, capítulos, traduções e contador ficam como estão na nuvem.
+ */
+const CONTENT_KEYS = ['heroStats', 'objective', 'objetivo', 'tags', 'skills', 'experience', 'projects', 'education', 'tech'];
+
+/**
+ * Traz o conteúdo novo do defaults.js (publicado pelo GitHub) sem perder o
+ * que só existe na nuvem. Não salva sozinho: o usuário confere e salva.
+ */
+function applyDefaultsContent() {
+  if (!confirm('Trocar experiência, projetos, habilidades, formação, stack, tags, destaques e textos pelo conteúdo do código?\n\nPerfil, foto, certificações, idiomas, tema e traduções não mudam. A versão atual fica guardada em Backups.')) return;
+  collectCurrent();
+  createBackupSilent();
+  const D = getData();
+  const old = JSON.parse(JSON.stringify(D));
+  for (const k of CONTENT_KEYS) D[k] = JSON.parse(JSON.stringify(DEFAULTS[k]));
+
+  // Imagens enviadas pelo admin seguem o projeto de mesmo nome.
+  for (const p of D.projects) {
+    const antigo = (old.projects || []).find(o => o.name === p.name);
+    if (antigo && (antigo.images || []).length) p.images = antigo.images.slice();
+  }
+
+  // As traduções são casadas pela posição: com itens novos ou removidos,
+  // cada uma precisa acompanhar o seu item (pelo nome), não o índice.
+  const en = D.i18n && D.i18n.en;
+  if (en) {
+    en.experience = remapByKey(old.experience, D.experience, en.experience, 'title');
+    en.projects = remapByKey(old.projects, D.projects, en.projects, 'name');
+    en.education = remapByKey(old.education, D.education, en.education, 'title');
+  }
+
+  buildUI();
+  flash('✓ Conteúdo aplicado. Confira e clique em Salvar Tudo.');
+}
+
+function remapByKey(oldList, newList, translations, key) {
+  if (!Array.isArray(translations) || !translations.length) return translations || [];
+  return (newList || []).map(item => {
+    const i = (oldList || []).findIndex(o => o[key] === item[key]);
+    return i >= 0 && translations[i] ? translations[i] : {};
+  });
 }
 
 /* ═══ LANGUAGE ADD/REMOVE ═══ */
@@ -888,8 +941,11 @@ function exportDefaults() {
   collectCurrent();
   const D = getData();
   const clean = JSON.parse(JSON.stringify(D));
-  // Remove campos internos que não devem estar no defaults
+  // Remove campos internos que não devem estar no defaults: os backups são
+  // cópias inteiras do CV e o contador é da nuvem.
   delete clean.password;
+  clean.backups = [];
+  delete clean.visitCount;
 
   const content = `/**
  * Model — Dados padrão do CV (DEFAULTS)
