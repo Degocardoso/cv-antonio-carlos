@@ -5,6 +5,7 @@
 import { getData, getDataSource } from '../model/state.js';
 import { NARRATIVE, CHAPTER_KEYS, CHAPTER_FIELDS, UI_TEXT_FIELDS } from '../model/narrative.js';
 import { esc, escRaw, escAttr } from '../utils.js';
+import { CATEGORIAS } from './build-view.js';
 
 /* ═══ HELPERS ═══ */
 function v(id) { const e = document.getElementById(id); return e ? e.value : ''; }
@@ -25,6 +26,7 @@ export const TABS = [
   { id: 'languages',      label: '🌐 Idiomas' },
   { id: 'experience',     label: '💼 Experiência' },
   { id: 'projects',       label: '◈ Projetos' },
+  { id: 'story',          label: '🧩 História' },
   { id: 'education',      label: '🎓 Formação' },
   { id: 'certifications', label: '★ Certs' },
   { id: 'tech',           label: '◻ Stack' },
@@ -201,6 +203,7 @@ export function rProjs() {
     <div class="row"><label class="lbl">Resultado / Métrica</label><input class="inp" id="pr-r-${i}" value="${esc(pr.result || '')}"></div>
     <div class="row"><label class="lbl">Pills (vírgula)</label><input class="inp" id="pr-p-${i}" value="${(pr.pills || []).join(', ')}"></div>
     <div class="crow"><label>Cor:</label>${cDots(pr.color, 'window.__admin.setProjColor' + i)}</div>
+    ${rLinks(pr, i)}
     <div style="margin-top:14px;">
       <label class="lbl">📷 Fotos do Projeto (hospedadas no Cloudinary)</label>
       <div class="ithumb-wrap" id="ith-${i}">${(pr.images || []).map((url, j) => `<div class="ithumb"><img src="${escAttr(url)}" alt=""><button class="ithumb-del" onclick="window.__admin.rmImg(${i},${j})">✕</button></div>`).join('')}</div>
@@ -685,6 +688,7 @@ export const TAB_RENDERERS = {
   languages: tLangs,
   experience: tExp,
   projects: tProjs,
+  story: tStory,
   education: tEdu,
   certifications: tCerts,
   tech: tTech,
@@ -694,3 +698,134 @@ export const TAB_RENDERERS = {
   theme: tTheme,
   settings: tSettings,
 };
+
+
+/* ═══ LIGAÇÕES ENTRE PROJETOS ═══ */
+function rLinks(pr, i) {
+  const all = getData().projects || [];
+  const outros = all.filter((p, j) => j !== i && p.id);
+  const opts = sel => `<option value="">escolha um projeto</option>` +
+    outros.map(p => `<option value="${escAttr(p.id)}" ${p.id === sel ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+  const vindas = outros.flatMap(p => (p.links || []).filter(l => l.to && l.to === pr.id).map(l => ({ de: p, why: l.why })));
+  const padrao = String(pr.name || '').split(' — ')[0];
+  return `<div class="links-box">
+    <div class="links-h"><span>🔗 Projetos ligados</span><span class="hint">opcional: só quando um projeto usa, alimenta ou faz parte de outro</span></div>
+    <div class="row"><label class="lbl">Nome curto (no mapa e nas ligações)</label><input class="inp" id="pr-sn-${i}" value="${escAttr(pr.shortName || '')}" placeholder="${escAttr(padrao)}"></div>
+    ${(pr.links || []).map((l, k) => `
+      <div class="link-row">
+        <select class="inp" id="pr-lk-${i}-${k}" aria-label="Projeto ligado">${opts(l.to)}</select>
+        <input class="inp" id="pr-lw-${i}-${k}" value="${escAttr(l.why || '')}" placeholder="Por que estão ligados? Ex.: as réguas enviam os e-mails montados aqui." aria-label="Motivo da ligação">
+        <button class="btn btn-r" type="button" title="Remover ligação" onclick="window.__admin.rmLink(${i},${k})">✕</button>
+      </div>`).join('')}
+    <button class="btn btn-c" type="button" onclick="window.__admin.addLink(${i})">+ Ligar a outro projeto</button>
+    ${vindas.length ? `<div class="links-in"><span class="lbl">Cadastradas em outros projetos (aparecem aqui também)</span>
+      ${vindas.map(v => `<div class="link-in">↳ <b>${esc(v.de.shortName || v.de.name)}</b>: ${esc(v.why)}</div>`).join('')}</div>` : ''}
+    <p class="hint">A ligação aparece nos dois projetos e no mapa “Como os projetos se conectam”. Não precisa cadastrar de volta.</p>
+  </div>`;
+}
+
+/* ═══ HISTÓRIA: "VER COMO FOI CONSTRUÍDO" ═══ */
+const catOpts = sel => Object.entries(CATEGORIAS).map(([k, l]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${l}</option>`).join('');
+
+/** Blocos na ordem em que aparecem: [{ i, j, b }]. */
+function blocosEmOrdem(steps) {
+  const out = [];
+  steps.forEach((st, i) => (st.blocks || []).forEach((b, j) => out.push({ i, j, b })));
+  return out;
+}
+
+/** Pares ligados, cada um guardado no bloco mais novo dos dois. */
+export function normalizarLigacoesDaHistoria(story) {
+  const ordem = blocosEmOrdem(story.steps || []);
+  const pos = Object.fromEntries(ordem.map((x, k) => [x.b.id, k]));
+  const pares = new Set();
+  ordem.forEach(x => (x.b.links || []).forEach(o => { if (o in pos && o !== x.b.id) pares.add([x.b.id, o].sort().join('|')); }));
+  ordem.forEach(x => { x.b.links = []; });
+  pares.forEach(par => {
+    const [a, b] = par.split('|');
+    const novo = pos[a] > pos[b] ? a : b, velho = novo === a ? b : a;
+    ordem[pos[novo]].b.links.push(velho);
+  });
+  return story;
+}
+
+export function tStory() {
+  const D = getData();
+  if (!D.story) D.story = { title: '', subtitle: '', lead: '', steps: [] };
+  const st = normalizarLigacoesDaHistoria(D.story);
+  const ocup = {};
+  blocosEmOrdem(st.steps).forEach(({ b }) => { const k = `${b.col}-${b.row}`; (ocup[k] = ocup[k] || []).push(b); });
+  const linhas = Math.max(5, ...Object.keys(ocup).map(k => +k.split('-')[1]));
+  const grade = [];
+  for (let r = 1; r <= linhas; r++) for (let c = 1; c <= 3; c++) {
+    const lista = ocup[`${c}-${r}`] || [];
+    grade.push(`<div class="sg-cell ${lista.length ? 'on k-' + lista[0].cat : ''} ${lista.length > 1 ? 'conflito' : ''}" title="coluna ${c} · linha ${r}">${lista.length ? lista.map(b => esc(b.name)).join(' + ') : `<span>${c}·${r}</span>`}</div>`);
+  }
+  const conflitos = Object.values(ocup).filter(l => l.length > 1).length;
+  return `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <h3 style="font-family:var(--mono);font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:2px;">História: ver como foi construído</h3>
+    <button class="btn btn-g" type="button" onclick="window.__admin.addStep()">+ Adicionar etapa</button>
+  </div>
+  <div class="info-box">
+    Abre quando o visitante clica em “◈ ver como foi construído” num projeto. Cada etapa conta um pedaço da história e acrescenta blocos ao diagrama. O botão aparece nos projetos escolhidos nas etapas e abre a história na etapa do projeto.
+  </div>
+  <div class="card">
+    <div class="g2f">
+      <div class="row"><label class="lbl">Título da tela</label><input class="inp" id="st-title" value="${escAttr(st.title || '')}"></div>
+      <div class="row"><label class="lbl">Subtítulo</label><input class="inp" id="st-sub" value="${escAttr(st.subtitle || '')}"></div>
+    </div>
+    <div class="row"><label class="lbl">Texto de abertura</label><textarea class="inp" id="st-lead">${esc(st.lead || '')}</textarea></div>
+    <label class="lbl" style="margin-top:12px;">Mapa de posições do diagrama (coluna · linha)</label>
+    <div class="sg">${grade.join('')}</div>
+    <p class="hint">${conflitos ? `<span style="color:#ff6b6b;">⚠ ${conflitos} casa(s) com mais de um bloco: um fica por cima do outro. Mude a posição de um deles.</span><br>` : ''}Cada bloco ocupa uma casa. Escolha a casa no próprio bloco, dentro da etapa em que ele nasce.</p>
+  </div>
+  <div id="story-list">${rStory()}</div>
+  <div class="sbar"><span class="smsg" id="msg-story"></span><button class="btn btn-g btn-big" onclick="window.__admin.saveTab('story')">💾 Salvar</button></div>`;
+}
+
+export function rStory() {
+  const D = getData();
+  const steps = D.story?.steps || [];
+  const projetos = (D.projects || []).filter(p => p.id);
+  const ordem = blocosEmOrdem(steps);
+  return steps.map((p, i) => `
+  <div class="card" data-draggable="story" data-index="${i}">
+    <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
+    <div class="card-h"><span class="card-n">etapa ${i + 1}</span><span class="card-t">${esc(p.title || 'Nova etapa')}</span>
+      <select class="inp k-sel" id="sp-k-${i}" title="Cor da etapa">${catOpts(p.cat)}</select></div>
+    <div class="g2f">
+      <div class="row"><label class="lbl">Etiqueta</label><input class="inp" id="sp-l-${i}" value="${escAttr(p.label || '')}" placeholder="ex.: 2022 · chegada"></div>
+      <div class="row"><label class="lbl">Título</label><input class="inp" id="sp-t-${i}" value="${escAttr(p.title || '')}"></div>
+    </div>
+    <div class="row"><label class="lbl">Texto</label><textarea class="inp" id="sp-x-${i}">${esc(p.text || '')}</textarea></div>
+    <div class="g3f">
+      <div class="row"><label class="lbl">Antes (opcional)</label><input class="inp" id="sp-b-${i}" value="${escAttr(p.before || '')}" placeholder="ex.: 3 h"></div>
+      <div class="row"><label class="lbl">Depois</label><input class="inp" id="sp-a-${i}" value="${escAttr(p.after || '')}" placeholder="ex.: 30 min"></div>
+      <div class="row"><label class="lbl">O que foi medido</label><input class="inp" id="sp-m-${i}" value="${escAttr(p.measure || '')}" placeholder="ex.: espera média"></div>
+    </div>
+    <div class="g2f">
+      <div class="row"><label class="lbl">Projeto desta etapa</label>
+        <select class="inp" id="sp-p-${i}"><option value="">nenhum</option>${projetos.map(pr => `<option value="${escAttr(pr.id)}" ${pr.id === p.project ? 'selected' : ''}>${esc(pr.name)}</option>`).join('')}</select>
+        <p class="hint">Liga o botão “ver como foi construído” desse projeto a esta etapa e mostra o “ver a tela” com as fotos dele.</p></div>
+      <div class="row"><label class="lbl">Trecho de código (opcional)</label><textarea class="inp code-inp" id="sp-c-${i}" placeholder="Cole um trecho curto do seu código">${esc(p.code || '')}</textarea></div>
+    </div>
+    <label class="lbl" style="margin-top:6px;">Blocos que aparecem nesta etapa</label>
+    ${(p.blocks || []).map((b, j) => {
+      const antes = ordem.filter(x => x.i < i || (x.i === i && x.j < j));
+      return `
+      <div class="block-row" data-block="${escAttr(b.id)}">
+        <input class="inp" id="sb-n-${i}-${j}" value="${escAttr(b.name || '')}" placeholder="Nome do bloco" aria-label="Nome do bloco">
+        <input class="inp" id="sb-s-${i}-${j}" value="${escAttr(b.sub || '')}" placeholder="Subtítulo" aria-label="Subtítulo do bloco">
+        <select class="inp" id="sb-k-${i}-${j}" aria-label="Categoria">${catOpts(b.cat)}</select>
+        <select class="inp" id="sb-p-${i}-${j}" aria-label="Casa no diagrama" onchange="window.__admin.refreshStory()">${[1, 2, 3, 4, 5, 6].flatMap(r => [1, 2, 3].map(c => `<option value="${c}-${r}" ${+b.col === c && +b.row === r ? 'selected' : ''}>coluna ${c} · linha ${r}</option>`)).join('')}</select>
+        <button class="btn btn-r" type="button" title="Remover bloco" onclick="window.__admin.rmBlock(${i},${j})">✕</button>
+        <div class="block-links">ligado a:
+          ${antes.length ? antes.map(x => `<label class="chip"><input type="checkbox" id="sb-l-${i}-${j}-${escAttr(x.b.id)}" ${(b.links || []).includes(x.b.id) ? 'checked' : ''}> ${esc(x.b.name)}</label>`).join('') : '<span class="hint">é o primeiro bloco: não há anteriores</span>'}
+        </div>
+      </div>`;
+    }).join('') || '<p class="hint">Nenhum bloco novo: esta etapa mostra o diagrama como está.</p>'}
+    <button class="btn btn-c" type="button" style="margin-top:8px;" onclick="window.__admin.addBlock(${i})">+ Bloco</button>
+    <div style="text-align:right;margin-top:10px;"><button class="btn btn-r" type="button" onclick="window.__admin.rmStep(${i})">✕ Remover etapa</button></div>
+  </div>`).join('');
+}

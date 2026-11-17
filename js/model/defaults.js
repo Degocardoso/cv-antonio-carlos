@@ -155,7 +155,9 @@ export const DEFAULTS = {
   ],
   "projects": [
     {
+      "id": "plataforma",
       "name": "Plataforma de Comunicação e Indicadores",
+      "shortName": "Plataforma",
       "stack": "Laravel · MySQL · Dynamics 365 · Power BI",
       "color": "c",
       "featured": true,
@@ -169,6 +171,36 @@ export const DEFAULTS = {
         "OData",
         "Entra ID"
       ],
+      "links": [
+        {
+          "to": "gerador",
+          "why": "É um dos módulos da plataforma."
+        },
+        {
+          "to": "reguas",
+          "why": "É um dos módulos da plataforma."
+        },
+        {
+          "to": "metricas",
+          "why": "É um dos módulos da plataforma."
+        },
+        {
+          "to": "whatsapp",
+          "why": "É um dos módulos da plataforma."
+        },
+        {
+          "to": "relacionamentos",
+          "why": "É um dos módulos da plataforma."
+        },
+        {
+          "to": "n2",
+          "why": "É um dos módulos da plataforma."
+        },
+        {
+          "to": "escala",
+          "why": "É um dos módulos da plataforma."
+        }
+      ],
       "images": [
         "img/projetos/plataforma-modulos.jpg",
         "img/projetos/emails-painel.jpg",
@@ -178,7 +210,9 @@ export const DEFAULTS = {
       ]
     },
     {
+      "id": "fila",
       "name": "Digitalização de Fila Presencial",
+      "shortName": "Fila presencial",
       "stack": "Power Apps · Power Automate",
       "color": "g",
       "featured": true,
@@ -189,6 +223,12 @@ export const DEFAULTS = {
         "Power Automate",
         "UX Design"
       ],
+      "links": [
+        {
+          "to": "relacionamentos",
+          "why": "A pesquisa de satisfação das mesas grava no CRM e alimenta o painel de relacionamentos."
+        }
+      ],
       "images": [
         "https://res.cloudinary.com/cv-antonio/image/upload/v1774707675/cv-portfolio/cv-portfolio/proj-0-1774707675.jpg",
         "https://res.cloudinary.com/cv-antonio/image/upload/v1774707679/cv-portfolio/cv-portfolio/proj-0-1774707679.jpg",
@@ -196,7 +236,9 @@ export const DEFAULTS = {
       ]
     },
     {
+      "id": "gerador",
       "name": "Gerador de E-mails Integrado ao CRM",
+      "shortName": "Gerador de e-mails",
       "stack": "PHP · Laravel · Dynamics 365 · TinyMCE",
       "color": "c",
       "featured": true,
@@ -210,12 +252,24 @@ export const DEFAULTS = {
         "TinyMCE",
         "HTML/CSS"
       ],
+      "links": [
+        {
+          "to": "reguas",
+          "why": "As réguas enviam os e-mails montados no gerador."
+        },
+        {
+          "to": "metricas",
+          "why": "Cada e-mail criado no gerador é medido no painel de e-mails."
+        }
+      ],
       "images": [
         "https://res.cloudinary.com/cv-antonio/image/upload/v1774707689/cv-portfolio/cv-portfolio/proj-1-1774707690.png"
       ]
     },
     {
+      "id": "metricas",
       "name": "Análise de Métricas de E-mail Marketing",
+      "shortName": "Métricas de e-mail",
       "stack": "SQL · Laravel · Chart.js · Dynamics 365",
       "color": "o",
       "featured": true,
@@ -228,6 +282,7 @@ export const DEFAULTS = {
         "SendGrid",
         "Dynamics 365"
       ],
+      "links": [],
       "images": [
         "img/projetos/emails-painel.jpg",
         "img/projetos/emails-funil.jpg",
@@ -237,7 +292,9 @@ export const DEFAULTS = {
       ]
     },
     {
+      "id": "n2",
       "name": "Acompanhamento N2 — Alunos PCD e Neurodivergentes",
+      "shortName": "Provas adaptadas (N2)",
       "stack": "Laravel · MySQL · Dynamics 365 · Réguas de e-mail",
       "color": "p",
       "featured": true,
@@ -250,6 +307,12 @@ export const DEFAULTS = {
         "Acessibilidade",
         "Automação"
       ],
+      "links": [
+        {
+          "to": "gerador",
+          "why": "Os e-mails que cobram as datas de prova dos professores saem do gerador."
+        }
+      ],
       "images": [
         "img/projetos/n2-provas.jpg",
         "img/projetos/n2-aluno.jpg",
@@ -259,7 +322,9 @@ export const DEFAULTS = {
       ]
     },
     {
+      "id": "whatsapp",
       "name": "Atendimentos do WhatsApp — Painel de SLA",
+      "shortName": "WhatsApp (SLA)",
       "stack": "Laravel · API WorkNow · OData · Power BI",
       "color": "g",
       "featured": true,
@@ -272,6 +337,7 @@ export const DEFAULTS = {
         "OData",
         "Power BI"
       ],
+      "links": [],
       "images": [
         "img/projetos/whatsapp-painel.jpg",
         "img/projetos/whatsapp-departamentos.jpg",
@@ -279,7 +345,9 @@ export const DEFAULTS = {
       ]
     },
     {
+      "id": "financas",
       "name": "Aplicativo de Gestão Financeira",
+      "shortName": "Finanças pessoais",
       "stack": "Node.js · CSV · ML Preditivo",
       "color": "p",
       "featured": false,
@@ -291,10 +359,13 @@ export const DEFAULTS = {
         "CSV",
         "ML preditivo"
       ],
+      "links": [],
       "images": []
     },
     {
+      "id": "relacionamentos",
       "name": "Painel de Relacionamentos — ETL Python → PHP",
+      "shortName": "Painel de relacionamentos",
       "stack": "ETL · MySQL · Python · Laravel",
       "color": "p",
       "featured": true,
@@ -308,12 +379,15 @@ export const DEFAULTS = {
         "Laravel",
         "Chart.js"
       ],
+      "links": [],
       "images": [
         "img/projetos/etl-fluxo.jpg"
       ]
     },
     {
+      "id": "reguas",
       "name": "Réguas Automáticas de Relacionamento",
+      "shortName": "Réguas automáticas",
       "stack": "Laravel · Dynamics 365 · Cron",
       "color": "g",
       "featured": false,
@@ -325,12 +399,20 @@ export const DEFAULTS = {
         "Dynamics 365",
         "Automação"
       ],
+      "links": [
+        {
+          "to": "metricas",
+          "why": "Os envios automáticos das réguas também entram no painel de e-mails."
+        }
+      ],
       "images": [
         "img/projetos/reguas-fluxo.jpg"
       ]
     },
     {
+      "id": "escala",
       "name": "Gerador de Escala de Atendentes",
+      "shortName": "Escala da equipe",
       "stack": "PHP · Motor de regras · PDF",
       "color": "o",
       "featured": false,
@@ -341,6 +423,12 @@ export const DEFAULTS = {
         "Laravel",
         "Algoritmos",
         "PDF"
+      ],
+      "links": [
+        {
+          "to": "whatsapp",
+          "why": "A escala define quem atende o WhatsApp em cada turno, e o painel mede esse atendimento."
+        }
       ],
       "images": [
         "img/projetos/escala-semana.jpg",
@@ -542,6 +630,277 @@ export const DEFAULTS = {
     "journeyEndKind": "", "journeyEndTitle": "", "journeyEndDesc": "", "journeyEndLink": "",
     "seeAllTitle": "", "seeAllDesc": "", "seeAll": "",
     "skills": "", "languages": ""
+  },
+  "story": {
+    "title": "Plataforma de Comunicação e Indicadores",
+    "subtitle": "como foi construída",
+    "lead": "Um sistema que começou com um problema de fila e hoje tem 12 módulos. Role, ou use as setas, e veja cada problema virar um bloco.",
+    "steps": [
+      {
+        "label": "2022 · chegada",
+        "cat": "crm",
+        "title": "Entrei no time de CRM",
+        "text": "Comecei na FECAP mantendo as integrações com o Microsoft Dynamics 365 e os chatbots que respondem os alunos. Foi ali que eu entendi como os dados de cada aluno circulam pela faculdade.",
+        "before": "",
+        "after": "",
+        "measure": "",
+        "project": "plataforma",
+        "code": "",
+        "blocks": [
+          {
+            "id": "crm",
+            "name": "Dynamics 365",
+            "sub": "o CRM da FECAP",
+            "cat": "crm",
+            "col": 2,
+            "row": 3,
+            "links": [
+              "chatbot",
+              "paineis",
+              "etl"
+            ]
+          },
+          {
+            "id": "chatbot",
+            "name": "Chatbots",
+            "sub": "atendimento digital",
+            "cat": "atend",
+            "col": 1,
+            "row": 1,
+            "links": []
+          }
+        ]
+      },
+      {
+        "label": "o primeiro grande problema",
+        "cat": "atend",
+        "title": "Uma fila de 3 horas",
+        "text": "No atendimento presencial, alunos esperavam em pé por horas. Criei um sistema de senhas em Power Apps: o aluno pega a senha, volta para a sala e acompanha a chamada pelo celular.",
+        "before": "3 h",
+        "after": "30 min",
+        "measure": "espera média",
+        "project": "fila",
+        "code": "",
+        "blocks": [
+          {
+            "id": "totem",
+            "name": "Totem de senhas",
+            "sub": "Power Apps, depois Python",
+            "cat": "atend",
+            "col": 1,
+            "row": 3,
+            "links": [
+              "crm"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "automação",
+        "cat": "auto",
+        "title": "20 minutos para montar um e-mail",
+        "text": "Cada e-mail para os alunos era escrito à mão, em HTML. Fiz um gerador ligado ao CRM: a pessoa escolhe o modelo, preenche os campos e o e-mail sai pronto, com o nome de cada aluno.",
+        "before": "20 min",
+        "after": "3 min",
+        "measure": "por e-mail",
+        "project": "gerador",
+        "code": "",
+        "blocks": [
+          {
+            "id": "gerador",
+            "name": "Gerador de e-mails",
+            "sub": "modelos + variáveis",
+            "cat": "auto",
+            "col": 3,
+            "row": 1,
+            "links": [
+              "crm"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "automação",
+        "cat": "auto",
+        "title": "E-mails que saem sozinhos",
+        "text": "Os envios passaram para uma fila agendada, em lotes e com trava para nunca mandar o mesmo e-mail duas vezes. Depois vieram as réguas: jornadas de e-mail que andam sozinhas conforme o aluno muda no CRM.",
+        "before": "",
+        "after": "",
+        "measure": "",
+        "project": "reguas",
+        "code": "// app/Console/Kernel.php\n$schedule->command('disparos:processar')\n         ->everyMinute()\n         ->withoutOverlapping(5);",
+        "blocks": [
+          {
+            "id": "disparos",
+            "name": "Fila de disparos",
+            "sub": "disparos:processar",
+            "cat": "auto",
+            "col": 3,
+            "row": 2,
+            "links": [
+              "crm"
+            ]
+          },
+          {
+            "id": "reguas",
+            "name": "Réguas",
+            "sub": "reguas:processar",
+            "cat": "auto",
+            "col": 3,
+            "row": 3,
+            "links": [
+              "disparos"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "dados",
+        "cat": "dados",
+        "title": "Medir tudo o que acontece",
+        "text": "Com os envios no automático, faltava enxergar o resultado. Construí painéis de e-mail e dos atendimentos no WhatsApp, que comparam cada número com o período anterior, e liguei tudo ao Power BI.",
+        "before": "",
+        "after": "",
+        "measure": "",
+        "project": "whatsapp",
+        "code": "",
+        "blocks": [
+          {
+            "id": "worknow",
+            "name": "WhatsApp",
+            "sub": "API da WorkNow",
+            "cat": "atend",
+            "col": 1,
+            "row": 2,
+            "links": [
+              "paineis"
+            ]
+          },
+          {
+            "id": "paineis",
+            "name": "Painéis",
+            "sub": "e-mails e atendimentos",
+            "cat": "dados",
+            "col": 2,
+            "row": 4,
+            "links": [
+              "powerbi"
+            ]
+          },
+          {
+            "id": "powerbi",
+            "name": "Power BI",
+            "sub": "APIs OData",
+            "cat": "dados",
+            "col": 2,
+            "row": 5,
+            "links": []
+          }
+        ]
+      },
+      {
+        "label": "dados",
+        "cat": "dados",
+        "title": "Trazer um painel de Python para casa",
+        "text": "Um painel de atendimentos rodava à parte, em Python. Migrei para o sistema, em PHP e MySQL, e escrevi um comparador para provar, registro por registro, que nada tinha mudado. Em 2025, me formei em Data Science pela FIAP.",
+        "before": "Python",
+        "after": "PHP",
+        "measure": "107.714 registros, nenhuma diferença",
+        "project": "relacionamentos",
+        "code": "",
+        "blocks": [
+          {
+            "id": "etl",
+            "name": "Relacionamentos",
+            "sub": "ETL de hora em hora",
+            "cat": "dados",
+            "col": 2,
+            "row": 1,
+            "links": []
+          }
+        ]
+      },
+      {
+        "label": "2026 · de volta à fila",
+        "cat": "atend",
+        "title": "Tirar a fila do Power Apps",
+        "text": "O totem de senhas tinha virado peça central do atendimento. Reescrevi o conjunto em código, falando direto com o CRM e sem Power Automate no meio: o totem e o painel que chama as senhas, em Python, já estão em produção, e um app Android para a pesquisa de satisfação nas mesas está em testes.",
+        "before": "",
+        "after": "",
+        "measure": "",
+        "project": "fila",
+        "code": "",
+        "blocks": [
+          {
+            "id": "chamada",
+            "name": "Painel de chamada",
+            "sub": "Python + Dataverse",
+            "cat": "atend",
+            "col": 1,
+            "row": 5,
+            "links": [
+              "crm"
+            ]
+          },
+          {
+            "id": "pesquisa",
+            "name": "Pesquisa nas mesas",
+            "sub": "app Android",
+            "cat": "atend",
+            "col": 3,
+            "row": 5,
+            "links": [
+              "crm"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "pessoas",
+        "cat": "atend",
+        "title": "Software para cuidar de gente",
+        "text": "O sistema chegou a quem atende e a quem precisa de mais atenção: a escala da equipe por canal e o acompanhamento das provas adaptadas dos alunos PCD e neurodivergentes, com cobrança automática dos professores.",
+        "before": "",
+        "after": "",
+        "measure": "",
+        "project": "n2",
+        "code": "",
+        "blocks": [
+          {
+            "id": "n2",
+            "name": "Provas adaptadas",
+            "sub": "alunos PCD (N2)",
+            "cat": "atend",
+            "col": 1,
+            "row": 4,
+            "links": [
+              "crm"
+            ]
+          },
+          {
+            "id": "escala",
+            "name": "Escala da equipe",
+            "sub": "escala:gerar",
+            "cat": "auto",
+            "col": 3,
+            "row": 4,
+            "links": []
+          }
+        ]
+      },
+      {
+        "label": "hoje",
+        "cat": "crm",
+        "title": "12 módulos, um login",
+        "text": "Tudo isso roda hoje no mesmo sistema, com tarefas agendadas a cada minuto e um login com a conta Microsoft da FECAP. Uso IA no dia a dia para escrever, revisar e testar o código mais rápido.",
+        "before": "",
+        "after": "",
+        "measure": "",
+        "project": "plataforma",
+        "code": "",
+        "blocks": []
+      }
+    ]
   },
   "backups": [],
   "objetivo": "Busco oportunidades em <strong>desenvolvimento de software</strong> (back-end PHP/Laravel, integrações e APIs) e em <strong>análise e engenharia de dados</strong> (ETL, SQL, Power BI), onde eu possa aplicar o que construí em produção: sistemas que automatizam processos, integram plataformas e transformam dados de CRM em indicadores para decisão. Tenho interesse especial em posições que combinem visão de negócio e execução técnica."

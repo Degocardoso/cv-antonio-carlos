@@ -17,6 +17,8 @@ import { DEFAULTS } from '../model/defaults.js';
 import { esc, cc, escAttr } from '../utils.js';
 import { icon, iconFromEmoji } from './icons.js';
 import { NARRATIVE, CHAPTER_KEYS } from '../model/narrative.js';
+import { renderBuild, casoDoProjeto } from './build-view.js';
+import { blocoLigacoes, renderMapa } from './links-view.js';
 
 /* ═══ IDIOMA ═══ */
 let _lang = 'pt';
@@ -112,12 +114,14 @@ export function render() {
   renderAbout(D);
   renderFacts(D);
   renderJourney(D);
+  renderBuild(D);   // antes dos cartões: eles perguntam em que etapa da história cada projeto está
   renderWork(D);
   renderSkills(D);
   renderLanguages(D);
   renderTech(D);
   renderCertifications(D);
   renderEpilogue(D);
+  renderMapa(D);
 
   applySectionVisibility(sec);
   applyChapters(D); // depois da visibilidade: capítulo oculto não consome número
@@ -408,6 +412,8 @@ function renderWork(D) {
         <p class="wcard-stack">${esc(stack)}</p>
         ${result ? `<p class="wcard-result">${icon('sparkle')} ${withCounter(result)}</p>` : ''}
         <p class="wcard-desc">${esc(desc)}</p>
+        ${casoDoProjeto(pr.id) >= 0 ? `<button class="wcard-case" type="button" data-case="${casoDoProjeto(pr.id)}">◈ ver como foi construído</button>` : ''}
+        ${blocoLigacoes(D, pr)}
         <ul class="pills">${(pr.pills || []).map(pl => `<li class="pill ${cc(pr.color)}">${esc(pl)}</li>`).join('')}</ul>
       </div>
     </li>`;
