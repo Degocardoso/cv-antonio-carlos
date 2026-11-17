@@ -75,6 +75,21 @@ export function resetToDefaults() {
 export function mergeFromCloud(record) {
   const result = JSON.parse(JSON.stringify(record));
 
+  // Projetos salvos antes das ligações não têm id: o do código com o mesmo
+  // nome empresta id, nome curto e ligações. Assim a história e o mapa
+  // funcionam logo após o deploy, antes de qualquer save no admin.
+  if (Array.isArray(result.projects)) {
+    for (const pr of result.projects) {
+      if (pr.id) continue;
+      const doCodigo = (DEFAULTS.projects || []).find(d => d.name === pr.name);
+      if (!doCodigo) continue;
+      pr.id = doCodigo.id;
+      if (!pr.shortName) pr.shortName = doCodigo.shortName;
+      if (!Array.isArray(pr.links)) pr.links = JSON.parse(JSON.stringify(doCodigo.links || []));
+    }
+    garantirIdsProjetos(result);
+  }
+
   for (const k of Object.keys(DEFAULTS)) {
     if (result[k] === null || result[k] === undefined) {
       result[k] = JSON.parse(JSON.stringify(DEFAULTS[k]));
@@ -143,4 +158,26 @@ export function applyTheme() {
   else r.style.removeProperty('--td');
   if (tb) r.style.setProperty('--tb', tb);
   else r.style.removeProperty('--tb');
+}
+
+/**
+ * Todo projeto precisa de um id estável: é por ele que as ligações e a
+ * história apontam para o projeto (o nome pode mudar, a posição também).
+ * Cria um a partir do nome para quem não tem, sem repetir.
+ */
+export function garantirIdsProjetos(data = D) {
+  const usados = new Set();
+  for (const pr of data.projects || []) {
+    let id = String(pr.id || '').trim();
+    if (!id || usados.has(id)) {
+      const base = String(pr.name || 'projeto').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32) || 'projeto';
+      id = base;
+      for (let n = 2; usados.has(id); n++) id = `${base}-${n}`;
+      pr.id = id;
+    }
+    usados.add(id);
+    if (!Array.isArray(pr.links)) pr.links = [];
+  }
+  return data;
 }

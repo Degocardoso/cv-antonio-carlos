@@ -60,6 +60,15 @@ O conteúdo é reorganizado em capítulos, e não em blocos independentes:
   falharem). A ordem e o destaque dos projetos que já existem não mudam, e os
   novos entram no fim. A versão anterior fica em Backups. Depois é só conferir e clicar
   em **Salvar Tudo**
+- 🧩 **"Ver como foi construído"**: nos projetos escolhidos, um botão abre a
+  história do sistema numa tela própria, com um diagrama que ganha blocos a cada
+  etapa (setas, clique nos blocos e "ver a tela" com a galeria do projeto). A
+  história inteira (textos, antes e depois, trecho de código, blocos, casas no
+  diagrama e ligações entre blocos) é editada na aba *🧩 História* do admin
+- 🔗 **Projetos ligados**: cada projeto pode apontar para outros e dizer por quê
+  (aba *◈ Projetos*, seção "Projetos ligados"). A ligação aparece nos dois
+  cartões e no mapa "Como os projetos se conectam"; projeto sem ligação fica de
+  fora do mapa. Cada projeto tem um `id` estável, criado a partir do nome
 - 👁️ **Preview** das alterações antes de salvar
 - 🎨 **Ícones SVG inline** no lugar de emoji — mesma forma em todo sistema,
   sem depender de fonte de emoji (o admin continua cadastrando emoji: eles são

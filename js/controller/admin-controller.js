@@ -2,12 +2,13 @@
  * Controller — Admin Panel
  * Lógica de autenticação, coleta de dados, tabs, upload, etc.
  */
-import { getData, setData, setDataSource, getDataSource, resetToDefaults, applyTheme, applyTypography, pruneBackupsToFit, recordBytes, RECORD_BUDGET, MAX_BACKUPS } from '../model/state.js';
+import { getData, setData, setDataSource, getDataSource, resetToDefaults, applyTheme, applyTypography, pruneBackupsToFit, recordBytes, RECORD_BUDGET, MAX_BACKUPS, garantirIdsProjetos } from '../model/state.js';
 import { DEFAULTS } from '../model/defaults.js';
 import { loadFromCloud, saveToCloud, uploadImage, validatePassword, CV_READ_URL } from './api.js';
 import {
   TABS, TAB_RENDERERS, v,
-  rHS, rSkills, rExp, rProjs, rEdu, rCerts, rTech, rLangs
+  rHS, rSkills, rExp, rProjs, rEdu, rCerts, rTech, rLangs,
+  normalizarLigacoesDaHistoria,
 } from '../view/admin-view.js';
 import { compressImage } from '../utils.js';
 import { CHAPTER_KEYS, CHAPTER_FIELDS, UI_TEXT_FIELDS } from '../model/narrative.js';
@@ -32,6 +33,7 @@ function exposeGlobals() {
     syncH, syncC, prevTheme, rstTheme,
     setThemeMode,
     reloadFromCloud: reloadFromCloudUI, resetAll, exportDefaults, applyDefaultsContent, uploadPendingImages,
+    addLink, rmLink, addStep, rmStep, addBlock, rmBlock, refreshStory,
     openPreview, refreshVisits, createBackup, showBackups, restoreBackup,
     moveChapter,
   };
@@ -217,7 +219,7 @@ function saveTab(tabId) {
   const msgMap = {
     profile: 'msg-p', herostats: 'msg-hs', objective: 'msg-obj',
     skills: 'msg-sk', experience: 'msg-exp', projects: 'msg-proj',
-    education: 'msg-edu', certifications: 'msg-cert', tech: 'msg-tech',
+    education: 'msg-edu', certifications: 'msg-cert', tech: 'msg-tech', story: 'msg-story',
     chapters: 'msg-chap',
     theme: 'msg-th', languages: 'msg-lang', sections: 'msg-sec', i18n: 'msg-i18n'
   };
@@ -228,7 +230,7 @@ function saveTab(tabId) {
 function collectCurrent() {
   const fns = {
     profile: cProfile, herostats: cHS, objective: cObj,
-    skills: cSkills, experience: cExp, projects: cProjs,
+    skills: cSkills, experience: cExp, projects: cProjs, story: cStory,
     education: cEdu, certifications: cCerts, tech: cTech, theme: cTheme,
     languages: cLangs, sections: cSections, i18n: cI18n, chapters: cChapters
   };
@@ -316,12 +318,84 @@ function cExp() {
 function cProjs() {
   const D = getData();
   D.projects = D.projects.map((p, i) => ({
+    id: p.id,   // estável: as ligações e a história apontam para ele
     name: v(`pr-n-${i}`), stack: v(`pr-s-${i}`), color: p.color,
     featured: !!document.getElementById(`pr-f-${i}`)?.checked,
     description: v(`pr-d-${i}`), result: v(`pr-r-${i}`),
     pills: v(`pr-p-${i}`).split(',').map(s => s.trim()).filter(Boolean),
+    shortName: v(`pr-sn-${i}`).trim(),
+    links: (p.links || []).map((l, k) => ({ to: v(`pr-lk-${i}-${k}`), why: v(`pr-lw-${i}-${k}`).trim() })),
     images: p.images || []
   }));
+  garantirIdsProjetos(D);
+}
+
+/** Ligações: linha sem projeto escolhido é descartada ao salvar, não ao editar. */
+function addLink(i) { cProjs(); getData().projects[i].links.push({ to: '', why: '' }); rerenderProjs(); }
+function rmLink(i, k) { cProjs(); getData().projects[i].links.splice(k, 1); rerenderProjs(); }
+function rerenderProjs() { const y = window.scrollY; document.getElementById('proj-list').innerHTML = rProjs(); initDragDrop(); window.scrollTo(0, y); }
+
+/* ═══ HISTÓRIA ═══ */
+function cStory() {
+  const D = getData();
+  if (!D.story || !document.getElementById('st-title')) return;
+  const st = D.story;
+  st.title = v('st-title'); st.subtitle = v('st-sub'); st.lead = document.getElementById('st-lead')?.value || '';
+  st.steps = (st.steps || []).map((p, i) => ({
+    label: v(`sp-l-${i}`), cat: document.getElementById(`sp-k-${i}`)?.value || 'crm',
+    title: v(`sp-t-${i}`), text: document.getElementById(`sp-x-${i}`)?.value || '',
+    before: v(`sp-b-${i}`), after: v(`sp-a-${i}`), measure: v(`sp-m-${i}`),
+    project: document.getElementById(`sp-p-${i}`)?.value || '',
+    code: document.getElementById(`sp-c-${i}`)?.value || '',
+    blocks: (p.blocks || []).map((b, j) => {
+      const [col, row] = (document.getElementById(`sb-p-${i}-${j}`)?.value || `${b.col}-${b.row}`).split('-').map(Number);
+      const links = [...document.querySelectorAll(`[id^="sb-l-${i}-${j}-"]`)].filter(c => c.checked).map(c => c.id.slice(`sb-l-${i}-${j}-`.length));
+      return { id: b.id, name: v(`sb-n-${i}-${j}`), sub: v(`sb-s-${i}-${j}`), cat: document.getElementById(`sb-k-${i}-${j}`)?.value || b.cat, col, row, links };
+    })
+  }));
+  normalizarLigacoesDaHistoria(st);
+}
+
+/** Redesenha a aba sem perder a posição da tela (ex.: depois de mudar a casa de um bloco). */
+function refreshStory() { cStory(); const y = window.scrollY; renderTab('story'); window.scrollTo(0, y); }
+
+function novoIdDeBloco(nome) {
+  const usados = new Set((getData().story?.steps || []).flatMap(s => (s.blocks || []).map(b => b.id)));
+  const base = String(nome || 'bloco').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bloco';
+  let id = base;
+  for (let n = 2; usados.has(id); n++) id = `${base}-${n}`;
+  return id;
+}
+
+/** Primeira casa livre do diagrama, para o bloco novo não cair em cima de outro. */
+function casaLivre() {
+  const ocupadas = new Set((getData().story?.steps || []).flatMap(s => (s.blocks || []).map(b => `${b.col}-${b.row}`)));
+  for (let r = 1; r <= 6; r++) for (let c = 1; c <= 3; c++) if (!ocupadas.has(`${c}-${r}`)) return { col: c, row: r };
+  return { col: 2, row: 6 };
+}
+
+function addStep() {
+  cStory();
+  const D = getData();
+  if (!D.story) D.story = { title: '', subtitle: '', lead: '', steps: [] };
+  D.story.steps.push({ label: '', cat: 'crm', title: 'Nova etapa', text: '', before: '', after: '', measure: '', project: '', code: '', blocks: [] });
+  renderTab('story');
+  document.querySelector('#story-list .card:last-child')?.scrollIntoView({ block: 'center' });
+}
+function rmStep(i) {
+  if (!confirm('Remover esta etapa e os blocos dela?')) return;
+  cStory(); getData().story.steps.splice(i, 1); normalizarLigacoesDaHistoria(getData().story);
+  const y = window.scrollY; renderTab('story'); window.scrollTo(0, y);
+}
+function addBlock(i) {
+  cStory();
+  const casa = casaLivre();
+  getData().story.steps[i].blocks.push({ id: novoIdDeBloco('bloco'), name: 'Novo bloco', sub: '', cat: getData().story.steps[i].cat || 'crm', ...casa, links: [] });
+  const y = window.scrollY; renderTab('story'); window.scrollTo(0, y);
+}
+function rmBlock(i, j) {
+  cStory(); getData().story.steps[i].blocks.splice(j, 1); normalizarLigacoesDaHistoria(getData().story);
+  const y = window.scrollY; renderTab('story'); window.scrollTo(0, y);
 }
 
 function cEdu() {
@@ -436,7 +510,7 @@ function rmSkill(i) { cSkills(); getData().skills.splice(i, 1); document.getElem
 function addExp() { cExp(); getData().experience.push({ period: '2024', color: 'c', title: 'Novo Cargo', company: 'Empresa', description: '', highlights: [], results: [] }); document.getElementById('exp-list').innerHTML = rExp(); initDragDrop(); }
 function rmExp(i) { cExp(); getData().experience.splice(i, 1); document.getElementById('exp-list').innerHTML = rExp(); initDragDrop(); }
 
-function addProj() { cProjs(); getData().projects.push({ name: 'Novo Projeto', stack: 'Tech', color: 'c', featured: false, description: '', result: '', pills: [], images: [] }); document.getElementById('proj-list').innerHTML = rProjs(); initDragDrop(); }
+function addProj() { cProjs(); getData().projects.push({ name: 'Novo Projeto', stack: 'Tech', color: 'c', featured: false, description: '', result: '', pills: [], shortName: '', links: [], images: [] }); garantirIdsProjetos(getData()); document.getElementById('proj-list').innerHTML = rProjs(); initDragDrop(); }
 function rmProj(i) { cProjs(); getData().projects.splice(i, 1); document.getElementById('proj-list').innerHTML = rProjs(); initDragDrop(); }
 
 function togFeat(i) {
@@ -676,7 +750,7 @@ async function resetAll() {
  * Conteúdo que o defaults.js atualiza. Perfil, foto, certificações, idiomas,
  * tema, seções, capítulos, traduções e contador ficam como estão na nuvem.
  */
-const CONTENT_KEYS = ['heroStats', 'objective', 'objetivo', 'tags', 'skills', 'experience', 'projects', 'education', 'tech'];
+const CONTENT_KEYS = ['heroStats', 'objective', 'objetivo', 'tags', 'skills', 'experience', 'projects', 'education', 'tech', 'story'];
 
 /**
  * Traz o conteúdo novo do defaults.js (publicado pelo GitHub) sem perder o
@@ -1011,11 +1085,13 @@ function reorderCollection(collection, from, to) {
   };
   if (collectMap[collection]) collectMap[collection]();
 
+  if (collection === 'story') cStory();
   const D = getData();
-  const arr = D[collection];
+  const arr = collection === 'story' ? D.story?.steps : D[collection];
   if (!arr) return;
   const [item] = arr.splice(from, 1);
   arr.splice(to, 0, item);
+  if (collection === 'story') normalizarLigacoesDaHistoria(D.story);
 
   // Re-render the list
   const rerenderMap = {
@@ -1027,6 +1103,7 @@ function reorderCollection(collection, from, to) {
     certifications: () => { document.getElementById('cert-list').innerHTML = rCerts(); },
     tech: () => { document.getElementById('tech-list').innerHTML = `<div class="g3f">${rTech()}</div>`; },
     languages: () => { document.getElementById('lang-list').innerHTML = rLangs(); },
+    story: () => { const y = window.scrollY; renderTab('story'); window.scrollTo(0, y); },
   };
   if (rerenderMap[collection]) rerenderMap[collection]();
   initDragDrop();
