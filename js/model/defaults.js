@@ -450,9 +450,9 @@ export const DEFAULTS = {
     {
       "period": "2022",
       "color": "p",
-      "title": "Graduação em Análise e Desenvolvimento de Sistemas",
+      "title": "Tecnólogo em Análise e Desenvolvimento de Sistemas",
       "company": "FECAP",
-      "description": "Desenvolvimento web, banco de dados, arquitetura de sistemas e programação orientada a objetos."
+      "description": "Desenvolvimento web full stack e mobile, banco de dados, arquitetura de sistemas, testes e DevOps, cloud native, ciência de dados e machine learning."
     }
   ],
   "certifications": [
