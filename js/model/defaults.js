@@ -443,16 +443,16 @@ export const DEFAULTS = {
     {
       "period": "2025",
       "color": "c",
-      "title": "Graduação em Data Science",
+      "title": "Tecnólogo em Data Science",
       "company": "FIAP",
-      "description": "Machine Learning, Deep Learning, ETL, Cloud Azure, Python, visualização e análise de dados."
+      "description": "Machine Learning, Deep Learning e estatística aplicada, Big Data e integração de dados, Data Warehousing, Cloud Solutions, governança de dados, SQL e visualização de dados."
     },
     {
       "period": "2022",
       "color": "p",
-      "title": "Graduação em Análise e Desenvolvimento de Sistemas",
+      "title": "Tecnólogo em Análise e Desenvolvimento de Sistemas",
       "company": "FECAP",
-      "description": "Desenvolvimento web, banco de dados, arquitetura de sistemas e programação orientada a objetos."
+      "description": "Desenvolvimento web full stack e mobile, banco de dados, arquitetura de sistemas, testes e DevOps, cloud native, ciência de dados e machine learning."
     }
   ],
   "certifications": [
