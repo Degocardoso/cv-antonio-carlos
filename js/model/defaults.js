@@ -443,9 +443,9 @@ export const DEFAULTS = {
     {
       "period": "2025",
       "color": "c",
-      "title": "Graduação em Data Science",
+      "title": "Tecnólogo em Data Science",
       "company": "FIAP",
-      "description": "Machine Learning, Deep Learning, ETL, Cloud Azure, Python, visualização e análise de dados."
+      "description": "Machine Learning, Deep Learning e estatística aplicada, Big Data e integração de dados, Data Warehousing, Cloud Solutions, governança de dados, SQL e visualização de dados."
     },
     {
       "period": "2022",
